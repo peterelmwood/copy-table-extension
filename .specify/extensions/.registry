@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "extensions": {
+    "git": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:89711dec9716473fba4afc54f7224bcb28ebd3c55fb5aaa30df854ab02b07a75",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "codex": [
+          "speckit.git.feature",
+          "speckit.git.validate",
+          "speckit.git.remote",
+          "speckit.git.initialize",
+          "speckit.git.commit"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-08-17T22:07:05.634875+00:00"
+    },
+    "squad": {
+      "version": "1.3.0",
+      "source": "local",
+      "manifest_hash": "sha256:391e942e7465e2bd4ea2fd0040c29d3524855efeb708fbc35f24ed60594207a4",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "codex": [
+          "speckit.squad.init",
+          "speckit.squad.generate",
+          "speckit.squad.route",
+          "speckit.squad.status"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-08-17T22:08:10.450748+00:00"
+    }
+  }
+}

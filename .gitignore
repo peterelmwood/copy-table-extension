@@ -1,0 +1,31 @@
+# Squad: ignore runtime state (logs, inbox, sessions)
+# Note: .squad/casting/* is identity and MUST be committed to main, not ignored
+.squad/orchestration-log/
+.squad/log/
+.squad/decisions/inbox/
+.squad/sessions/
+.squad/.scratch/
+.squad/.cache/
+# Squad: SubSquad activation file (local to this machine)
+.squad-workstream
+
+# Node / browser-extension build output
+node_modules/
+dist/
+build/
+coverage/
+web-ext-artifacts/
+*.log
+.specify/extensions/.cache/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+.agents/.credentials/
+.agents/**/credentials.json
+
+# Editor and operating-system state
+.DS_Store
+Thumbs.db
+*.swp
