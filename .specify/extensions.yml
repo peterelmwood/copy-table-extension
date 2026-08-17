@@ -106,7 +106,7 @@ hooks:
   - extension: squad
     command: speckit.squad.generate
     enabled: true
-    optional: true
+    optional: false
     priority: 10
     prompt: Spec updated — regenerate Squad agent definitions?
     description: Keeps Squad agents aligned as the spec evolves
@@ -141,7 +141,7 @@ hooks:
   - extension: squad
     command: speckit.squad.route
     enabled: true
-    optional: true
+    optional: false
     priority: 10
     prompt: Tasks generated — route them to Squad agents?
     description: Distributes new tasks to the right agents automatically
