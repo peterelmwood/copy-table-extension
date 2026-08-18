@@ -5,14 +5,14 @@
   "scripts": {
     "clean": "node scripts/build.mjs clean",
     "build": "node scripts/build.mjs build",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "typecheck": "node node_modules/typescript/lib/tsc.js --noEmit",
+    "lint": "node node_modules/eslint/bin/eslint.js .",
     "format:check": "prettier --check package.json package-lock.json tsconfig.json vitest.config.ts eslint.config.js prettier.config.js scripts src tests",
-    "test": "vitest run",
-    "lint:extension": "web-ext lint --source-dir dist",
-    "start:firefox": "web-ext run --source-dir dist",
-    "package": "web-ext build --source-dir dist --artifacts-dir web-ext-artifacts --overwrite-dest",
-    "verify": "npm run clean && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build && npm run lint:extension"
+    "test": "node node_modules/vitest/vitest.mjs run",
+    "lint:extension": "node scripts/build.mjs lint",
+    "start:firefox": "node scripts/build.mjs start:firefox",
+    "package": "node scripts/build.mjs package",
+    "verify": "node scripts/build.mjs verify"
   },
   "keywords": [],
   "author": "",

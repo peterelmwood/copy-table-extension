@@ -9,13 +9,20 @@
 **Purpose**: Establish the toolchain and deterministic project layout used by every user story.
 
 <!-- squad:agent=lead tier=standard -->
-- [X] T001 Add extension metadata, locked development dependencies, and build/quality scripts in `package.json` and `package-lock.json`
+
+- [x] T001 Add extension metadata, locked development dependencies, and build/quality scripts in `package.json` and `package-lock.json`
+
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [X] T002 [P] Configure strict TypeScript and WebExtension types in `tsconfig.json`
+
+- [x] T002 [P] Configure strict TypeScript and WebExtension types in `tsconfig.json`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [X] T003 [P] Configure Vitest/jsdom, ESLint, and Prettier in `vitest.config.ts`, `eslint.config.js`, and `prettier.config.js`
+
+- [x] T003 [P] Configure Vitest/jsdom, ESLint, and Prettier in `vitest.config.ts`, `eslint.config.js`, and `prettier.config.js`
+
 <!-- squad:agent=lead tier=full -->
-- [X] T004 Create a clean deterministic asset-copy and bundle pipeline in `scripts/build.mjs`
+
+- [x] T004 Create a clean deterministic asset-copy and bundle pipeline in `scripts/build.mjs`
 
 ---
 
@@ -28,20 +35,30 @@
 ### Tests for User Story 1
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [X] T005 [P] [US1] Add failing manifest contract tests for identity, Firefox target, referenced files, and zero permissions in `tests/unit/manifest.test.ts`
+
+- [x] T005 [P] [US1] Add failing manifest contract tests for identity, Firefox target, referenced files, and zero permissions in `tests/unit/manifest.test.ts`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [X] T006 [P] [US1] Add failing clean-build and required-file integration tests in `tests/integration/build.test.ts`
+
+- [x] T006 [P] [US1] Add failing clean-build and required-file integration tests in `tests/integration/build.test.ts`
 
 ### Implementation for User Story 1
 
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [X] T007 [US1] Add the reviewed Firefox-first Manifest V3 definition in `src/manifest.json`
+
+- [x] T007 [US1] Add the reviewed Firefox-first Manifest V3 definition in `src/manifest.json`
+
 <!-- squad:agent=webextensions-engineer tier=lightweight -->
-- [X] T008 [US1] Add the no-op browser command boundary in `src/background.ts`
+
+- [x] T008 [US1] Add the no-op browser command boundary in `src/background.ts`
+
 <!-- squad:agent=lead tier=standard -->
-- [X] T009 [US1] Complete build entry-point bundling and asset emission in `scripts/build.mjs`
+
+- [x] T009 [US1] Complete build entry-point bundling and asset emission in `scripts/build.mjs`
+
 <!-- squad:agent=lead tier=standard -->
-- [X] T010 [US1] Make manifest and build tests pass, then validate `dist/` with `npm run lint:extension`
+
+- [x] T010 [US1] Make manifest and build tests pass, then validate `dist/` with `npm run lint:extension`
 
 **Checkpoint**: A permission-minimal Firefox extension installs and starts independently of popup readiness styling.
 
@@ -56,22 +73,34 @@
 ### Tests for User Story 2
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [X] T011 [P] [US2] Add failing popup DOM and accessibility tests in `tests/unit/popup.test.ts`
+
+- [x] T011 [P] [US2] Add failing popup DOM and accessibility tests in `tests/unit/popup.test.ts`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [X] T012 [P] [US2] Add failing runtime metadata adapter tests in `tests/unit/runtime.test.ts`
+
+- [x] T012 [P] [US2] Add failing runtime metadata adapter tests in `tests/unit/runtime.test.ts`
 
 ### Implementation for User Story 2
 
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [X] T013 [US2] Add a typed, injectable browser runtime metadata adapter in `src/browser/runtime.ts`
+
+- [x] T013 [US2] Add a typed, injectable browser runtime metadata adapter in `src/browser/runtime.ts`
+
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [X] T014 [US2] Add semantic popup markup and readiness copy in `src/popup/index.html`
+
+- [x] T014 [US2] Add semantic popup markup and readiness copy in `src/popup/index.html`
+
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [X] T015 [US2] Add popup initialization and runtime-derived version rendering in `src/popup/popup.ts`
+
+- [x] T015 [US2] Add popup initialization and runtime-derived version rendering in `src/popup/popup.ts`
+
 <!-- squad:agent=webextensions-engineer tier=lightweight -->
-- [X] T016 [US2] Add compact keyboard-visible popup styling in `src/popup/popup.css`
+
+- [x] T016 [US2] Add compact keyboard-visible popup styling in `src/popup/popup.css`
+
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [X] T017 [US2] Make popup tests pass; Firefox GUI smoke test unavailable in this non-interactive agent environment
+
+- [x] T017 [US2] Make popup tests pass; Firefox GUI smoke test unavailable in this non-interactive agent environment
 
 **Checkpoint**: The popup is usable and fully testable without future page-extraction behavior.
 
@@ -86,20 +115,30 @@
 ### Tests for User Story 3
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T018 [P] [US3] Add failing packaged-archive allowlist and denylist tests in `tests/integration/package.test.ts`
+
+- [x] T018 [P] [US3] Add failing packaged-archive allowlist and denylist tests in `tests/integration/package.test.ts`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T019 [P] [US3] Add failing repeated-build equivalence coverage in `tests/integration/build.test.ts`
+
+- [x] T019 [P] [US3] Add failing repeated-build equivalence coverage in `tests/integration/build.test.ts`
 
 ### Implementation for User Story 3
 
 <!-- squad:agent=lead tier=standard -->
-- [ ] T020 [US3] Implement safe clean, verify, temporary-run, and package command orchestration in `package.json` and `scripts/build.mjs`
+
+- [x] T020 [US3] Implement safe clean, verify, temporary-run, and package command orchestration in `package.json` and `scripts/build.mjs`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T021 [US3] Make archive and repeated-build tests pass without tracking generated output
+
+- [x] T021 [US3] Make archive and repeated-build tests pass without tracking generated output
+
 <!-- squad:agent=scribe tier=lightweight -->
-- [ ] T022 [US3] Document install, verify, temporary Firefox loading, permissions, and package output in `README.md`
+
+- [x] T022 [US3] Document install, verify, temporary Firefox loading, permissions, and package output in `README.md`
+
 <!-- squad:agent=scribe tier=lightweight -->
-- [ ] T023 [US3] Reconcile `specs/001-firefox-extension-scaffold/quickstart.md` with the verified commands and observed Firefox workflow
+
+- [x] T023 [US3] Reconcile `specs/001-firefox-extension-scaffold/quickstart.md` with the verified commands and observed Firefox workflow
 
 **Checkpoint**: A new contributor can reproduce and inspect the same extension artifact using only committed files.
 
@@ -108,13 +147,20 @@
 ## Phase 5: Polish and Cross-Cutting Concerns
 
 <!-- squad:agent=qa-engineer tier=lightweight -->
-- [ ] T024 [P] Run Prettier over committed source/configuration and correct any formatting drift
+
+- [x] T024 [P] Run Prettier over committed source/configuration and correct any formatting drift
+
 <!-- squad:agent=lead tier=full -->
-- [ ] T025 Review manifest and archive output for secrets, source maps, remote code, unrequested permissions, and generated-file leakage
+
+- [x] T025 Review manifest and archive output for secrets, source maps, remote code, unrequested permissions, and generated-file leakage
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T026 Run the complete `npm run verify` pipeline and record any environment-only manual Firefox limitation in `specs/001-firefox-extension-scaffold/quickstart.md`
+
+- [x] T026 Run the complete `npm run verify` pipeline and record any environment-only manual Firefox limitation in `specs/001-firefox-extension-scaffold/quickstart.md`
+
 <!-- squad:agent=lead tier=full -->
-- [ ] T027 Ask the Squad QA engineer and Spec Kit steward to review implementation against `spec.md`, `plan.md`, `contracts/`, and this task list
+
+- [x] T027 Ask the Squad QA engineer and Spec Kit steward to review implementation against `spec.md`, `plan.md`, `contracts/`, and this task list
 
 ---
 
