@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { relative, resolve } from "node:path";
 import JSZip from "jszip";
@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it } from "vitest";
 const projectRoot = resolve(import.meta.dirname, "../..");
 const testOutputRoot = resolve(projectRoot, ".copy-table-test-output");
 const temporaryDirectories: string[] = [];
+const temporaryLinks: string[] = [];
 
 async function createTemporaryDirectory(): Promise<string> {
   await mkdir(testOutputRoot, { recursive: true });
@@ -18,6 +19,10 @@ async function createTemporaryDirectory(): Promise<string> {
 
   temporaryDirectories.push(directory);
   return directory;
+}
+
+function recordTemporaryLink(linkPath: string): void {
+  temporaryLinks.push(linkPath);
 }
 
 function testOutputOverride(artifactsDirectory: string): string {
@@ -53,11 +58,9 @@ afterEach(async () => {
   await Promise.all(
     temporaryDirectories
       .splice(0)
-      .flatMap((directory) => [
-        rm(directory, { force: true, recursive: true }),
-        rm(resolve(projectRoot, testOutputOverride(directory)), { force: true, recursive: true })
-      ])
+      .map((directory) => rm(directory, { force: true, recursive: true }))
   );
+  await Promise.all(temporaryLinks.splice(0).map((linkPath) => unlink(linkPath)));
 });
 
 describe("Firefox release archive", () => {
@@ -147,5 +150,37 @@ describe("Firefox release archive", () => {
 
     expect(cleanResult.status).not.toBe(0);
     expect(cleanResult.stderr).toContain("COPY_TABLE_ARTIFACTS_DIR");
+  });
+
+  it("rejects a pre-existing symbolic-link escape before cleanup", async (context) => {
+    await mkdir(testOutputRoot, { recursive: true });
+
+    const linkName = `escape-${randomUUID()}`;
+    const linkPath = resolve(testOutputRoot, linkName);
+
+    try {
+      await symlink(projectRoot, linkPath, process.platform === "win32" ? "junction" : "dir");
+    } catch (error) {
+      if (
+        process.platform === "win32" &&
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error.code === "EACCES" || error.code === "EPERM")
+      ) {
+        context.skip("Windows denied creation of the symlink-escape regression fixture.");
+        return;
+      }
+
+      throw error;
+    }
+
+    recordTemporaryLink(linkPath);
+
+    const cleanResult = runBuildCommand("clean", linkName);
+
+    expect(cleanResult.status).not.toBe(0);
+    expect(cleanResult.stderr).toContain("cannot traverse a symbolic link");
+    expect(existsSync(resolve(projectRoot, "package.json"))).toBe(true);
   });
 });

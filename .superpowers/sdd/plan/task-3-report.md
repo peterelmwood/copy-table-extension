@@ -99,3 +99,20 @@
   `npm run verify` passed on 2026-08-18 with 5 test files and 18 tests plus
   TypeScript, ESLint, Prettier, Mozilla lint, build, and package. Mozilla lint
   exited zero with the documented `BACKGROUND_SERVICE_WORKER_IGNORED` warning.
+
+## Safety containment fix round 2: test teardown and link evidence
+
+- Test teardown now recursively removes only the unique `release-*` directories
+  created and recorded by that test below `.copy-table-test-output/`. It no
+  longer computes or deletes any `projectRoot/release-*` path.
+- The focused suite creates a real pre-existing Windows junction under the
+  allowed test-output root that points at the repository, invokes `clean` with
+  that override, and proves resolver rejection plus preservation of
+  `package.json`. The junction was created successfully in this environment;
+  on Windows hosts that deny link creation, the test records a skipped fixture
+  rather than weakening the production validation.
+- Fresh evidence: focused containment/package tests passed 9/9; with the
+  documented PowerShell npm-shell override, `npm run verify` passed on
+  2026-08-18 with 5 test files and 19 tests plus TypeScript, ESLint, Prettier,
+  Mozilla lint, build, and package. Mozilla lint exited zero with the documented
+  `BACKGROUND_SERVICE_WORKER_IGNORED` warning.
