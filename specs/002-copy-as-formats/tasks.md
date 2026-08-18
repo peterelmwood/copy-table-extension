@@ -49,7 +49,7 @@
 <!-- squad:agent=qa-engineer tier=full -->
 - [x] T010 [P] [US1] Add failing exact-tab/frame injection, request routing, and single clipboard-write tests in `tests/integration/browser-interaction.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [x] T011 [US1] Extend manifest tests to require only `activeTab`, `clipboardWrite`, `menus`, and `scripting` and forbid host/content-script/clipboard-read authority in `tests/unit/manifest.test.ts`
+- [x] T011 [US1] Extend manifest tests to require exactly `activeTab`, `clipboardWrite`, `menus`, `notifications`, and `scripting` and forbid host/content-script/clipboard-read authority in `tests/unit/manifest.test.ts`
 
 ### Implementation for User Story 1
 
