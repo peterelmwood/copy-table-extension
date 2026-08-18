@@ -15,6 +15,12 @@ const expected = JSON.parse(
 const visibilityPolicyExpected = JSON.parse(
   readFileSync(resolve(fixtureDirectory, "expected/visibility-policy-table.json"), "utf8")
 ) as Record<CopyFormat, string>;
+const visibilityOverrideExpected = JSON.parse(
+  readFileSync(resolve(fixtureDirectory, "expected/visibility-override-table.json"), "utf8")
+) as Record<CopyFormat, string>;
+const transparentContainerExpected = JSON.parse(
+  readFileSync(resolve(fixtureDirectory, "expected/transparent-container-table.json"), "utf8")
+) as Record<CopyFormat, string>;
 
 const serializers = {
   html: serializeHtml,
@@ -55,6 +61,25 @@ describe("table serializers", () => {
     "matches the reviewed complex-table %s fixture byte-for-byte",
     (format) => {
       expect(serializers[format](complexLogicalTable())).toBe(expected[format]);
+    }
+  );
+
+  it.each(["html", "markdown", "text", "csv"] as const)(
+    "matches the visibility-override %s fixture byte-for-byte",
+    (format) => {
+      expect(serializers[format](fixtureLogicalTable("visibility-override-table.html"))).toBe(
+        visibilityOverrideExpected[format]
+      );
+    }
+  );
+
+  it.each(["html", "markdown", "text", "csv"] as const)(
+    "matches the transparent-container %s fixture byte-for-byte",
+    (format) => {
+      const output = serializers[format](fixtureLogicalTable("transparent-container-table.html"));
+
+      expect(output).toBe(transparentContainerExpected[format]);
+      expect(output).not.toContain("metadata secret");
     }
   );
 

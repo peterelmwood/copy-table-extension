@@ -129,6 +129,34 @@ describe("logical table extraction", () => {
     });
   });
 
+  it("retains a visibility override in the logical model", () => {
+    const table = tableFromHtml(
+      readFileSync(resolve(fixtureDirectory, "visibility-override-table.html"), "utf8")
+    );
+
+    const logical = extractLogicalTable(table);
+
+    expect(logical.rows[1]?.cells[1]).toMatchObject({
+      kind: "origin",
+      text: "Visible descendant",
+      inline: [{ type: "text", value: "Visible descendant" }]
+    });
+  });
+
+  it("traverses visible custom and omitted standard containers without metadata", () => {
+    const table = tableFromHtml(
+      readFileSync(resolve(fixtureDirectory, "transparent-container-table.html"), "utf8")
+    );
+
+    const logical = extractLogicalTable(table);
+
+    expect(logical.rows[1]?.cells[1]).toMatchObject({
+      kind: "origin",
+      text: "£10 per item Available now",
+      inline: [{ type: "text", value: "£10 per item Available now" }]
+    });
+  });
+
   it.each([
     ["zero row span", '<table><tr><td rowspan="0">bad</td></tr></table>'],
     ["non-numeric column span", '<table><tr><td colspan="many">bad</td></tr></table>'],

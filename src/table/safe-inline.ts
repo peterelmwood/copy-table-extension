@@ -28,88 +28,6 @@ const EXCLUDED_ELEMENTS = new Set([
   "VIDEO"
 ]);
 
-const CONTENT_ELEMENTS = new Set([
-  "A",
-  "ABBR",
-  "ACRONYM",
-  "ADDRESS",
-  "ARTICLE",
-  "ASIDE",
-  "B",
-  "BDI",
-  "BDO",
-  "BIG",
-  "BLOCKQUOTE",
-  "BR",
-  "CENTER",
-  "CITE",
-  "CODE",
-  "DATA",
-  "DD",
-  "DEL",
-  "DETAILS",
-  "DFN",
-  "DIV",
-  "DL",
-  "DT",
-  "EM",
-  "FIGCAPTION",
-  "FIGURE",
-  "FONT",
-  "FOOTER",
-  "H1",
-  "H2",
-  "H3",
-  "H4",
-  "H5",
-  "H6",
-  "HEADER",
-  "HGROUP",
-  "HR",
-  "I",
-  "IMG",
-  "INS",
-  "KBD",
-  "LABEL",
-  "LEGEND",
-  "LI",
-  "MAIN",
-  "MAP",
-  "MARK",
-  "MARQUEE",
-  "MENU",
-  "NAV",
-  "NOBR",
-  "OL",
-  "P",
-  "PICTURE",
-  "PRE",
-  "Q",
-  "RB",
-  "RP",
-  "RT",
-  "RTC",
-  "RUBY",
-  "S",
-  "SAMP",
-  "SEARCH",
-  "SECTION",
-  "SLOT",
-  "SMALL",
-  "SPAN",
-  "STRIKE",
-  "STRONG",
-  "SUB",
-  "SUMMARY",
-  "SUP",
-  "TIME",
-  "TT",
-  "U",
-  "UL",
-  "VAR",
-  "WBR"
-]);
-
 const BLOCK_ELEMENTS = new Set([
   "ADDRESS",
   "ARTICLE",
@@ -140,7 +58,7 @@ const BLOCK_ELEMENTS = new Set([
   "UL"
 ]);
 
-function isVisuallyRendered(element: Element): boolean {
+function isRenderedSubtree(element: Element): boolean {
   const view = element.ownerDocument.defaultView;
   if (view === null) {
     return true;
@@ -149,12 +67,9 @@ function isVisuallyRendered(element: Element): boolean {
   let current: Element | null = element;
   while (current !== null) {
     const style = view.getComputedStyle(current);
-    const visibility = style.visibility.toLowerCase();
     const opacity = Number.parseFloat(style.opacity);
     if (
       style.display.toLowerCase() === "none" ||
-      visibility === "hidden" ||
-      visibility === "collapse" ||
       opacity === 0 ||
       style.getPropertyValue("content-visibility").toLowerCase() === "hidden"
     ) {
@@ -164,6 +79,16 @@ function isVisuallyRendered(element: Element): boolean {
   }
 
   return true;
+}
+
+function hasVisibleComputedVisibility(element: Element): boolean {
+  const view = element.ownerDocument.defaultView;
+  if (view === null) {
+    return true;
+  }
+
+  const visibility = view.getComputedStyle(element).visibility.toLowerCase();
+  return visibility !== "hidden" && visibility !== "collapse";
 }
 
 function appendText(tokens: SafeInline[], value: string): void {
@@ -290,33 +215,40 @@ export function sanitizeLinkHref(href: string): string | null {
   }
 }
 
-function collectNode(node: Node, tokens: SafeInline[]): void {
+function collectNode(node: Node, tokens: SafeInline[], parentVisibilityIsVisible: boolean): void {
   if (node.nodeType === Node.TEXT_NODE) {
-    appendText(tokens, node.nodeValue ?? "");
+    if (parentVisibilityIsVisible) {
+      appendText(tokens, node.nodeValue ?? "");
+    }
     return;
   }
   if (
     !(node instanceof Element) ||
-    !isVisuallyRendered(node) ||
-    EXCLUDED_ELEMENTS.has(node.tagName) ||
-    !CONTENT_ELEMENTS.has(node.tagName)
+    !isRenderedSubtree(node) ||
+    EXCLUDED_ELEMENTS.has(node.tagName)
   ) {
     return;
   }
 
+  const visibilityIsVisible = hasVisibleComputedVisibility(node);
+
   if (node.tagName === "BR") {
-    appendBreak(tokens);
+    if (visibilityIsVisible) {
+      appendBreak(tokens);
+    }
     return;
   }
 
   if (node.tagName === "IMG") {
-    appendText(tokens, node.getAttribute("alt") ?? "");
+    if (visibilityIsVisible) {
+      appendText(tokens, node.getAttribute("alt") ?? "");
+    }
     return;
   }
 
   const children: SafeInline[] = [];
   for (const child of node.childNodes) {
-    collectNode(child, children);
+    collectNode(child, children, visibilityIsVisible);
   }
   const normalizedChildren = mergeTokens(children);
 
@@ -339,13 +271,14 @@ function collectNode(node: Node, tokens: SafeInline[]): void {
 }
 
 export function extractSafeInline(root: Element): readonly SafeInline[] {
-  if (!isVisuallyRendered(root)) {
+  if (!isRenderedSubtree(root)) {
     return [];
   }
 
   const tokens: SafeInline[] = [];
+  const rootVisibilityIsVisible = hasVisibleComputedVisibility(root);
   for (const child of root.childNodes) {
-    collectNode(child, tokens);
+    collectNode(child, tokens, rootVisibilityIsVisible);
   }
   return normalizeTokens(tokens);
 }

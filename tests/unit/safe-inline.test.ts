@@ -120,4 +120,33 @@ describe("safe inline extraction", () => {
 
     expect(safeInlineText(extractSafeInline(cell))).toBe("Visible value");
   });
+
+  it("retains a visible descendant that overrides a hidden ancestor's visibility", () => {
+    document.body.innerHTML = `<table><tr><td id="cell">
+      <span style="visibility: hidden">
+        hidden ancestor
+        <strong style="visibility: visible">Visible descendant</strong>
+      </span>
+    </td></tr></table>`;
+    const cell = document.querySelector("#cell");
+    if (!(cell instanceof HTMLTableCellElement)) {
+      throw new Error("Visibility-override fixture did not contain a table cell.");
+    }
+
+    expect(safeInlineText(extractSafeInline(cell))).toBe("Visible descendant");
+  });
+
+  it("traverses rendered custom and omitted standard elements as transparent containers", () => {
+    document.body.innerHTML = `<table><tr><td id="cell">
+      <x-price>£10 <span>per item</span></x-price>
+      <dialog open>Available now</dialog>
+      <title style="display: inline !important">metadata secret</title>
+    </td></tr></table>`;
+    const cell = document.querySelector("#cell");
+    if (!(cell instanceof HTMLTableCellElement)) {
+      throw new Error("Transparent-container fixture did not contain a table cell.");
+    }
+
+    expect(safeInlineText(extractSafeInline(cell))).toBe("£10 per item Available now");
+  });
 });
