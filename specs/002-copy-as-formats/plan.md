@@ -27,7 +27,7 @@ Extend the Firefox-first Copy Table scaffold with a `Copy as` context-menu hiera
 |---|---|---|
 | Explicit Interaction and User Agency | Capture begins only after a chosen context-menu format | PASS — menu selection is the sole entry point |
 | Local-First Data Stewardship | Data remains local and ephemeral | PASS — model/result are memory-only; no storage, logs, telemetry, or network |
-| Least Privilege and Firefox-First Portability | Avoid broad host and clipboard-read authority | PASS — interaction-granted active-tab access plus menu, scripting, clipboard-write, and injection-rejection-only fixed notification capabilities |
+| Least Privilege and Firefox-First Portability | Avoid broad host and clipboard-read authority | PASS — interaction-granted active-tab access plus menu, scripting, clipboard-write, and fixed notification capabilities for injection rejection and post-injection delivery loss |
 | Semantic Determinism and Format Fidelity | One model drives exact, tested serializers | PASS — fixtures and byte-for-byte format contracts cover spans and escaping |
 | Test-First Spec-Driven Delivery | Tests precede each extraction, serializer, and browser boundary | PASS — task order requires red tests before implementation |
 

@@ -27,7 +27,7 @@ All entities are ephemeral. No entity is persisted, logged, or transmitted.
 |---|---|---|
 | section | enum | `head`, `body`, or `foot` |
 | rowGroupIndex | non-negative integer | Preserves each source `thead`, `tbody`, `tfoot`, or direct-row group boundary |
-| cells | array length `columnCount` | Each position is an origin cell or covered placeholder |
+| cells | array length `columnCount` | Each position is an origin cell, covered placeholder, or empty padding cell |
 
 ## Logical Cell Position
 
