@@ -36,3 +36,13 @@ The Batch 2 suites cover caption and section ordering, explicit and fallback hea
 ## Scope boundary
 
 This batch completes only T019-T028. It adds no browser permission, host access, clipboard read, storage, telemetry, network call, feedback UI, or US3 error/outcome behavior. T029 and later remain open.
+
+## Review fix evidence — round 1
+
+- Replaced attribute and inline-style string inference with computed rendering checks. Extraction now evaluates `display`, `visibility`, `opacity`, and `content-visibility` through each element's ancestor chain, so external/class rules and inline `!important` declarations are honored.
+- Removed `aria-hidden` from the visual filter. A visually rendered ARIA-hidden label now contributes its visible text, including in the original complex fixture's reviewed bytes; ARIA state remains an accessibility-tree concern rather than a CSS-visibility substitute.
+- Replaced default recursive inclusion with an explicit content-bearing HTML element policy plus an explicit non-content subtree denylist. Metadata and non-content elements such as `title`, `base`, `link`, `meta`, `param`, and `track` cannot contribute text even when programmatically mutated or assigned misleading display CSS.
+- Added an adversarial visibility-policy fixture covering stylesheet-hidden content, inline `display: none !important`, hidden and transparent ancestors, visible ARIA-hidden text, and CSS-forced `title` metadata. The logical-model test asserts the safe token sequence, and all four serializers match reviewed byte-exact outputs while asserting that hidden secrets do not leak and rendered ARIA text does not vanish.
+- The first round-1 focused run reported eight intended failures: the model and all four serializers leaked CSS-hidden/title content and omitted rendered ARIA text, while direct safe-inline tests exposed the same visual-policy and mutated-metadata failures. After computed visibility was implemented, the remaining failures were isolated to metadata inclusion and the original fixture's intentionally changed ARIA expectation. The explicit content policy and reviewed-output correction made the focused suite pass.
+- Round-1 focused verification: 44 tests passed across safe-inline extraction, logical extraction, all four serializers, and content-handler integration.
+- Round-1 full `node scripts/build.mjs verify`: exit 0, including TypeScript typecheck, ESLint, Prettier, 13 test files and 75 tests, extension build, Mozilla `web-ext lint`, and deterministic package creation. Mozilla lint remains at zero errors/notices with the existing single `background.service_worker` compatibility warning.

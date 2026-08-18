@@ -1,0 +1,40 @@
+<style>
+  .stylesheet-hidden {
+    display: none;
+  }
+
+  .hidden-ancestor {
+    visibility: hidden;
+  }
+
+  .transparent-ancestor {
+    opacity: 0;
+  }
+
+  title {
+    display: inline !important;
+  }
+</style>
+<table>
+  <thead>
+    <tr>
+      <th>Policy</th>
+      <th>Rendered value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Visibility</td>
+      <td>
+        Rendered
+        <span class="stylesheet-hidden">stylesheet secret</span>
+        <span style="display: none !important">important secret</span>
+        <span class="hidden-ancestor"><strong>ancestor secret</strong></span>
+        <span class="transparent-ancestor"><em>transparent secret</em></span>
+        <span aria-hidden="true">ARIA visible</span>
+        <title>title secret</title>
+        <span>tail</span>
+      </td>
+    </tr>
+  </tbody>
+</table>

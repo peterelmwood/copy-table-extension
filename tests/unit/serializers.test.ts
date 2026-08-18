@@ -12,6 +12,9 @@ const fixtureDirectory = resolve(import.meta.dirname, "../fixtures/tables");
 const expected = JSON.parse(
   readFileSync(resolve(fixtureDirectory, "expected/complex-table.json"), "utf8")
 ) as Record<CopyFormat, string>;
+const visibilityPolicyExpected = JSON.parse(
+  readFileSync(resolve(fixtureDirectory, "expected/visibility-policy-table.json"), "utf8")
+) as Record<CopyFormat, string>;
 
 const serializers = {
   html: serializeHtml,
@@ -21,10 +24,14 @@ const serializers = {
 } as const;
 
 function complexLogicalTable() {
-  document.body.innerHTML = readFileSync(resolve(fixtureDirectory, "complex-table.html"), "utf8");
+  return fixtureLogicalTable("complex-table.html");
+}
+
+function fixtureLogicalTable(fixtureName: string) {
+  document.body.innerHTML = readFileSync(resolve(fixtureDirectory, fixtureName), "utf8");
   const table = document.querySelector("table");
   if (!(table instanceof HTMLTableElement)) {
-    throw new Error("Complex fixture did not contain a semantic table.");
+    throw new Error(`${fixtureName} did not contain a semantic table.`);
   }
   return extractLogicalTable(table);
 }
@@ -48,6 +55,17 @@ describe("table serializers", () => {
     "matches the reviewed complex-table %s fixture byte-for-byte",
     (format) => {
       expect(serializers[format](complexLogicalTable())).toBe(expected[format]);
+    }
+  );
+
+  it.each(["html", "markdown", "text", "csv"] as const)(
+    "matches the adversarial visibility-policy %s fixture byte-for-byte",
+    (format) => {
+      const logical = fixtureLogicalTable("visibility-policy-table.html");
+
+      expect(serializers[format](logical)).toBe(visibilityPolicyExpected[format]);
+      expect(serializers[format](logical)).not.toContain("secret");
+      expect(serializers[format](logical)).toContain("ARIA visible");
     }
   );
 

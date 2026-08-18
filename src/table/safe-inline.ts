@@ -2,6 +2,7 @@ import type { SafeInline } from "./model";
 
 const EXCLUDED_ELEMENTS = new Set([
   "AUDIO",
+  "BASE",
   "BUTTON",
   "CANVAS",
   "DATALIST",
@@ -9,9 +10,12 @@ const EXCLUDED_ELEMENTS = new Set([
   "FORM",
   "IFRAME",
   "INPUT",
+  "LINK",
+  "META",
   "NOSCRIPT",
   "OBJECT",
   "OPTION",
+  "PARAM",
   "SCRIPT",
   "SELECT",
   "STYLE",
@@ -19,7 +23,91 @@ const EXCLUDED_ELEMENTS = new Set([
   "TABLE",
   "TEMPLATE",
   "TEXTAREA",
+  "TITLE",
+  "TRACK",
   "VIDEO"
+]);
+
+const CONTENT_ELEMENTS = new Set([
+  "A",
+  "ABBR",
+  "ACRONYM",
+  "ADDRESS",
+  "ARTICLE",
+  "ASIDE",
+  "B",
+  "BDI",
+  "BDO",
+  "BIG",
+  "BLOCKQUOTE",
+  "BR",
+  "CENTER",
+  "CITE",
+  "CODE",
+  "DATA",
+  "DD",
+  "DEL",
+  "DETAILS",
+  "DFN",
+  "DIV",
+  "DL",
+  "DT",
+  "EM",
+  "FIGCAPTION",
+  "FIGURE",
+  "FONT",
+  "FOOTER",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "HEADER",
+  "HGROUP",
+  "HR",
+  "I",
+  "IMG",
+  "INS",
+  "KBD",
+  "LABEL",
+  "LEGEND",
+  "LI",
+  "MAIN",
+  "MAP",
+  "MARK",
+  "MARQUEE",
+  "MENU",
+  "NAV",
+  "NOBR",
+  "OL",
+  "P",
+  "PICTURE",
+  "PRE",
+  "Q",
+  "RB",
+  "RP",
+  "RT",
+  "RTC",
+  "RUBY",
+  "S",
+  "SAMP",
+  "SEARCH",
+  "SECTION",
+  "SLOT",
+  "SMALL",
+  "SPAN",
+  "STRIKE",
+  "STRONG",
+  "SUB",
+  "SUMMARY",
+  "SUP",
+  "TIME",
+  "TT",
+  "U",
+  "UL",
+  "VAR",
+  "WBR"
 ]);
 
 const BLOCK_ELEMENTS = new Set([
@@ -52,16 +140,30 @@ const BLOCK_ELEMENTS = new Set([
   "UL"
 ]);
 
-function isHidden(element: Element): boolean {
-  if (element.hasAttribute("hidden") || element.getAttribute("aria-hidden") === "true") {
+function isVisuallyRendered(element: Element): boolean {
+  const view = element.ownerDocument.defaultView;
+  if (view === null) {
     return true;
   }
 
-  const style = element.getAttribute("style")?.toLowerCase() ?? "";
-  return (
-    /(?:^|;)\s*display\s*:\s*none\s*(?:;|$)/u.test(style) ||
-    /(?:^|;)\s*visibility\s*:\s*hidden\s*(?:;|$)/u.test(style)
-  );
+  let current: Element | null = element;
+  while (current !== null) {
+    const style = view.getComputedStyle(current);
+    const visibility = style.visibility.toLowerCase();
+    const opacity = Number.parseFloat(style.opacity);
+    if (
+      style.display.toLowerCase() === "none" ||
+      visibility === "hidden" ||
+      visibility === "collapse" ||
+      opacity === 0 ||
+      style.getPropertyValue("content-visibility").toLowerCase() === "hidden"
+    ) {
+      return false;
+    }
+    current = current.parentElement;
+  }
+
+  return true;
 }
 
 function appendText(tokens: SafeInline[], value: string): void {
@@ -193,7 +295,12 @@ function collectNode(node: Node, tokens: SafeInline[]): void {
     appendText(tokens, node.nodeValue ?? "");
     return;
   }
-  if (!(node instanceof Element) || isHidden(node) || EXCLUDED_ELEMENTS.has(node.tagName)) {
+  if (
+    !(node instanceof Element) ||
+    !isVisuallyRendered(node) ||
+    EXCLUDED_ELEMENTS.has(node.tagName) ||
+    !CONTENT_ELEMENTS.has(node.tagName)
+  ) {
     return;
   }
 
@@ -232,6 +339,10 @@ function collectNode(node: Node, tokens: SafeInline[]): void {
 }
 
 export function extractSafeInline(root: Element): readonly SafeInline[] {
+  if (!isVisuallyRendered(root)) {
+    return [];
+  }
+
   const tokens: SafeInline[] = [];
   for (const child of root.childNodes) {
     collectNode(child, tokens);

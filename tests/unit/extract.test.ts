@@ -110,9 +110,23 @@ describe("logical table extraction", () => {
     });
     expect(logical.rows[2]?.cells).toEqual([
       { kind: "covered", text: "", ownerRow: 1, ownerColumn: 0 },
-      expect.objectContaining({ kind: "origin", text: "line one\nline two" }),
+      expect.objectContaining({ kind: "origin", text: "line one\nline two aria secret" }),
       { kind: "covered", text: "", ownerRow: 2, ownerColumn: 1 }
     ]);
+  });
+
+  it("uses rendered CSS visibility and excludes metadata in the logical model", () => {
+    const table = tableFromHtml(
+      readFileSync(resolve(fixtureDirectory, "visibility-policy-table.html"), "utf8")
+    );
+
+    const logical = extractLogicalTable(table);
+
+    expect(logical.rows[1]?.cells[1]).toMatchObject({
+      kind: "origin",
+      text: "Rendered ARIA visible tail",
+      inline: [{ type: "text", value: "Rendered ARIA visible tail" }]
+    });
   });
 
   it.each([

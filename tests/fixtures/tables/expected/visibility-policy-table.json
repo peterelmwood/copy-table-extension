@@ -1,0 +1,6 @@
+{
+  "html": "<table><thead><tr><th>Policy</th><th>Rendered value</th></tr></thead><tbody><tr><td>Visibility</td><td>Rendered ARIA visible tail</td></tr></tbody></table>",
+  "markdown": "| Policy | Rendered value |\n| --- | --- |\n| Visibility | Rendered ARIA visible tail |",
+  "text": "Policy\tRendered value\nVisibility\tRendered ARIA visible tail",
+  "csv": "Policy,Rendered value\r\nVisibility,Rendered ARIA visible tail"
+}

@@ -53,9 +53,9 @@ describe("safe inline extraction", () => {
         href: "https://example.com/?x=1&y=2",
         children: [{ type: "text", value: "safe" }]
       },
-      { type: "text", value: " unsafe" }
+      { type: "text", value: " unsafe aria secret" }
     ]);
-    expect(safeInlineText(tokens)).toBe("Visible deep\nChart & summary safe unsafe");
+    expect(safeInlineText(tokens)).toBe("Visible deep\nChart & summary safe unsafe aria secret");
   });
 
   it("excludes text owned by a nested table while retaining the outer cell text", () => {
@@ -79,5 +79,45 @@ describe("safe inline extraction", () => {
     expect(safeInlineText(extractSafeInline(cell))).toBe(
       "Before\nFirst block\nSecond block\nAfter"
     );
+  });
+
+  it("uses computed rendering across ancestors while preserving visually rendered ARIA text", () => {
+    document.head.innerHTML = `<style>
+      .external-hidden { display: none; }
+      .hidden-ancestor { visibility: hidden; }
+      .transparent-ancestor { opacity: 0; }
+    </style>`;
+    document.body.innerHTML = `<table><tr><td id="cell">
+      Visible
+      <span class="external-hidden">external secret</span>
+      <span style="display: none !important">important secret</span>
+      <span class="hidden-ancestor"><strong>ancestor secret</strong></span>
+      <span class="transparent-ancestor"><em>transparent secret</em></span>
+      <span aria-hidden="true">ARIA visible</span>
+      tail
+    </td></tr></table>`;
+    const cell = document.querySelector("#cell");
+    if (!(cell instanceof HTMLTableCellElement)) {
+      throw new Error("Computed-visibility fixture did not contain a table cell.");
+    }
+
+    expect(safeInlineText(extractSafeInline(cell))).toBe("Visible ARIA visible tail");
+  });
+
+  it("excludes metadata and other explicitly non-content elements from mutated DOM", () => {
+    document.body.innerHTML = '<table><tr><td id="cell">Visible </td></tr></table>';
+    const cell = document.querySelector("#cell");
+    if (!(cell instanceof HTMLTableCellElement)) {
+      throw new Error("Metadata fixture did not contain a table cell.");
+    }
+
+    for (const tagName of ["title", "base", "link", "meta", "param", "track"]) {
+      const metadata = document.createElement(tagName);
+      metadata.append(`${tagName} private metadata`);
+      cell.append(metadata);
+    }
+    cell.append("value");
+
+    expect(safeInlineText(extractSafeInline(cell))).toBe("Visible value");
   });
 });
