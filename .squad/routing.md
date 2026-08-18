@@ -9,6 +9,7 @@
 
 - `constitution|spec|plan|architecture|scope|decision` → @lead — Spec Kit governance and architecture decisions.
 - `firefox|manifest|extension|permission|background|content-script|clipboard|context-menu|active-tab` → @webextensions-engineer — Firefox runtime, packaging, and browser boundaries.
+- `CI|CD|workflow|release|publish|publishing|AMO|Firefox Add-ons|tag|artifact|source archive|credential|GitHub Actions` → @release-engineer — Build automation, release gates, artifacts, credentials, and public AMO submission.
 - `DOM|table|normalize|HTML|Markdown|CSV|serializer|structured-data|rowspan|colspan|sanitize` → @structured-data-engineer — Structured-data extraction and deterministic formats.
 - `test|QA|coverage|verify|quickstart|privacy|security` → @qa-engineer — Test-first validation, privacy, and permissions.
 - `docs|decision-log|handoff|history|status` → @scribe — Durable context and documentation support.
