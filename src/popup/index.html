@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Copy Table</title>
+  </head>
+  <body>
+    <main class="popup" aria-labelledby="popup-title">
+      <header>
+        <h1 id="popup-title">Copy Table</h1>
+        <p class="product-context">Firefox foundation</p>
+      </header>
+      <section
+        id="readiness-region"
+        aria-labelledby="readiness-title"
+        aria-describedby="readiness-status deferred-actions"
+      >
+        <h2 id="readiness-title">Status</h2>
+        <p id="readiness-status" role="status" aria-live="polite">Ready</p>
+        <p id="deferred-actions">Structured-data copy actions are coming in a later feature.</p>
+      </section>
+      <p class="version">Version <span id="extension-version">Loading version</span></p>
+      <button id="close-popup" type="button">Close</button>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

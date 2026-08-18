@@ -1,0 +1,12 @@
+# Squad Bridge Configuration
+squad:
+  agent_model: "gpt-4.1"
+  routing_strategy: "capability-match"
+  squad_root: ".squad"
+  auto_generate: true
+  model_tiers:
+    full: "gpt-4.1"
+    standard: "gpt-4.1"
+    lightweight: "gpt-4.1-mini"
+  default_capability_level: "proficient"
+

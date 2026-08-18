@@ -1,0 +1,6 @@
+{
+  "html": "<table><thead><tr><th>Case</th><th>Rendered value</th></tr></thead><tbody><tr><td>Containers</td><td>£10 per item Available now</td></tr></tbody></table>",
+  "markdown": "| Case | Rendered value |\n| --- | --- |\n| Containers | £10 per item Available now |",
+  "text": "Case\tRendered value\nContainers\t£10 per item Available now",
+  "csv": "Case,Rendered value\r\nContainers,£10 per item Available now"
+}

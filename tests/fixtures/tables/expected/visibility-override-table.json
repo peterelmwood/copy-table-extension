@@ -1,0 +1,6 @@
+{
+  "html": "<table><thead><tr><th>Case</th><th>Rendered value</th></tr></thead><tbody><tr><td>Override</td><td>Visible descendant</td></tr></tbody></table>",
+  "markdown": "| Case | Rendered value |\n| --- | --- |\n| Override | Visible descendant |",
+  "text": "Case\tRendered value\nOverride\tVisible descendant",
+  "csv": "Case,Rendered value\r\nOverride,Visible descendant"
+}

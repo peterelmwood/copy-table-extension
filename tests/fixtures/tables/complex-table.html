@@ -1,0 +1,53 @@
+<table id="source" class="page-table" onclick="steal()">
+  <caption>
+    Quarterly
+    <strong>results</strong>
+    <script>
+      captureCaption();
+    </script>
+  </caption>
+  <thead>
+    <tr class="heading-row">
+      <th scope="col">Region</th>
+      <th scope="col">Notes</th>
+      <th scope="col">Contact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2">North<br />America</td>
+      <td>
+        Quote "yes", pipe | slash \ <img src="remote.png" alt="chart" />
+        <input value="private control value" />
+      </td>
+      <td>
+        <a href="https://example.com/report?x=1&amp;y=2" onclick="steal()">safe &amp; sound</a>
+        <a href="javascript:steal()">unsafe label</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        line one<br />line two
+        <table id="nested">
+          <tr>
+            <td>nested secret</td>
+          </tr>
+        </table>
+        <span hidden>hidden secret</span>
+        <span aria-hidden="true">aria secret</span>
+        <span style="display: none">styled secret</span>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>Tail</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th scope="row">Total</th>
+      <td>3</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>

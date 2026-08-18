@@ -1,0 +1,28 @@
+<style>
+  .visibility-parent {
+    visibility: hidden;
+  }
+
+  .visibility-child {
+    visibility: visible;
+  }
+</style>
+<table>
+  <thead>
+    <tr>
+      <th>Case</th>
+      <th>Rendered value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Override</td>
+      <td>
+        <span class="visibility-parent">
+          hidden ancestor
+          <strong class="visibility-child">Visible descendant</strong>
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>

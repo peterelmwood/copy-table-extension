@@ -1,0 +1,213 @@
+import { createClipboardWriter, type ClipboardWriter } from "./browser/clipboard";
+import {
+  createCopyAsMenus,
+  formatFromMenuItemId,
+  type ContextMenuApi
+} from "./browser/context-menu";
+import { isCopyExtractResponse } from "./browser/messages";
+import type { CopyExtractRequest, CopyOutcomeMessage, CopyOutcomeStatus } from "./table/model";
+
+const RESTRICTED_PAGE_NOTIFICATION = {
+  type: "basic" as const,
+  title: "Copy Table",
+  message: "Copy Table cannot access this protected page. Open a normal web page and try again."
+};
+const DELIVERY_FAILURE_NOTIFICATION = {
+  type: "basic" as const,
+  title: "Copy Table",
+  message: "Copy Table could not deliver the result because the page became unavailable. Try again."
+};
+
+type FailureNotification =
+  typeof RESTRICTED_PAGE_NOTIFICATION | typeof DELIVERY_FAILURE_NOTIFICATION;
+
+export interface MenuClickData {
+  menuItemId: unknown;
+  targetElementId?: number;
+  frameId?: number;
+}
+
+export interface ClickedTab {
+  id?: number;
+}
+
+export interface BrowserInteractionDependencies extends ClipboardWriter {
+  inject(tabId: number, frameId: number, files: readonly string[]): Promise<void>;
+  sendMessage(tabId: number, message: CopyExtractRequest, frameId: number): Promise<unknown>;
+  sendOutcome?(tabId: number, message: CopyOutcomeMessage, frameId: number): Promise<void>;
+  notify?(notification: FailureNotification): Promise<void>;
+  nextRequestId?(): string;
+}
+
+function defaultRequestId(): string {
+  return crypto.randomUUID();
+}
+
+function releaseResponsePayload(response: unknown): undefined {
+  if (typeof response === "object" && response !== null && "payload" in response) {
+    try {
+      delete (response as { payload?: unknown }).payload;
+    } catch {
+      // The outer response reference is still released below.
+    }
+  }
+  return undefined;
+}
+
+export function createBrowserInteractionController(dependencies: BrowserInteractionDependencies) {
+  async function notify(notification: FailureNotification): Promise<void> {
+    try {
+      await dependencies.notify?.(notification);
+    } catch {
+      // System notifications can be disabled; never log page data or retry.
+    }
+  }
+
+  async function sendOutcome(
+    tabId: number,
+    request: CopyExtractRequest,
+    frameId: number,
+    status: CopyOutcomeStatus
+  ): Promise<void> {
+    try {
+      await dependencies.sendOutcome?.(
+        tabId,
+        {
+          type: "copy-table:outcome",
+          requestId: request.requestId,
+          format: request.format,
+          status
+        },
+        frameId
+      );
+    } catch {
+      await notify(DELIVERY_FAILURE_NOTIFICATION);
+    }
+  }
+
+  return {
+    async handleMenuClick(info: MenuClickData, tab: ClickedTab): Promise<void> {
+      const format = formatFromMenuItemId(info.menuItemId);
+      const frameId = info.frameId ?? 0;
+      if (
+        format === null ||
+        typeof info.targetElementId !== "number" ||
+        !Number.isInteger(info.targetElementId) ||
+        !Number.isInteger(frameId) ||
+        typeof tab.id !== "number" ||
+        !Number.isInteger(tab.id)
+      ) {
+        return;
+      }
+
+      const request: CopyExtractRequest = {
+        type: "copy-table:extract",
+        requestId: (dependencies.nextRequestId ?? defaultRequestId)(),
+        targetElementId: info.targetElementId,
+        format
+      };
+      const tabId = tab.id;
+
+      try {
+        await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
+      } catch {
+        await notify(RESTRICTED_PAGE_NOTIFICATION);
+        return;
+      }
+
+      let response: unknown;
+      try {
+        response = await dependencies.sendMessage(tabId, request, frameId);
+      } catch {
+        await notify(DELIVERY_FAILURE_NOTIFICATION);
+        return;
+      }
+
+      if (
+        !isCopyExtractResponse(response) ||
+        response.requestId !== request.requestId ||
+        response.format !== request.format
+      ) {
+        response = releaseResponsePayload(response);
+        await sendOutcome(tabId, request, frameId, "unexpected");
+        return;
+      }
+
+      if (!response.ok) {
+        const reason = response.reason;
+        response = releaseResponsePayload(response);
+        await sendOutcome(tabId, request, frameId, reason);
+        return;
+      }
+
+      const successfulResponse = response;
+      let payload = successfulResponse.payload;
+      let status: CopyOutcomeStatus = "copied";
+      try {
+        await dependencies.writeText(payload);
+      } catch {
+        status = "clipboard-failed";
+      } finally {
+        payload = "";
+        response = releaseResponsePayload(successfulResponse);
+      }
+      await sendOutcome(tabId, request, frameId, status);
+    }
+  };
+}
+
+interface BackgroundBrowserApi {
+  menus: ContextMenuApi & {
+    onClicked: { addListener(listener: (info: MenuClickData, tab: ClickedTab) => void): void };
+  };
+  scripting: {
+    executeScript(details: {
+      target: { tabId: number; frameIds: number[] };
+      files: string[];
+    }): Promise<unknown>;
+  };
+  tabs: {
+    sendMessage(
+      tabId: number,
+      message: CopyExtractRequest | CopyOutcomeMessage,
+      options: { frameId: number }
+    ): Promise<unknown>;
+  };
+  notifications: {
+    create(id: string, options: FailureNotification): Promise<string>;
+  };
+}
+
+export function initializeBrowserCommandBoundary(
+  browserApi: BackgroundBrowserApi,
+  clipboard: Clipboard
+): void {
+  void createCopyAsMenus(browserApi.menus);
+  const controller = createBrowserInteractionController({
+    inject: async (tabId, frameId, files) => {
+      await browserApi.scripting.executeScript({
+        target: { tabId, frameIds: [frameId] },
+        files: [...files]
+      });
+    },
+    sendMessage: (tabId, message, frameId) =>
+      browserApi.tabs.sendMessage(tabId, message, { frameId }),
+    sendOutcome: async (tabId, message, frameId) => {
+      await browserApi.tabs.sendMessage(tabId, message, { frameId });
+    },
+    notify: async (notification) => {
+      await browserApi.notifications.create("copy-table:failure", notification);
+    },
+    ...createClipboardWriter(clipboard)
+  });
+
+  browserApi.menus.onClicked.addListener((info, tab) => {
+    void controller.handleMenuClick(info, tab);
+  });
+}
+
+declare const browser: BackgroundBrowserApi | undefined;
+
+if (typeof browser !== "undefined") {
+  initializeBrowserCommandBoundary(browser, navigator.clipboard);
+}
