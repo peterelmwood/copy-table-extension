@@ -26,6 +26,8 @@ const agents = [
     capabilities: [
       { name: 'firefox-webextensions', level: 'expert' },
       { name: 'browser-permissions', level: 'expert' },
+      { name: 'context-menu-targeting', level: 'expert' },
+      { name: 'interaction-scoped-clipboard', level: 'expert' },
       { name: 'typescript-build-tooling', level: 'proficient' },
     ],
     status: 'active',
@@ -39,6 +41,8 @@ const agents = [
       { name: 'dom-extraction', level: 'expert' },
       { name: 'table-normalization', level: 'expert' },
       { name: 'html-markdown-text-csv', level: 'expert' },
+      { name: 'rowspan-colspan-matrix', level: 'expert' },
+      { name: 'safe-html-serialization', level: 'expert' },
     ],
     status: 'active',
   }),
@@ -51,6 +55,7 @@ const agents = [
       { name: 'test-driven-development', level: 'expert' },
       { name: 'firefox-integration-testing', level: 'expert' },
       { name: 'privacy-permission-verification', level: 'expert' },
+      { name: 'clipboard-failure-testing', level: 'proficient' },
     ],
     status: 'active',
   }),
@@ -70,7 +75,7 @@ const agents = [
 export default defineSquad({
   version: '1.0.0',
   team: defineTeam({
-    name: 'Copy Structured Data Browser Extension Squad',
+    name: 'Copy Table Browser Extension Squad',
     description:
       'A Firefox-first team for safe, deterministic structured-data capture.',
     projectContext:
@@ -94,14 +99,14 @@ export default defineSquad({
         description: 'Spec Kit governance and architecture decisions.',
       },
       {
-        pattern: 'firefox|manifest|extension|permission|background|content-script|clipboard',
+        pattern: 'firefox|manifest|extension|permission|background|content-script|clipboard|context-menu|active-tab',
         agents: ['@webextensions-engineer'],
         tier: 'standard',
         priority: 2,
         description: 'Firefox runtime, packaging, and browser boundaries.',
       },
       {
-        pattern: 'DOM|table|normalize|HTML|Markdown|CSV|serializer|structured-data',
+        pattern: 'DOM|table|normalize|HTML|Markdown|CSV|serializer|structured-data|rowspan|colspan|sanitize',
         agents: ['@structured-data-engineer'],
         tier: 'standard',
         priority: 2,
