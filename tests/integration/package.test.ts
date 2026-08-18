@@ -1,29 +1,36 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { resolve } from "node:path";
+import { relative, resolve } from "node:path";
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
 
 const projectRoot = resolve(import.meta.dirname, "../..");
+const testOutputRoot = resolve(projectRoot, ".copy-table-test-output");
 const temporaryDirectories: string[] = [];
 
 async function createTemporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(resolve(tmpdir(), "copy-table-release-test-"));
+  await mkdir(testOutputRoot, { recursive: true });
+
+  const directory = await mkdtemp(resolve(testOutputRoot, "release-"));
 
   temporaryDirectories.push(directory);
   return directory;
 }
 
-function runBuildCommand(command: string, artifactsDirectory: string) {
+function testOutputOverride(artifactsDirectory: string): string {
+  return relative(testOutputRoot, artifactsDirectory);
+}
+
+function runBuildCommand(command: string, artifactsOverride: string) {
   return spawnSync(process.execPath, ["scripts/build.mjs", command], {
     cwd: projectRoot,
     encoding: "utf8",
     env: {
       ...process.env,
-      COPY_TABLE_ARTIFACTS_DIR: artifactsDirectory
+      COPY_TABLE_ARTIFACTS_DIR: artifactsOverride
     }
   });
 }
@@ -46,14 +53,28 @@ afterEach(async () => {
   await Promise.all(
     temporaryDirectories
       .splice(0)
-      .map((directory) => rm(directory, { force: true, recursive: true }))
+      .flatMap((directory) => [
+        rm(directory, { force: true, recursive: true }),
+        rm(resolve(projectRoot, testOutputOverride(directory)), { force: true, recursive: true })
+      ])
   );
 });
 
 describe("Firefox release archive", () => {
+  it("accepts a contained repository-local test-output override", async () => {
+    const artifactsDirectory = await createTemporaryDirectory();
+    const packageResult = runBuildCommand("package", testOutputOverride(artifactsDirectory));
+
+    expect(packageResult.status, packageResult.stderr).toBe(0);
+    await releaseArchivePath(artifactsDirectory);
+  });
+
   it("creates byte-identical archives from the same committed inputs", async () => {
     const firstArtifactsDirectory = await createTemporaryDirectory();
-    const firstPackageResult = runBuildCommand("package", firstArtifactsDirectory);
+    const firstPackageResult = runBuildCommand(
+      "package",
+      testOutputOverride(firstArtifactsDirectory)
+    );
 
     expect(firstPackageResult.status, firstPackageResult.stderr).toBe(0);
     const firstArchivePath = await releaseArchivePath(firstArtifactsDirectory);
@@ -61,7 +82,10 @@ describe("Firefox release archive", () => {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_100));
 
     const secondArtifactsDirectory = await createTemporaryDirectory();
-    const secondPackageResult = runBuildCommand("package", secondArtifactsDirectory);
+    const secondPackageResult = runBuildCommand(
+      "package",
+      testOutputOverride(secondArtifactsDirectory)
+    );
 
     expect(secondPackageResult.status, secondPackageResult.stderr).toBe(0);
     expect(archiveHash(await releaseArchivePath(secondArtifactsDirectory))).toBe(
@@ -71,7 +95,7 @@ describe("Firefox release archive", () => {
 
   it("contains only reviewed runtime files and no remote-code markers", async () => {
     const artifactsDirectory = await createTemporaryDirectory();
-    const packageResult = runBuildCommand("package", artifactsDirectory);
+    const packageResult = runBuildCommand("package", testOutputOverride(artifactsDirectory));
 
     expect(packageResult.status, packageResult.stderr).toBe(0);
 
@@ -104,12 +128,24 @@ describe("Firefox release archive", () => {
     await writeFile(failureFixturePath, 'export const verifyFailure="format";\n');
 
     try {
-      const verifyResult = runBuildCommand("verify", artifactsDirectory);
+      const verifyResult = runBuildCommand("verify", testOutputOverride(artifactsDirectory));
 
       expect(verifyResult.status).not.toBe(0);
       expect(existsSync(artifactsDirectory)).toBe(false);
     } finally {
       await rm(failureFixturePath, { force: true });
     }
+  });
+
+  it.each([
+    ["test-output root", "."],
+    ["repository root", projectRoot],
+    ["parent traversal", "../outside-test-output"],
+    ["arbitrary absolute path", resolve(tmpdir(), "copy-table-unsafe-artifacts")]
+  ])("rejects an unsafe artifact override: %s", (_description, artifactsOverride) => {
+    const cleanResult = runBuildCommand("clean", artifactsOverride);
+
+    expect(cleanResult.status).not.toBe(0);
+    expect(cleanResult.stderr).toContain("COPY_TABLE_ARTIFACTS_DIR");
   });
 });

@@ -82,3 +82,20 @@
   TypeScript, ESLint, Prettier, Mozilla lint, build, and deterministic package
   creation. Mozilla lint exited zero with the already documented
   `BACKGROUND_SERVICE_WORKER_IGNORED` compatibility warning.
+
+## Safety containment fix: artifact override
+
+- `COPY_TABLE_ARTIFACTS_DIR` is now an optional **relative child path** under
+  the repository-local `.copy-table-test-output/` root only. Absolute values,
+  `.`, the repository root, parent traversal, and paths outside that root are
+  rejected before `clean()` can delete anything.
+- Existing test-output roots and every existing component below them are checked
+  with `lstat`; symbolic-link roots or traversal components are rejected, and
+  the resolved test-output root must remain strictly inside the repository.
+- Regression coverage proves rejection of `.`, repository root, parent
+  traversal, and an arbitrary absolute path, while a valid contained test path
+  successfully packages. The focused package suite passed 8/8 tests.
+- Fresh final evidence: with the documented PowerShell npm-shell override,
+  `npm run verify` passed on 2026-08-18 with 5 test files and 18 tests plus
+  TypeScript, ESLint, Prettier, Mozilla lint, build, and package. Mozilla lint
+  exited zero with the documented `BACKGROUND_SERVICE_WORKER_IGNORED` warning.
