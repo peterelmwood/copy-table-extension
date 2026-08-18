@@ -42,7 +42,15 @@ section {
   font-weight: 700;
 }
 
-#readiness-region:focus-visible {
+#close-popup {
+  justify-self: start;
+  border: 1px solid #4a5568;
+  border-radius: 0.25rem;
+  background: #ffffff;
+  padding: 0.375rem 0.75rem;
+}
+
+#close-popup:focus-visible {
   outline: 3px solid #1455d9;
   outline-offset: 2px;
 }
