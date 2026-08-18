@@ -116,3 +116,21 @@
   2026-08-18 with 5 test files and 19 tests plus TypeScript, ESLint, Prettier,
   Mozilla lint, build, and package. Mozilla lint exited zero with the documented
   `BACKGROUND_SERVICE_WORKER_IGNORED` warning.
+
+## Safety containment fix round 3: disposable link sandbox
+
+- Extracted the artifact-path resolver/cleanup into `scripts/artifact-path.mjs`
+  with a narrow declaration file, so its pre-delete containment behavior can be
+  tested without pointing a link at the live repository.
+- The direct junction/symlink regression creates one unique OS-temp sandbox.
+  Its `.copy-table-test-output` allowed root contains the link fixture; the
+  external target is a sibling in that same sandbox and contains a sentinel.
+  Resolver rejection occurs before cleanup, the sentinel is asserted intact,
+  the link is unlinked, and teardown removes only the exact sandbox created by
+  that test. No fixture targets the repository, its parent, user profile, or
+  pre-existing state.
+- Fresh evidence: focused containment/package tests passed 9/9; with the
+  documented PowerShell npm-shell override, `npm run verify` passed on
+  2026-08-18 with 5 test files and 19 tests plus TypeScript, ESLint, Prettier,
+  Mozilla lint, build, and package. Mozilla lint exited zero with the documented
+  `BACKGROUND_SERVICE_WORKER_IGNORED` warning.

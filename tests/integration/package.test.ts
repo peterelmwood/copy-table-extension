@@ -1,16 +1,18 @@
 import { spawnSync } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, mkdtemp, readdir, rm, symlink, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { relative, resolve } from "node:path";
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
+import { cleanGeneratedOutput } from "../../scripts/artifact-path.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "../..");
 const testOutputRoot = resolve(projectRoot, ".copy-table-test-output");
 const temporaryDirectories: string[] = [];
 const temporaryLinks: string[] = [];
+const temporarySandboxes: string[] = [];
 
 async function createTemporaryDirectory(): Promise<string> {
   await mkdir(testOutputRoot, { recursive: true });
@@ -23,6 +25,13 @@ async function createTemporaryDirectory(): Promise<string> {
 
 function recordTemporaryLink(linkPath: string): void {
   temporaryLinks.push(linkPath);
+}
+
+async function createDisposableSandbox(): Promise<string> {
+  const sandbox = await mkdtemp(resolve(tmpdir(), "copy-table-symlink-sandbox-"));
+
+  temporarySandboxes.push(sandbox);
+  return sandbox;
 }
 
 function testOutputOverride(artifactsDirectory: string): string {
@@ -55,12 +64,15 @@ function archiveHash(archivePath: string): string {
 }
 
 afterEach(async () => {
+  await Promise.all(temporaryLinks.splice(0).map((linkPath) => unlink(linkPath)));
   await Promise.all(
     temporaryDirectories
       .splice(0)
       .map((directory) => rm(directory, { force: true, recursive: true }))
   );
-  await Promise.all(temporaryLinks.splice(0).map((linkPath) => unlink(linkPath)));
+  await Promise.all(
+    temporarySandboxes.splice(0).map((sandbox) => rm(sandbox, { force: true, recursive: true }))
+  );
 });
 
 describe("Firefox release archive", () => {
@@ -153,13 +165,18 @@ describe("Firefox release archive", () => {
   });
 
   it("rejects a pre-existing symbolic-link escape before cleanup", async (context) => {
-    await mkdir(testOutputRoot, { recursive: true });
+    const sandbox = await createDisposableSandbox();
+    const allowedRoot = resolve(sandbox, ".copy-table-test-output");
+    const externalTarget = resolve(sandbox, "external-target");
+    const sentinelPath = resolve(externalTarget, "sentinel.txt");
+    const linkPath = resolve(allowedRoot, "escape");
 
-    const linkName = `escape-${randomUUID()}`;
-    const linkPath = resolve(testOutputRoot, linkName);
+    await mkdir(allowedRoot, { recursive: true });
+    await mkdir(externalTarget, { recursive: true });
+    await writeFile(sentinelPath, "must survive containment rejection\n");
 
     try {
-      await symlink(projectRoot, linkPath, process.platform === "win32" ? "junction" : "dir");
+      await symlink(externalTarget, linkPath, process.platform === "win32" ? "junction" : "dir");
     } catch (error) {
       if (
         process.platform === "win32" &&
@@ -177,10 +194,13 @@ describe("Firefox release archive", () => {
 
     recordTemporaryLink(linkPath);
 
-    const cleanResult = runBuildCommand("clean", linkName);
-
-    expect(cleanResult.status).not.toBe(0);
-    expect(cleanResult.stderr).toContain("cannot traverse a symbolic link");
-    expect(existsSync(resolve(projectRoot, "package.json"))).toBe(true);
+    await expect(
+      cleanGeneratedOutput({
+        artifactsOverride: "escape",
+        distDirectory: resolve(sandbox, "dist"),
+        projectRoot: sandbox
+      })
+    ).rejects.toThrow("cannot traverse a symbolic link");
+    expect(readFileSync(sentinelPath, "utf8")).toBe("must survive containment rejection\n");
   });
 });
