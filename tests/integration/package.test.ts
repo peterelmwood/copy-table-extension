@@ -135,6 +135,11 @@ describe("Firefox release archive", () => {
     expect(packagedJavaScript.join("\n")).not.toMatch(
       /https?:\/\/|\b(?:fetch|XMLHttpRequest|WebSocket|eval|Function|importScripts)\b/u
     );
+    expect(packagedJavaScript.join("\n")).not.toMatch(
+      /(?:api[_-]?key|access[_-]?token|secret)\s*[:=]\s*["'][^"']+/iu
+    );
+    expect(packagedJavaScript.join("\n")).not.toMatch(/sourceMappingURL/u);
+    expect(files.some((file) => file.name.endsWith(".map"))).toBe(false);
   });
 
   it("removes the release artifact when verification fails", async () => {

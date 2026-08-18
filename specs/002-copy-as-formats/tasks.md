@@ -117,18 +117,18 @@
 ### Tests for User Story 3
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T029 [P] [US3] Add failing fixed-copy, replacement, timeout, and accessibility tests for in-page feedback in `tests/unit/feedback.test.ts`
+- [x] T029 [P] [US3] Add failing fixed-copy, replacement, timeout, and accessibility tests for in-page feedback in `tests/unit/feedback.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [ ] T030 [P] [US3] Add failing failure-category, zero-write, rejected-write, no-retry, no-log, and payload-release tests in `tests/integration/browser-interaction.test.ts`
+- [x] T030 [P] [US3] Add failing failure-category, zero-write, rejected-write, no-retry, no-log, and payload-release tests in `tests/integration/browser-interaction.test.ts`
 
 ### Implementation for User Story 3
 
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T031 [US3] Implement accessible non-blocking success/failure toasts with payload-free fixed copy in `src/content/feedback.ts`
+- [x] T031 [US3] Implement accessible non-blocking success/failure toasts with payload-free fixed copy in `src/content/feedback.ts`
 <!-- squad:agent=lead tier=full -->
-- [ ] T032 [US3] Implement bounded injection/extraction/clipboard error mapping and outcome routing in `src/background.ts`
+- [x] T032 [US3] Implement bounded injection/extraction/clipboard error mapping and outcome routing in `src/background.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T033 [US3] Connect payload-free outcome messages to feedback and make all US3 failure tests pass in `src/content/content-handler.ts`
+- [x] T033 [US3] Connect payload-free outcome messages to feedback and make all US3 failure tests pass in `src/content/content-handler.ts`
 
 **Checkpoint**: Every failure is visible and leaves the pre-existing clipboard untouched.
 
@@ -137,17 +137,17 @@
 ## Phase 6: Performance, Documentation, and Cross-Cutting Verification
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T034 [P] Add a 20-attempt 100×50 conversion performance trial with a 19-of-20 under-two-second gate in `tests/performance/table-conversion.test.ts`
+- [x] T034 [P] Add a 20-attempt 100×50 conversion performance trial with a 19-of-20 under-two-second gate in `tests/performance/table-conversion.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [ ] T035 Extend remote-code, secret, source-map, permissions, content-bundle, and deterministic-archive regression checks in `tests/integration/package.test.ts` and `tests/unit/manifest.test.ts`
+- [x] T035 Extend remote-code, secret, source-map, permissions, content-bundle, and deterministic-archive regression checks in `tests/integration/package.test.ts` and `tests/unit/manifest.test.ts`
 <!-- squad:agent=scribe tier=lightweight -->
-- [ ] T036 Update install, permissions, usage, supported formats, troubleshooting, and privacy documentation in `README.md` and `specs/002-copy-as-formats/quickstart.md`
+- [x] T036 Update install, permissions, usage, supported formats, troubleshooting, and privacy documentation in `README.md` and `specs/002-copy-as-formats/quickstart.md`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T037 Run formatting, typecheck, lint, all tests, performance gate, build, Mozilla lint, and deterministic package through `npm run verify`
+- [x] T037 Run formatting, typecheck, lint, all tests, performance gate, build, Mozilla lint, and deterministic package through `npm run verify`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T038 Record automated evidence and preserve honest pending GUI rows in `specs/002-copy-as-formats/validation-record.md`
+- [x] T038 Record automated evidence and preserve honest pending GUI rows in `specs/002-copy-as-formats/validation-record.md`
 <!-- squad:agent=lead tier=full -->
-- [ ] T039 Ask the Squad QA engineer and Spec Kit steward to review code and artifacts against `spec.md`, `plan.md`, `contracts/`, and this task list
+- [x] T039 Ask the Squad QA engineer and Spec Kit steward to review code and artifacts against `spec.md`, `plan.md`, `contracts/`, and this task list
 
 ---
 

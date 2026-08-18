@@ -34,6 +34,9 @@ describe("Firefox manifest contract", () => {
     expect(background.scripts).toEqual(["background.js"]);
     expect(background.service_worker).toBe("background.js");
     expect(manifest.permissions).toEqual(["activeTab", "clipboardWrite", "menus", "scripting"]);
+    expect(manifest.permissions).not.toContain("tabs");
+    expect(manifest.permissions).not.toContain("storage");
+    expect(manifest.permissions).not.toContain("webRequest");
     expect(manifest.host_permissions).toBeUndefined();
     expect(manifest.optional_permissions).toBeUndefined();
     expect(manifest.optional_host_permissions).toBeUndefined();
@@ -44,6 +47,7 @@ describe("Firefox manifest contract", () => {
     expect(manifest.web_accessible_resources).toBeUndefined();
     expect(manifest.content_security_policy).toBeUndefined();
     expect(manifest.update_url).toBeUndefined();
+    expect(manifest.developer).toBeUndefined();
     expect(gecko.id).toBe("copy-table@copytable.invalid");
     expect(dataCollectionPermissions.required).toEqual(["none"]);
   });

@@ -1,8 +1,9 @@
 # Copy Table
 
-Copy Table is a Firefox-first WebExtension foundation for a future explicit,
-local-only structured-data copy workflow. This increment has no
-page-reading, capture, clipboard, storage, telemetry, or network behavior.
+Copy Table is a Firefox-first WebExtension that copies the semantic table a
+user directly right-clicks as HTML, Markdown, plain text, or CSV. Each copy is
+an explicit context-menu action; table data is processed locally for that one
+operation, written once to the clipboard on success, and then discarded.
 
 ## Prerequisites
 
@@ -35,12 +36,17 @@ through `web-ext`. Alternatively, open `about:debugging#/runtime/this-firefox`,
 choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 `npm run build`.
 
-For the manual smoke check, confirm that Firefox recognizes **Copy Table**,
-reports no startup error, and that the toolbar popup presents its ready
-state and installed version. Automated verification does not claim this GUI
-check; it must be performed in an interactive Firefox session before release.
-Record the five clean-checkout attempts and the manual smoke evidence in
-[`specs/001-firefox-extension-scaffold/validation-record.md`](specs/001-firefox-extension-scaffold/validation-record.md).
+On a normal page containing a semantic `<table>`, right-click a cell, expand
+**Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
+The closest table containing the clicked element is copied. A short in-page
+message confirms success; outside a table, on restricted pages, or when the
+clipboard rejects the write, the message explains the failure and the existing
+clipboard is left unchanged.
+
+Automated verification does not claim Firefox GUI coverage. Record interactive
+results, including nested and no-table cases, in
+[`specs/002-copy-as-formats/validation-record.md`](specs/002-copy-as-formats/validation-record.md)
+before release.
 
 ## Package and inspect
 
@@ -50,9 +56,9 @@ npm run package
 
 The command rebuilds before packaging and writes exactly one unsigned Firefox
 archive (currently a `.zip`) to `web-ext-artifacts/`. The archive contains only
-`manifest.json`, `background.js`, `popup/index.html`, `popup/popup.js`, and
-`popup/popup.css`. Both generated directories are ignored by Git and must not
-be edited by hand.
+`manifest.json`, `background.js`, `content/content-handler.js`,
+`popup/index.html`, `popup/popup.js`, and `popup/popup.css`. Both generated
+directories are ignored by Git and must not be edited by hand.
 
 Each archive is generated with a fixed entry order, timestamp, file mode, and
 compression settings. Packaging the same committed input twice produces the
@@ -63,10 +69,17 @@ same archive SHA-256 hash.
 - **`web-ext` cannot find Firefox:** Confirm `node --version` reports Node 24
   or later and that Firefox desktop is installed. Use the manual
   `about:debugging#/runtime/this-firefox` fallback after `npm run build`.
-- **Firefox reports a startup error or the popup does not open:** Open
+- **Firefox reports a startup error or the menu does not appear:** Open
   `about:debugging#/runtime/this-firefox`, select Copy Table, and inspect its
   error details. Rebuild with `npm run clean` followed by `npm run build` before
   loading `dist/manifest.json` again.
+- **Copy reports no table:** Right-click a cell inside a semantic `<table>`;
+  visually table-like `<div>` layouts are not supported.
+- **Copy reports that the page cannot be accessed:** Browser-protected pages
+  cannot be inspected. Try the same action on a normal HTTPS page.
+- **Clipboard access fails:** Confirm Firefox is allowed to write to the
+  clipboard, then retry the explicit menu action. Copy Table never reads the
+  clipboard and does not retry a rejected write.
 - **A generated file seems stale:** Run `npm run clean` before `npm run verify`
   or `npm run package`. A failed verification removes `dist/` and the release
   archive rather than leaving it as a candidate.
@@ -76,12 +89,14 @@ same archive SHA-256 hash.
 
 ## Privacy, permissions, and boundaries
 
-The manifest declares no permissions, host permissions, optional permissions,
-or content scripts. The scaffold therefore has no page access and stores or
-transmits no page content. Firefox Manifest V3 is the only supported runtime in
-this increment; Chromium packaging and validation are intentionally deferred.
+The manifest declares exactly `activeTab`, `clipboardWrite`, `menus`, and
+`scripting`. It declares no host permissions, optional permissions,
+content scripts, clipboard-read authority, storage, telemetry, or network
+destinations. Access is scoped to the user-selected menu action and its active
+tab/frame. Firefox Manifest V3 is the only supported runtime; Chromium
+packaging and validation are intentionally deferred.
 
 Browser-facing code is isolated in `src/background.ts`, `src/browser/`, and
-`src/popup/`. Future table extraction, normalization, and output formatting
-must remain separate from these Firefox adapters and require their own accepted
-specification.
+`src/content/`; extraction and serializers live under `src/table/`. The
+deterministic package gate rejects unexpected files, source maps, remote-code
+markers, and likely embedded secrets.

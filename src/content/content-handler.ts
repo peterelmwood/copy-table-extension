@@ -1,4 +1,5 @@
-import { isCopyExtractRequest } from "../browser/messages";
+import { isCopyExtractRequest, isCopyOutcomeMessage } from "../browser/messages";
+import { renderCopyOutcome } from "./feedback";
 import type { CopyExtractRequest, CopyExtractResponse } from "../table/model";
 import { extractLogicalTable } from "../table/extract";
 import { serializeCsv } from "../table/serialize/csv";
@@ -83,11 +84,17 @@ export function registerContentHandler(
     return;
   }
 
-  browserApi.runtime.onMessage.addListener(
-    createContentMessageHandler({
-      getTargetElement: (targetElementId) => browserApi.menus.getTargetElement(targetElementId)
-    })
-  );
+  const extractMessageHandler = createContentMessageHandler({
+    getTargetElement: (targetElementId) => browserApi.menus.getTargetElement(targetElementId)
+  });
+  browserApi.runtime.onMessage.addListener((message: unknown) => {
+    if (isCopyOutcomeMessage(message)) {
+      renderCopyOutcome(document, message);
+      return undefined;
+    }
+
+    return extractMessageHandler(message);
+  });
   installationGlobal[CONTENT_HANDLER_INSTALL_GUARD] = true;
 }
 

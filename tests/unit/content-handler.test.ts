@@ -72,6 +72,30 @@ describe("content handler registration", () => {
 
     expect(addListener).toHaveBeenCalledOnce();
   });
+
+  it("renders a payload-free outcome without looking up a page target", () => {
+    const addListener = vi.fn();
+    const getTargetElement = vi.fn(() => null);
+    registerContentHandler(
+      {
+        runtime: { onMessage: { addListener } },
+        menus: { getTargetElement }
+      },
+      {}
+    );
+    const listener = addListener.mock.calls[0]?.[0] as (message: unknown) => unknown;
+
+    expect(
+      listener({
+        type: "copy-table:outcome",
+        requestId: "request-outcome",
+        format: "markdown",
+        status: "clipboard-failed"
+      })
+    ).toBeUndefined();
+    expect(getTargetElement).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain("Clipboard access failed. Try again.");
+  });
 });
 
 function registerableHandler(getTargetElement: (targetElementId: number) => Element | null) {

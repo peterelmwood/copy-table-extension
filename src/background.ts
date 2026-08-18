@@ -5,7 +5,7 @@ import {
   type ContextMenuApi
 } from "./browser/context-menu";
 import { isCopyExtractResponse } from "./browser/messages";
-import type { CopyExtractRequest } from "./table/model";
+import type { CopyExtractRequest, CopyOutcomeMessage, CopyOutcomeStatus } from "./table/model";
 
 export interface MenuClickData {
   menuItemId: unknown;
@@ -20,6 +20,7 @@ export interface ClickedTab {
 export interface BrowserInteractionDependencies extends ClipboardWriter {
   inject(tabId: number, frameId: number, files: readonly string[]): Promise<void>;
   sendMessage(tabId: number, message: CopyExtractRequest, frameId: number): Promise<unknown>;
+  sendOutcome?(tabId: number, message: CopyOutcomeMessage, frameId: number): Promise<void>;
   nextRequestId?(): string;
 }
 
@@ -28,6 +29,28 @@ function defaultRequestId(): string {
 }
 
 export function createBrowserInteractionController(dependencies: BrowserInteractionDependencies) {
+  async function sendOutcome(
+    tabId: number,
+    request: CopyExtractRequest,
+    frameId: number,
+    status: CopyOutcomeStatus
+  ): Promise<void> {
+    try {
+      await dependencies.sendOutcome?.(
+        tabId,
+        {
+          type: "copy-table:outcome",
+          requestId: request.requestId,
+          format: request.format,
+          status
+        },
+        frameId
+      );
+    } catch {
+      // A restricted or navigated frame cannot receive feedback; never log page data.
+    }
+  }
+
   return {
     async handleMenuClick(info: MenuClickData, tab: ClickedTab): Promise<void> {
       const format = formatFromMenuItemId(info.menuItemId);
@@ -51,23 +74,45 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
       };
       const tabId = tab.id;
 
-      await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
-      const response = await dependencies.sendMessage(tabId, request, frameId);
+      try {
+        await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
+      } catch {
+        await sendOutcome(tabId, request, frameId, "restricted-page");
+        return;
+      }
+
+      let response: unknown;
+      try {
+        response = await dependencies.sendMessage(tabId, request, frameId);
+      } catch {
+        await sendOutcome(tabId, request, frameId, "unexpected");
+        return;
+      }
+
       if (
         !isCopyExtractResponse(response) ||
-        !response.ok ||
         response.requestId !== request.requestId ||
         response.format !== request.format
       ) {
+        await sendOutcome(tabId, request, frameId, "unexpected");
+        return;
+      }
+
+      if (!response.ok) {
+        await sendOutcome(tabId, request, frameId, response.reason);
         return;
       }
 
       let payload = response.payload;
+      let status: CopyOutcomeStatus = "copied";
       try {
         await dependencies.writeText(payload);
+      } catch {
+        status = "clipboard-failed";
       } finally {
         payload = "";
       }
+      await sendOutcome(tabId, request, frameId, status);
     }
   };
 }
@@ -85,7 +130,7 @@ interface BackgroundBrowserApi {
   tabs: {
     sendMessage(
       tabId: number,
-      message: CopyExtractRequest,
+      message: CopyExtractRequest | CopyOutcomeMessage,
       options: { frameId: number }
     ): Promise<unknown>;
   };
@@ -105,6 +150,9 @@ export function initializeBrowserCommandBoundary(
     },
     sendMessage: (tabId, message, frameId) =>
       browserApi.tabs.sendMessage(tabId, message, { frameId }),
+    sendOutcome: async (tabId, message, frameId) => {
+      await browserApi.tabs.sendMessage(tabId, message, { frameId });
+    },
     ...createClipboardWriter(clipboard)
   });
 

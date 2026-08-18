@@ -9,6 +9,11 @@ npm run verify
 
 Verification covers the menu contract, permissions, target resolution, extraction, all serializers, failure paths, performance trials, build, Mozilla lint, and deterministic packaging.
 
+The release gate runs 20 automated 100×50 conversion/write/acknowledgement
+attempts and requires at least 19 to complete in under two seconds. It also
+checks the package for the reviewed file list, source maps, remote-code markers,
+and likely embedded secrets.
+
 ## Temporary Firefox test
 
 ```powershell
@@ -24,6 +29,10 @@ On a normal HTTPS page containing a semantic table:
 5. Repeat inside a nested table and outside any table.
 
 The nested table must be selected when clicked. Outside a table, feedback must appear and the existing clipboard must remain unchanged.
+
+If Firefox reports a restricted page or clipboard failure, record the outcome;
+do not retry automatically and do not inspect the clipboard. Table data is not
+stored, logged, or transmitted by Copy Table.
 
 ## Manual release evidence
 

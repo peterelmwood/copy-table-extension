@@ -83,4 +83,115 @@ describe("browser interaction", () => {
     );
     expect(writeText).toHaveBeenCalledWith("clicked-table");
   });
+
+  it.each([["no-table"], ["target-expired"], ["invalid-table"], ["unexpected"]] as const)(
+    "routes the bounded %s extraction outcome without clipboard access",
+    async (reason) => {
+      const inject = vi.fn(async () => undefined);
+      const sendMessage = vi.fn(async () => ({
+        ok: false as const,
+        requestId: "request-failure",
+        format: "csv" as const,
+        reason
+      }));
+      const sendOutcome = vi.fn(async () => undefined);
+      const writeText = vi.fn(async () => undefined);
+      const controller = createBrowserInteractionController({
+        inject,
+        sendMessage,
+        sendOutcome,
+        writeText,
+        nextRequestId: () => "request-failure"
+      });
+
+      await controller.handleMenuClick(
+        { menuItemId: "copy-table:copy-as:csv", targetElementId: 9, frameId: 7 },
+        { id: 31 }
+      );
+
+      expect(writeText).not.toHaveBeenCalled();
+      expect(sendOutcome).toHaveBeenCalledWith(
+        31,
+        { type: "copy-table:outcome", requestId: "request-failure", format: "csv", status: reason },
+        7
+      );
+    }
+  );
+
+  it("maps an injection rejection to restricted-page with no clipboard access or logs", async () => {
+    const inject = vi.fn(async () => Promise.reject(new Error("protected page")));
+    const sendMessage = vi.fn(async () => undefined);
+    const sendOutcome = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const controller = createBrowserInteractionController({
+      inject,
+      sendMessage,
+      sendOutcome,
+      writeText,
+      nextRequestId: () => "request-restricted"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9, frameId: 7 },
+      { id: 31 }
+    );
+
+    expect(sendMessage).not.toHaveBeenCalled();
+    expect(writeText).not.toHaveBeenCalled();
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      {
+        type: "copy-table:outcome",
+        requestId: "request-restricted",
+        format: "html",
+        status: "restricted-page"
+      },
+      7
+    );
+  });
+
+  it("performs one rejected write without retry or clipboard read and routes payload-free feedback", async () => {
+    const inject = vi.fn(async () => undefined);
+    const sendMessage = vi.fn(async () => ({
+      ok: true as const,
+      requestId: "request-clipboard",
+      format: "text" as const,
+      payload: "private table text"
+    }));
+    const outcomes: unknown[] = [];
+    const sendOutcome = vi.fn(async (_tabId: number, message: unknown) => {
+      outcomes.push(message);
+    });
+    const writeText = vi.fn(async () => Promise.reject(new Error("clipboard denied")));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const controller = createBrowserInteractionController({
+      inject,
+      sendMessage,
+      sendOutcome,
+      writeText,
+      nextRequestId: () => "request-clipboard"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:text", targetElementId: 9, frameId: 7 },
+      { id: 31 }
+    );
+
+    expect(writeText).toHaveBeenCalledTimes(1);
+    expect(writeText).toHaveBeenCalledWith("private table text");
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      {
+        type: "copy-table:outcome",
+        requestId: "request-clipboard",
+        format: "text",
+        status: "clipboard-failed"
+      },
+      7
+    );
+    expect(outcomes[0]).not.toHaveProperty("payload");
+  });
 });

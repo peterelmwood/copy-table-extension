@@ -1,6 +1,6 @@
 # Validation Record: Copy Table as Structured Formats
 
-**Status**: Pending GUI-capable owner validation  
+**Status**: Automated gates passed; pending GUI-capable owner validation
 **Automated command**: `$env:npm_config_script_shell = 'C:\Program Files\PowerShell\7\pwsh.exe'; npm run verify`
 
 ## Firefox interaction matrix
@@ -22,8 +22,26 @@ Record 20 attempts against the reviewed 100×50 fixture. At least 19 must finish
 
 | Attempts | Within 2 seconds | Slowest | Environment | Pass |
 |---|---|---|---|---|
-| Pending | Pending | Pending | Pending | [ ] |
+| 20 | At least 19 (gate passed) | Not persisted by automated gate | jsdom/Vitest | [x] |
+
+## Automated evidence
+
+- 2026-08-18: `npm run verify` exited 0: TypeScript, ESLint, Prettier, full
+  Vitest suite (15 files, 103 tests), extension build, Mozilla lint, and
+  deterministic package creation passed.
+- The 20-attempt 100×50 conversion/write/acknowledgement test passed its
+  19-of-20 under-two-second gate. It is an automated jsdom release gate, not a
+  Firefox GUI measurement.
+- Package checks passed for the exact reviewed archive file list, content
+  bundle, deterministic archive bytes, safe-clean containment, absence of
+  source maps, remote-code markers, and likely embedded secrets. Manifest
+  checks passed for the exact four permission capabilities and no broad host,
+  optional-host, clipboard-read, tabs, storage, or web-request authority.
+- Mozilla lint reported zero errors and zero notices. Its one expected warning
+  is `BACKGROUND_SERVICE_WORKER_IGNORED`; Firefox uses the reviewed
+  `background.scripts` fallback.
 
 ## Notes and interventions
 
-- Pending.
+- No Firefox GUI scenario was executed for this record. Every interaction row
+  above remains pending an owner-run Firefox session.
