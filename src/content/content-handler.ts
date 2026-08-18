@@ -1,5 +1,10 @@
 import { isCopyExtractRequest } from "../browser/messages";
 import type { CopyExtractRequest, CopyExtractResponse } from "../table/model";
+import { extractLogicalTable } from "../table/extract";
+import { serializeCsv } from "../table/serialize/csv";
+import { serializeHtml } from "../table/serialize/html";
+import { serializeMarkdown } from "../table/serialize/markdown";
+import { serializeText } from "../table/serialize/text";
 import { resolveInteractionTarget, type TargetElementLookup } from "./target";
 
 export interface ContentHandlerDependencies {
@@ -7,12 +12,23 @@ export interface ContentHandlerDependencies {
   serialize?(table: HTMLTableElement, request: CopyExtractRequest): string;
 }
 
-function placeholderSerialize(table: HTMLTableElement): string {
-  return table.outerHTML;
+function serializeTable(table: HTMLTableElement, request: CopyExtractRequest): string {
+  const logicalTable = extractLogicalTable(table);
+
+  switch (request.format) {
+    case "html":
+      return serializeHtml(logicalTable);
+    case "markdown":
+      return serializeMarkdown(logicalTable);
+    case "text":
+      return serializeText(logicalTable);
+    case "csv":
+      return serializeCsv(logicalTable);
+  }
 }
 
 export function createContentMessageHandler(dependencies: ContentHandlerDependencies) {
-  const serialize = dependencies.serialize ?? placeholderSerialize;
+  const serialize = dependencies.serialize ?? serializeTable;
 
   return (message: unknown): CopyExtractResponse | undefined => {
     if (!isCopyExtractRequest(message)) {

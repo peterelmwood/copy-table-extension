@@ -37,18 +37,48 @@ export interface CopyOutcomeMessage {
   status: CopyOutcomeStatus;
 }
 
-export interface LogicalTableCell {
+export type LogicalTableSection = "head" | "body" | "foot";
+
+export type LogicalTableScope = "row" | "col" | "rowgroup" | "colgroup";
+
+export interface LogicalTableOriginCell {
+  kind: "origin";
   text: string;
+  inline: readonly SafeInline[];
   isHeader: boolean;
+  scope: LogicalTableScope | null;
+  sourceRow: number;
+  sourceColumn: number;
+  rowSpan: number;
+  columnSpan: number;
 }
 
+export interface LogicalTableCoveredCell {
+  kind: "covered";
+  text: "";
+  ownerRow: number;
+  ownerColumn: number;
+}
+
+export interface LogicalTableEmptyCell {
+  kind: "empty";
+  text: "";
+}
+
+export type LogicalTableCell =
+  LogicalTableOriginCell | LogicalTableCoveredCell | LogicalTableEmptyCell;
+
 export interface LogicalTableRow {
+  section: LogicalTableSection;
   cells: readonly LogicalTableCell[];
 }
 
 export interface LogicalTable {
-  caption: string | null;
+  caption: readonly SafeInline[] | null;
+  captionText: string | null;
   rows: readonly LogicalTableRow[];
+  columnCount: number;
+  headerRowIndexes: readonly number[];
 }
 
 export interface SafeInlineText {
@@ -58,8 +88,12 @@ export interface SafeInlineText {
 
 export interface SafeInlineLink {
   type: "link";
-  text: string;
   href: string;
+  children: readonly SafeInline[];
 }
 
-export type SafeInline = SafeInlineText | SafeInlineLink;
+export interface SafeInlineBreak {
+  type: "break";
+}
+
+export type SafeInline = SafeInlineText | SafeInlineLink | SafeInlineBreak;

@@ -26,10 +26,38 @@ describe("content handler registration", () => {
       ok: true,
       requestId: "request-1",
       format: "html",
-      payload: '<table id="clicked"><tbody><tr><td id="cell">selected</td></tr></tbody></table>'
+      payload: "<table><tbody><tr><td>selected</td></tr></tbody></table>"
     });
     expect(getTargetElement).toHaveBeenCalledWith(12);
   });
+
+  it.each([
+    ["html", "<table><tbody><tr><th>Header</th></tr><tr><td>Value</td></tr></tbody></table>"],
+    ["markdown", "| Header |\n| --- |\n| Value |"],
+    ["text", "Header\nValue"],
+    ["csv", "Header\r\nValue"]
+  ] as const)(
+    "uses the requested %s serializer through the default content boundary",
+    (format, payload) => {
+      document.body.innerHTML =
+        "<table><tr><th id=cell>Header</th></tr><tr><td>Value</td></tr></table>";
+      const handler = registerableHandler(() => document.querySelector("#cell"));
+
+      expect(
+        handler({
+          type: "copy-table:extract",
+          requestId: "request-format",
+          targetElementId: 4,
+          format
+        })
+      ).toEqual({
+        ok: true,
+        requestId: "request-format",
+        format,
+        payload
+      });
+    }
+  );
 
   it("installs one listener across repeated one-off injections into the same frame", () => {
     const addListener = vi.fn();
@@ -45,3 +73,15 @@ describe("content handler registration", () => {
     expect(addListener).toHaveBeenCalledOnce();
   });
 });
+
+function registerableHandler(getTargetElement: (targetElementId: number) => Element | null) {
+  const addListener = vi.fn();
+  registerContentHandler(
+    {
+      runtime: { onMessage: { addListener } },
+      menus: { getTargetElement }
+    },
+    {}
+  );
+  return addListener.mock.calls[0]?.[0] as (message: unknown) => unknown;
+}

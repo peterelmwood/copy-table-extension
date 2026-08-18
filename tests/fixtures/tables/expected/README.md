@@ -1,3 +1,3 @@
 # Expected table outputs
 
-Feature 002 serializer fixtures will place one reviewed HTML, Markdown, plain-text, and CSV file per semantic-table fixture in this directory.
+Feature 002 serializer fixtures store the reviewed byte-exact HTML, Markdown, plain-text, and CSV strings for each semantic-table fixture as JSON. JSON escapes make CRLF records, tabs, and no-trailing-newline requirements reviewable without relying on checkout line-ending conversion.

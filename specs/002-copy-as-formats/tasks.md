@@ -81,28 +81,28 @@
 ### Tests for User Story 2
 
 <!-- squad:agent=qa-engineer tier=full -->
-- [ ] T019 [P] [US2] Add failing matrix extraction tests for sections, headers, uneven rows, empty cells, row/column spans, nested tables, images, links, and hidden/unsafe content in `tests/unit/extract.test.ts`
+- [x] T019 [P] [US2] Add failing matrix extraction tests for sections, headers, uneven rows, empty cells, row/column spans, nested tables, images, links, and hidden/unsafe content in `tests/unit/extract.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [ ] T020 [P] [US2] Add failing byte-exact HTML/Markdown/text/CSV fixture tests in `tests/unit/serializers.test.ts`
+- [x] T020 [P] [US2] Add failing byte-exact HTML/Markdown/text/CSV fixture tests in `tests/unit/serializers.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T021 [P] [US2] Add failing safe-inline URL, escaping, and executable-markup rejection tests in `tests/unit/safe-inline.test.ts`
+- [x] T021 [P] [US2] Add failing safe-inline URL, escaping, and executable-markup rejection tests in `tests/unit/safe-inline.test.ts`
 
 ### Implementation for User Story 2
 
 <!-- squad:agent=structured-data-engineer tier=full -->
-- [ ] T022 [US2] Implement visible safe-inline token extraction and URL allowlisting in `src/table/safe-inline.ts`
+- [x] T022 [US2] Implement visible safe-inline token extraction and URL allowlisting in `src/table/safe-inline.ts`
 <!-- squad:agent=structured-data-engineer tier=full -->
-- [ ] T023 [US2] Implement rectangular logical-matrix construction with top-left span ownership and collision rejection in `src/table/extract.ts`
+- [x] T023 [US2] Implement rectangular logical-matrix construction with top-left span ownership and collision rejection in `src/table/extract.ts`
 <!-- squad:agent=structured-data-engineer tier=standard -->
-- [ ] T024 [P] [US2] Implement reconstructed allowlisted HTML output in `src/table/serialize/html.ts`
+- [x] T024 [P] [US2] Implement reconstructed allowlisted HTML output in `src/table/serialize/html.ts`
 <!-- squad:agent=structured-data-engineer tier=standard -->
-- [ ] T025 [P] [US2] Implement deterministic Markdown escaping and header selection in `src/table/serialize/markdown.ts`
+- [x] T025 [P] [US2] Implement deterministic Markdown escaping and header selection in `src/table/serialize/markdown.ts`
 <!-- squad:agent=structured-data-engineer tier=standard -->
-- [ ] T026 [P] [US2] Implement tab/LF plain-text serialization in `src/table/serialize/text.ts`
+- [x] T026 [P] [US2] Implement tab/LF plain-text serialization in `src/table/serialize/text.ts`
 <!-- squad:agent=structured-data-engineer tier=standard -->
-- [ ] T027 [P] [US2] Implement RFC-style comma/quote/CRLF CSV serialization in `src/table/serialize/csv.ts`
+- [x] T027 [P] [US2] Implement RFC-style comma/quote/CRLF CSV serialization in `src/table/serialize/csv.ts`
 <!-- squad:agent=structured-data-engineer tier=full -->
-- [ ] T028 [US2] Connect extraction and selected serialization to `src/content/content-handler.ts` and make all US2 fixture tests pass
+- [x] T028 [US2] Connect extraction and selected serialization to `src/content/content-handler.ts` and make all US2 fixture tests pass
 
 **Checkpoint**: All formats share identical geometry and deterministic reviewed outputs.
 
