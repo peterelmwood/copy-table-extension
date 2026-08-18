@@ -1,8 +1,27 @@
 import { describe, expect, it, vi } from "vitest";
 import { registerContentHandler } from "../../src/content/content-handler";
 
+type FirefoxRuntimeMessageListener = Parameters<typeof browser.runtime.onMessage.addListener>[0];
+
+async function deliverThroughFirefoxRuntime(
+  listener: FirefoxRuntimeMessageListener,
+  message: unknown
+): Promise<unknown> {
+  const returned: unknown = listener(message, {}, () => {
+    throw new Error("The content handler must not use sendResponse.");
+  });
+
+  if (returned instanceof Promise) {
+    return returned;
+  }
+  if (returned === undefined || returned === false) {
+    return undefined;
+  }
+  throw new Error("Firefox does not transport a synchronous response object.");
+}
+
 describe("content handler registration", () => {
-  it("registers on Firefox runtime messaging and resolves targets through Firefox menus", () => {
+  it("returns extraction responses through Firefox's Promise transport", async () => {
     document.body.innerHTML = "<table id=clicked><tr><td id=cell>selected</td></tr></table>";
     const addListener = vi.fn();
     const getTargetElement = vi.fn(() => document.querySelector("#cell"));
@@ -14,9 +33,9 @@ describe("content handler registration", () => {
     registerContentHandler(browserApi, {});
 
     expect(addListener).toHaveBeenCalledOnce();
-    const listener = addListener.mock.calls[0]?.[0] as (message: unknown) => unknown;
+    const listener = addListener.mock.calls[0]?.[0] as FirefoxRuntimeMessageListener;
     expect(
-      listener({
+      await deliverThroughFirefoxRuntime(listener, {
         type: "copy-table:extract",
         requestId: "request-1",
         targetElementId: 12,
@@ -38,13 +57,13 @@ describe("content handler registration", () => {
     ["csv", "Header\r\nValue"]
   ] as const)(
     "uses the requested %s serializer through the default content boundary",
-    (format, payload) => {
+    async (format, payload) => {
       document.body.innerHTML =
         "<table><tr><th id=cell>Header</th></tr><tr><td>Value</td></tr></table>";
       const handler = registerableHandler(() => document.querySelector("#cell"));
 
       expect(
-        handler({
+        await deliverThroughFirefoxRuntime(handler, {
           type: "copy-table:extract",
           requestId: "request-format",
           targetElementId: 4,
@@ -73,7 +92,7 @@ describe("content handler registration", () => {
     expect(addListener).toHaveBeenCalledOnce();
   });
 
-  it("renders a payload-free outcome without looking up a page target", () => {
+  it("renders a payload-free outcome without looking up a page target", async () => {
     const addListener = vi.fn();
     const getTargetElement = vi.fn(() => null);
     registerContentHandler(
@@ -83,10 +102,10 @@ describe("content handler registration", () => {
       },
       {}
     );
-    const listener = addListener.mock.calls[0]?.[0] as (message: unknown) => unknown;
+    const listener = addListener.mock.calls[0]?.[0] as FirefoxRuntimeMessageListener;
 
     expect(
-      listener({
+      await deliverThroughFirefoxRuntime(listener, {
         type: "copy-table:outcome",
         requestId: "request-outcome",
         format: "markdown",
@@ -95,6 +114,24 @@ describe("content handler registration", () => {
     ).toBeUndefined();
     expect(getTargetElement).not.toHaveBeenCalled();
     expect(document.body.textContent).toContain("Clipboard access failed. Try again.");
+  });
+
+  it("does not reserve a response for unrelated messages", async () => {
+    const addListener = vi.fn();
+    const getTargetElement = vi.fn(() => null);
+    registerContentHandler(
+      {
+        runtime: { onMessage: { addListener } },
+        menus: { getTargetElement }
+      },
+      {}
+    );
+    const listener = addListener.mock.calls[0]?.[0] as FirefoxRuntimeMessageListener;
+
+    await expect(deliverThroughFirefoxRuntime(listener, { type: "unrelated" })).resolves.toBe(
+      undefined
+    );
+    expect(getTargetElement).not.toHaveBeenCalled();
   });
 });
 
@@ -107,5 +144,5 @@ function registerableHandler(getTargetElement: (targetElementId: number) => Elem
     },
     {}
   );
-  return addListener.mock.calls[0]?.[0] as (message: unknown) => unknown;
+  return addListener.mock.calls[0]?.[0] as FirefoxRuntimeMessageListener;
 }

@@ -8,57 +8,98 @@ import type {
 } from "./model";
 import { extractSafeInline, safeInlineText } from "./safe-inline";
 
-const MAXIMUM_COLUMN_SPAN = 1000;
+const MAXIMUM_ROW_SPAN = 65_534;
+const MAXIMUM_COLUMN_SPAN = 1_000;
+
+interface SourceRow {
+  element: HTMLTableRowElement;
+  section: LogicalTableSection;
+  rowGroupIndex: number;
+  rowGroupEnd: number;
+}
 
 function invalidGeometry(): never {
   throw new Error("Invalid table geometry");
 }
 
-function sourceRows(table: HTMLTableElement): readonly HTMLTableRowElement[] {
-  const rows: HTMLTableRowElement[] = [];
+function sourceRows(table: HTMLTableElement): readonly SourceRow[] {
+  const groups: Array<{
+    rows: HTMLTableRowElement[];
+    section: LogicalTableSection;
+  }> = [];
+  let directRows: HTMLTableRowElement[] = [];
+
+  function flushDirectRows(): void {
+    if (directRows.length > 0) {
+      groups.push({ rows: directRows, section: "body" });
+      directRows = [];
+    }
+  }
 
   for (const child of table.children) {
     if (child instanceof HTMLTableRowElement) {
-      rows.push(child);
+      directRows.push(child);
       continue;
     }
+    flushDirectRows();
     if (!["THEAD", "TBODY", "TFOOT"].includes(child.tagName)) {
       continue;
     }
+    const groupRows: HTMLTableRowElement[] = [];
     for (const sectionChild of child.children) {
       if (sectionChild instanceof HTMLTableRowElement) {
-        rows.push(sectionChild);
+        groupRows.push(sectionChild);
       }
+    }
+    if (groupRows.length > 0) {
+      groups.push({
+        rows: groupRows,
+        section: child.tagName === "THEAD" ? "head" : child.tagName === "TFOOT" ? "foot" : "body"
+      });
+    }
+  }
+  flushDirectRows();
+
+  const rows: SourceRow[] = [];
+  for (const [rowGroupIndex, group] of groups.entries()) {
+    const rowGroupEnd = rows.length + group.rows.length;
+    for (const element of group.rows) {
+      rows.push({ element, section: group.section, rowGroupIndex, rowGroupEnd });
     }
   }
 
   return rows;
 }
 
-function rowSection(row: HTMLTableRowElement): LogicalTableSection {
-  if (row.parentElement?.tagName === "THEAD") {
-    return "head";
-  }
-  if (row.parentElement?.tagName === "TFOOT") {
-    return "foot";
-  }
-  return "body";
-}
-
-function positiveSpan(cell: HTMLTableCellElement, attribute: "rowspan" | "colspan"): number {
+function parsedSpan(
+  cell: HTMLTableCellElement,
+  attribute: "rowspan" | "colspan",
+  maximum: number,
+  allowZero: boolean
+): number {
   const rawValue = cell.getAttribute(attribute);
   if (rawValue === null) {
     return 1;
   }
   const normalized = rawValue.trim();
-  if (!/^[1-9]\d*$/u.test(normalized)) {
+  if (!/^\d+$/u.test(normalized)) {
     return invalidGeometry();
   }
   const span = Number(normalized);
-  if (!Number.isSafeInteger(span) || span > MAXIMUM_COLUMN_SPAN) {
+  if (!Number.isSafeInteger(span) || span > maximum || (!allowZero && span === 0)) {
     return invalidGeometry();
   }
   return span;
+}
+
+function effectiveRowSpan(
+  cell: HTMLTableCellElement,
+  rowIndex: number,
+  rowGroupEnd: number
+): number {
+  const span = parsedSpan(cell, "rowspan", MAXIMUM_ROW_SPAN, true);
+  const remainingRows = rowGroupEnd - rowIndex;
+  return span === 0 ? remainingRows : Math.min(span, remainingRows);
 }
 
 function cellScope(cell: HTMLTableCellElement): LogicalTableScope | null {
@@ -99,7 +140,8 @@ export function extractLogicalTable(table: HTMLTableElement): LogicalTable {
   const headerRowIndexes: number[] = [];
   let columnCount = 0;
 
-  for (const [rowIndex, row] of rows.entries()) {
+  for (const [rowIndex, sourceRow] of rows.entries()) {
+    const row = sourceRow.element;
     let columnIndex = 0;
     let hasHeader = false;
 
@@ -108,11 +150,8 @@ export function extractLogicalTable(table: HTMLTableElement): LogicalTable {
         columnIndex += 1;
       }
 
-      const rowSpan = positiveSpan(cell, "rowspan");
-      const columnSpan = positiveSpan(cell, "colspan");
-      if (rowIndex + rowSpan > rows.length) {
-        return invalidGeometry();
-      }
+      const rowSpan = effectiveRowSpan(cell, rowIndex, sourceRow.rowGroupEnd);
+      const columnSpan = parsedSpan(cell, "colspan", MAXIMUM_COLUMN_SPAN, false);
 
       for (let coveredRow = rowIndex; coveredRow < rowIndex + rowSpan; coveredRow += 1) {
         const matrixRow = matrix[coveredRow];
@@ -154,13 +193,14 @@ export function extractLogicalTable(table: HTMLTableElement): LogicalTable {
     return invalidGeometry();
   }
 
-  const logicalRows: LogicalTableRow[] = rows.map((row, rowIndex) => {
+  const logicalRows: LogicalTableRow[] = rows.map((sourceRow, rowIndex) => {
     const cells = matrix[rowIndex];
     if (cells === undefined) {
       return invalidGeometry();
     }
     return {
-      section: rowSection(row),
+      section: sourceRow.section,
+      rowGroupIndex: sourceRow.rowGroupIndex,
       cells: Array.from({ length: columnCount }, (_, columnIndex) =>
         cells[columnIndex] === undefined
           ? { kind: "empty" as const, text: "" as const }

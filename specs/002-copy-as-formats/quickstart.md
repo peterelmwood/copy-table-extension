@@ -20,7 +20,7 @@ and likely embedded secrets.
 npm run start:firefox
 ```
 
-On a normal HTTPS page containing a semantic table:
+On a normal top-level HTTPS page or same-origin embedded document containing a semantic table:
 
 1. Right-click a cell.
 2. Expand **Copy as**.
@@ -35,6 +35,13 @@ if it reports a clipboard failure, record the in-page message. Do not retry
 automatically or inspect the clipboard. Table data is not stored, logged, or
 transmitted by Copy Table.
 
+A table inside a cross-origin embedded document is outside the approved
+permission scope. The menu can still appear there, but the action must show the
+same fixed restriction notification, leave the clipboard unchanged, and never
+substitute a table from the top-level page. If a page or frame becomes
+unavailable after injection, record the fixed payload-free delivery-failure
+notification; it is sent only after payload references are released.
+
 ## Manual release evidence
 
-Record Firefox version, page fixture, chosen format, elapsed time, pasted output, feedback, and any console error in `validation-record.md`. Do not mark GUI scenarios complete from automated DOM tests alone.
+Record Firefox version, page fixture, chosen format, frame origin relationship, elapsed time, pasted output, feedback, and any console error in `validation-record.md`. Do not mark GUI scenarios complete from automated DOM tests alone.

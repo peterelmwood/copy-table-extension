@@ -66,9 +66,10 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
 
 const CONTENT_HANDLER_INSTALL_GUARD = "__copyTableContentHandlerV1Installed";
 
-type BrowserMenuTargetApi = { getTargetElement(targetElementId: number): Element | null };
+type BrowserMenuTargetApi = { getTargetElement(targetElementId: number): Element | null | void };
+type FirefoxRuntimeMessageListener = Parameters<typeof browser.runtime.onMessage.addListener>[0];
 type BrowserRuntimeMessages = {
-  onMessage: { addListener(listener: (message: unknown) => unknown): void };
+  onMessage: { addListener(listener: FirefoxRuntimeMessageListener): void };
 };
 type FirefoxContentBrowserApi = {
   menus: BrowserMenuTargetApi;
@@ -85,7 +86,8 @@ export function registerContentHandler(
   }
 
   const extractMessageHandler = createContentMessageHandler({
-    getTargetElement: (targetElementId) => browserApi.menus.getTargetElement(targetElementId)
+    getTargetElement: (targetElementId) =>
+      browserApi.menus.getTargetElement(targetElementId) ?? null
   });
   browserApi.runtime.onMessage.addListener((message: unknown) => {
     if (isCopyOutcomeMessage(message)) {
@@ -93,12 +95,14 @@ export function registerContentHandler(
       return undefined;
     }
 
-    return extractMessageHandler(message);
+    if (!isCopyExtractRequest(message)) {
+      return undefined;
+    }
+
+    return Promise.resolve(extractMessageHandler(message));
   });
   installationGlobal[CONTENT_HANDLER_INSTALL_GUARD] = true;
 }
-
-declare const browser: FirefoxContentBrowserApi | undefined;
 
 if (typeof browser !== "undefined") {
   registerContentHandler(browser);

@@ -45,14 +45,16 @@ export function serializeHtml(table: LogicalTable): string {
   }
 
   let openSection: string | null = null;
+  let openRowGroupIndex: number | null = null;
   for (const row of table.rows) {
     const section = row.section === "head" ? "thead" : row.section === "foot" ? "tfoot" : "tbody";
-    if (section !== openSection) {
+    if (section !== openSection || row.rowGroupIndex !== openRowGroupIndex) {
       if (openSection !== null) {
         output += `</${openSection}>`;
       }
       output += `<${section}>`;
       openSection = section;
+      openRowGroupIndex = row.rowGroupIndex;
     }
 
     output += "<tr>";

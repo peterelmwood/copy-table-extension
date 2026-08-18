@@ -70,6 +70,7 @@ export type LogicalTableCell =
 
 export interface LogicalTableRow {
   section: LogicalTableSection;
+  rowGroupIndex: number;
   cells: readonly LogicalTableCell[];
 }
 

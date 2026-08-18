@@ -36,13 +36,16 @@ through `web-ext`. Alternatively, open `about:debugging#/runtime/this-firefox`,
 choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 `npm run build`.
 
-On a normal page containing a semantic `<table>`, right-click a cell, expand
+On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
 The closest table containing the clicked element is copied. A short in-page
 message confirms success. Outside a table or after a clipboard rejection, an
 in-page message explains the failure. If Firefox blocks page injection, a fixed
-extension notification explains that the protected page cannot be accessed; in
-every failure case, the existing clipboard is left unchanged.
+extension notification explains that the protected page cannot be accessed. If
+the page or frame disappears after injection and the extraction response or
+outcome cannot be delivered, a different fixed payload-free notification
+reports that delivery failed after any payload reference is released. In every
+failure case, the existing clipboard is left unchanged.
 
 Automated verification does not claim Firefox GUI coverage. Record interactive
 results, including nested and no-table cases, in
@@ -77,7 +80,12 @@ same archive SHA-256 hash.
 - **Copy reports no table:** Right-click a cell inside a semantic `<table>`;
   visually table-like `<div>` layouts are not supported.
 - **Copy reports that the page cannot be accessed:** Browser-protected pages
-  cannot be inspected. Try the same action on a normal HTTPS page.
+  and tables inside cross-origin embedded documents cannot be inspected under
+  the approved permission set. Try the same action on a normal top-level HTTPS
+  page or a same-origin frame.
+- **Copy reports that the result could not be delivered:** The page navigated,
+  the frame disappeared, or access changed while the operation was in progress.
+  Retry from the current page; Copy Table does not retry automatically.
 - **Clipboard access fails:** Confirm Firefox is allowed to write to the
   clipboard, then retry the explicit menu action. Copy Table never reads the
   clipboard and does not retry a rejected write.
@@ -92,14 +100,18 @@ same archive SHA-256 hash.
 
 The manifest declares exactly `activeTab`, `clipboardWrite`, `menus`,
 `notifications`, and `scripting`. The notification capability is limited to
-fixed protected-page feedback after injection rejection; it receives no page
-data. The manifest declares no host permissions, optional permissions,
+fixed protected-page feedback after injection rejection and one fixed
+payload-free fallback if a started extraction/outcome message cannot be
+delivered; it receives no page data. The manifest declares no host permissions, optional permissions,
 content scripts, clipboard-read authority, storage, telemetry, or network
-destinations. Access is scoped to the user-selected menu action and its active
-tab/frame. Firefox Manifest V3 is the only supported runtime; Chromium
+destinations. Access is scoped to the user-selected menu action and supported
+top-level or same-origin document in its active tab. Cross-origin embedded
+documents are explicitly out of scope rather than covered by broader host
+authority. Firefox Manifest V3 is the only supported runtime; Chromium
 packaging and validation are intentionally deferred.
 
-Browser-facing code is isolated in `src/background.ts`, `src/browser/`, and
+Browser-facing code is isolated in `src/background.ts`, the clipboard,
+context-menu, message, and runtime adapters under `src/browser/`, and
 `src/content/`; extraction and serializers live under `src/table/`. The
 deterministic package gate rejects unexpected files, source maps, remote-code
 markers, and likely embedded secrets.

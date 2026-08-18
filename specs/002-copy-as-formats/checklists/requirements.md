@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Validation passed on the first iteration. The specification uses capability-level privacy language and leaves implementation choices to planning.
+- Validation passed on the first iteration. The specification uses capability-level privacy language and leaves implementation choices to planning. Final-review clarification explicitly excludes cross-origin embedded documents without broad host permission while retaining fixed restriction feedback and no fallback targeting.

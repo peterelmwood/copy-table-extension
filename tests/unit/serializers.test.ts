@@ -21,6 +21,9 @@ const visibilityOverrideExpected = JSON.parse(
 const transparentContainerExpected = JSON.parse(
   readFileSync(resolve(fixtureDirectory, "expected/transparent-container-table.json"), "utf8")
 ) as Record<CopyFormat, string>;
+const rowSpanRowGroupsExpected = JSON.parse(
+  readFileSync(resolve(fixtureDirectory, "expected/rowspan-row-groups-table.json"), "utf8")
+) as Record<CopyFormat, string>;
 
 const serializers = {
   html: serializeHtml,
@@ -94,6 +97,15 @@ describe("table serializers", () => {
     }
   );
 
+  it.each(["html", "markdown", "text", "csv"] as const)(
+    "matches the row-group-bounded rowspan %s fixture byte-for-byte",
+    (format) => {
+      expect(serializers[format](fixtureLogicalTable("rowspan-row-groups-table.html"))).toBe(
+        rowSpanRowGroupsExpected[format]
+      );
+    }
+  );
+
   it("uses the first logical row as the Markdown header when no explicit header exists", () => {
     document.body.innerHTML = "<table><tr><td>A</td><td>B</td></tr><tr><td>1</td></tr></table>";
     const table = document.querySelector("table");
@@ -115,10 +127,12 @@ describe("table serializers", () => {
       rows: [
         {
           section: "body",
+          rowGroupIndex: 0,
           cells: [originCell("comma, value", 0), originCell('say "yes"', 1)]
         },
         {
           section: "body",
+          rowGroupIndex: 0,
           cells: [originCell("line one\nline two", 0), originCell("carriage\rreturn", 1)]
         }
       ]

@@ -2,14 +2,14 @@
 
 ## Decision 1: Use interaction-scoped `activeTab`, not persistent host patterns
 
-**Decision**: Request menu, scripting, active-tab, clipboard-write, and notifications capabilities, with no host patterns and no clipboard-read authority. The notification capability is used only to report a rejected exact-frame injection where a page toast cannot have a receiver.
+**Decision**: Request menu, scripting, active-tab, clipboard-write, and notifications capabilities, with no host patterns and no clipboard-read authority. The notification capability is used only for fixed payload-free feedback after rejected exact-frame injection or loss of a started extraction/outcome message channel.
 
-**Rationale**: Firefox grants `activeTab` when a user selects an extension context-menu item. It permits programmatic injection into the clicked tab only for that user action, matching the constitution's explicit-interaction and least-privilege rules.
+**Rationale**: Firefox grants `activeTab` when a user selects an extension context-menu item. It permits programmatic injection into the clicked tab only for that user action, matching the constitution's explicit-interaction and least-privilege rules. The accepted grant covers the top-level document and same-origin frames; direct inspection of a cross-origin embedded document can require host permission and is explicitly outside this feature.
 
 **Alternatives considered**:
 
 - Persistent all-site host access and a declared content script: rejected because it can inspect every matching page before a user request.
-- Optional broad host access: rejected because the action-specific grant is sufficient for ordinary web pages.
+- Optional broad host access: rejected because the action-specific grant is sufficient for supported top-level and same-origin documents, while cross-origin embedded documents are an explicit product exclusion.
 
 ## Decision 7: Use a fixed extension notification only for rejected injection
 
@@ -31,12 +31,25 @@ target, requested format, converted table, or other page metadata.
 - Persistent content scripts or broad host access: rejected because they would
   weaken interaction-scoped access.
 - A notification for every result: rejected because ordinary pages can show the
-  less disruptive in-page toast; the capability is strictly a protected-page
-  fallback.
+  less disruptive in-page toast; the capability is limited to rejected
+  injection and lost post-injection message delivery.
+
+## Decision 8: Use one fixed notification when a started message channel is lost
+
+**Decision**: If extraction-response delivery rejects after injection, or if a
+payload-free outcome cannot be delivered to the injected frame, show one fixed
+extension notification. Release every response/payload reference first. Do not
+retry extraction, clipboard access, or outcome delivery, and do not include a
+URL, target, format, payload, or page metadata.
+
+**Rationale**: Navigation, frame removal, or revoked access can invalidate the
+page receiver after an operation starts. An extension-controlled notification
+preserves visible bounded feedback without extending page authority or payload
+lifetime.
 
 ## Decision 2: Resolve Firefox's expiring target handle in the clicked document
 
-**Decision**: Inject a guarded content bundle into the exact `frameId`, then call the menu target-element resolver inside that document using `targetElementId`.
+**Decision**: For a supported top-level or same-origin document, inject a guarded content bundle into the exact `frameId`, then call the menu target-element resolver inside that document using `targetElementId`. Never substitute another frame or table when the exact frame is unsupported.
 
 **Rationale**: Firefox's target handle works only in the document containing the clicked element and expires when another context menu opens. Exact-frame injection preserves target fidelity across multi-frame pages without retaining element references.
 
@@ -69,7 +82,7 @@ target, requested format, converted table, or other page metadata.
 
 ## Decision 5: Normalize once, serialize four ways
 
-**Decision**: Build a rectangular logical matrix with origin-cell metadata, top-left span ownership, empty covered positions, section/header metadata, visible text, and safe inline tokens.
+**Decision**: Build a rectangular logical matrix with origin-cell metadata, top-left span ownership, empty covered and padding positions, row-group/section metadata, visible text, and safe inline tokens. Normalize `rowspan="0"` to the remaining rows in its owning group, clip positive row spans at that group boundary, enforce the HTML row-span limit separately from the column-span limit, and preserve row-group boundaries for reconstructed HTML.
 
 **Rationale**: One model prevents format drift. HTML can reconstruct safe semantic spans while flattened formats share identical geometry and text.
 
@@ -92,3 +105,5 @@ target, requested format, converted table, or other page metadata.
 - [MDN clipboard interaction](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Interact_with_the_clipboard)
 - [MDN content scripts](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts)
 - [MDN notifications](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/user_interface/Notifications)
+- [MDN runtime.onMessage](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage)
+- [WHATWG table model](https://html.spec.whatwg.org/multipage/tables.html)

@@ -122,14 +122,14 @@ describe("browser interaction", () => {
     const inject = vi.fn(async () => Promise.reject(new Error("protected page")));
     const sendMessage = vi.fn(async () => undefined);
     const sendOutcome = vi.fn(async () => Promise.reject(new Error("no content receiver")));
-    const notifyRestrictedPage = vi.fn(async () => undefined);
+    const notify = vi.fn(async () => undefined);
     const writeText = vi.fn(async () => undefined);
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const controller = createBrowserInteractionController({
       inject,
       sendMessage,
       sendOutcome,
-      notifyRestrictedPage,
+      notify,
       writeText,
       nextRequestId: () => "request-restricted"
     });
@@ -143,8 +143,8 @@ describe("browser interaction", () => {
     expect(sendOutcome).not.toHaveBeenCalled();
     expect(writeText).not.toHaveBeenCalled();
     expect(consoleError).not.toHaveBeenCalled();
-    expect(notifyRestrictedPage).toHaveBeenCalledOnce();
-    expect(notifyRestrictedPage).toHaveBeenCalledWith({
+    expect(notify).toHaveBeenCalledOnce();
+    expect(notify).toHaveBeenCalledWith({
       type: "basic",
       title: "Copy Table",
       message: "Copy Table cannot access this protected page. Open a normal web page and try again."
@@ -203,13 +203,13 @@ describe("browser interaction", () => {
       reason: "no-table" as const
     }));
     const sendOutcome = vi.fn(async () => undefined);
-    const notifyRestrictedPage = vi.fn(async () => undefined);
+    const notify = vi.fn(async () => undefined);
     const writeText = vi.fn(async () => undefined);
     const controller = createBrowserInteractionController({
       inject,
       sendMessage,
       sendOutcome,
-      notifyRestrictedPage,
+      notify,
       writeText,
       nextRequestId: () => "request-no-table"
     });
@@ -219,7 +219,7 @@ describe("browser interaction", () => {
       { id: 31 }
     );
 
-    expect(notifyRestrictedPage).not.toHaveBeenCalled();
+    expect(notify).not.toHaveBeenCalled();
     expect(sendOutcome).toHaveBeenCalledWith(
       31,
       {
@@ -261,5 +261,69 @@ describe("browser interaction", () => {
     expect(response).not.toHaveProperty("payload");
     releaseOutcome?.();
     await operation;
+  });
+
+  it("uses one fixed notification when extraction response delivery fails after injection", async () => {
+    const sendOutcome = vi.fn(async () => undefined);
+    const notify = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => Promise.reject(new Error("frame navigated")),
+      sendOutcome,
+      notify,
+      writeText,
+      nextRequestId: () => "request-delivery"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:csv", targetElementId: 9, frameId: 7 },
+      { id: 31 }
+    );
+
+    expect(sendOutcome).not.toHaveBeenCalled();
+    expect(writeText).not.toHaveBeenCalled();
+    expect(notify).toHaveBeenCalledOnce();
+    expect(notify).toHaveBeenCalledWith({
+      type: "basic",
+      title: "Copy Table",
+      message:
+        "Copy Table could not deliver the result because the page became unavailable. Try again."
+    });
+  });
+
+  it("releases the payload before fixed notification fallback when outcome delivery fails", async () => {
+    const response = {
+      ok: true as const,
+      requestId: "request-outcome-delivery",
+      format: "html" as const,
+      payload: "private table text"
+    };
+    let payloadPresentWhenNotified: boolean | undefined;
+    const notify = vi.fn(async () => {
+      payloadPresentWhenNotified = "payload" in response;
+    });
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => response,
+      sendOutcome: async () => Promise.reject(new Error("frame disappeared")),
+      notify,
+      writeText: async () => undefined,
+      nextRequestId: () => "request-outcome-delivery"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9, frameId: 7 },
+      { id: 31 }
+    );
+
+    expect(notify).toHaveBeenCalledOnce();
+    expect(payloadPresentWhenNotified).toBe(false);
+    expect(notify).toHaveBeenCalledWith({
+      type: "basic",
+      title: "Copy Table",
+      message:
+        "Copy Table could not deliver the result because the page became unavailable. Try again."
+    });
   });
 });

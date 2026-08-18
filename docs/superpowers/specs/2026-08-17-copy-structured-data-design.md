@@ -54,8 +54,9 @@ Add a context-menu flow:
 
 `Copy as` -> `HTML | Markdown | Text | CSV`
 
-The command operates on the table or table-like structured region associated
-with the interaction target. It normalizes headers, rows, and cells, handles
+The command operates on the semantic table associated with the interaction
+target in a supported top-level or same-origin document. Cross-origin embedded
+documents remain out of scope without broader host authority. It normalizes headers, rows, and cells, handles
 spans or irregular rows predictably, serializes deterministically, writes the
 result to the clipboard, and reports unsupported or failed captures clearly.
 
@@ -75,4 +76,3 @@ result to the clipboard, and reports unsupported or failed captures clearly.
 Chrome packaging, cloud synchronization, telemetry, automatic background page
 scraping, OCR, PDF extraction, and arbitrary schema inference are outside these
 two features.
-

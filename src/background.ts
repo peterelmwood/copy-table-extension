@@ -12,8 +12,14 @@ const RESTRICTED_PAGE_NOTIFICATION = {
   title: "Copy Table",
   message: "Copy Table cannot access this protected page. Open a normal web page and try again."
 };
+const DELIVERY_FAILURE_NOTIFICATION = {
+  type: "basic" as const,
+  title: "Copy Table",
+  message: "Copy Table could not deliver the result because the page became unavailable. Try again."
+};
 
-type RestrictedPageNotification = typeof RESTRICTED_PAGE_NOTIFICATION;
+type FailureNotification =
+  typeof RESTRICTED_PAGE_NOTIFICATION | typeof DELIVERY_FAILURE_NOTIFICATION;
 
 export interface MenuClickData {
   menuItemId: unknown;
@@ -29,7 +35,7 @@ export interface BrowserInteractionDependencies extends ClipboardWriter {
   inject(tabId: number, frameId: number, files: readonly string[]): Promise<void>;
   sendMessage(tabId: number, message: CopyExtractRequest, frameId: number): Promise<unknown>;
   sendOutcome?(tabId: number, message: CopyOutcomeMessage, frameId: number): Promise<void>;
-  notifyRestrictedPage?(notification: RestrictedPageNotification): Promise<void>;
+  notify?(notification: FailureNotification): Promise<void>;
   nextRequestId?(): string;
 }
 
@@ -37,10 +43,21 @@ function defaultRequestId(): string {
   return crypto.randomUUID();
 }
 
-export function createBrowserInteractionController(dependencies: BrowserInteractionDependencies) {
-  async function notifyRestrictedPage(): Promise<void> {
+function releaseResponsePayload(response: unknown): undefined {
+  if (typeof response === "object" && response !== null && "payload" in response) {
     try {
-      await dependencies.notifyRestrictedPage?.(RESTRICTED_PAGE_NOTIFICATION);
+      delete (response as { payload?: unknown }).payload;
+    } catch {
+      // The outer response reference is still released below.
+    }
+  }
+  return undefined;
+}
+
+export function createBrowserInteractionController(dependencies: BrowserInteractionDependencies) {
+  async function notify(notification: FailureNotification): Promise<void> {
+    try {
+      await dependencies.notify?.(notification);
     } catch {
       // System notifications can be disabled; never log page data or retry.
     }
@@ -64,7 +81,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         frameId
       );
     } catch {
-      // A restricted or navigated frame cannot receive feedback; never log page data.
+      await notify(DELIVERY_FAILURE_NOTIFICATION);
     }
   }
 
@@ -94,7 +111,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
       try {
         await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
       } catch {
-        await notifyRestrictedPage();
+        await notify(RESTRICTED_PAGE_NOTIFICATION);
         return;
       }
 
@@ -102,7 +119,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
       try {
         response = await dependencies.sendMessage(tabId, request, frameId);
       } catch {
-        await sendOutcome(tabId, request, frameId, "unexpected");
+        await notify(DELIVERY_FAILURE_NOTIFICATION);
         return;
       }
 
@@ -111,12 +128,15 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         response.requestId !== request.requestId ||
         response.format !== request.format
       ) {
+        response = releaseResponsePayload(response);
         await sendOutcome(tabId, request, frameId, "unexpected");
         return;
       }
 
       if (!response.ok) {
-        await sendOutcome(tabId, request, frameId, response.reason);
+        const reason = response.reason;
+        response = releaseResponsePayload(response);
+        await sendOutcome(tabId, request, frameId, reason);
         return;
       }
 
@@ -129,8 +149,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         status = "clipboard-failed";
       } finally {
         payload = "";
-        delete (successfulResponse as { payload?: string }).payload;
-        response = undefined;
+        response = releaseResponsePayload(successfulResponse);
       }
       await sendOutcome(tabId, request, frameId, status);
     }
@@ -155,7 +174,7 @@ interface BackgroundBrowserApi {
     ): Promise<unknown>;
   };
   notifications: {
-    create(id: string, options: RestrictedPageNotification): Promise<string>;
+    create(id: string, options: FailureNotification): Promise<string>;
   };
 }
 
@@ -176,8 +195,8 @@ export function initializeBrowserCommandBoundary(
     sendOutcome: async (tabId, message, frameId) => {
       await browserApi.tabs.sendMessage(tabId, message, { frameId });
     },
-    notifyRestrictedPage: async (notification) => {
-      await browserApi.notifications.create("copy-table:restricted-page", notification);
+    notify: async (notification) => {
+      await browserApi.notifications.create("copy-table:failure", notification);
     },
     ...createClipboardWriter(clipboard)
   });

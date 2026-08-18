@@ -1,0 +1,6 @@
+{
+  "html": "<table><thead><tr><th scope=\"col\">Heading</th><th scope=\"col\">Value</th></tr></thead><tbody><tr><th scope=\"rowgroup\" rowspan=\"3\">Group A</th><td>A1</td></tr><tr><td>A2</td></tr><tr><td>A3</td></tr></tbody><tbody><tr><th scope=\"rowgroup\">Group B</th><td>B1</td></tr></tbody></table>",
+  "markdown": "| Heading | Value |\n| --- | --- |\n| Group A | A1 |\n|  | A2 |\n|  | A3 |\n| Group B | B1 |",
+  "text": "Heading\tValue\nGroup A\tA1\n\tA2\n\tA3\nGroup B\tB1",
+  "csv": "Heading,Value\r\nGroup A,A1\r\n,A2\r\n,A3\r\nGroup B,B1"
+}

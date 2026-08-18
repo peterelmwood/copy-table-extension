@@ -22,7 +22,7 @@
 **Purpose**: Establish shared domain and browser message contracts required by all user stories.
 
 <!-- squad:agent=structured-data-engineer tier=full -->
-- [x] T004 Add Copy Format, request/result, logical table, row/cell, safe-inline, and outcome types in `src/table/model.ts`
+- [x] T004 Add Copy Format, request/result, logical table, row-group, origin/covered/empty cell, safe-inline, and payload-free outcome types in `src/table/model.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
 - [x] T005 [P] Add typed browser request, response, and outcome message guards in `src/browser/messages.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
@@ -47,7 +47,7 @@
 <!-- squad:agent=qa-engineer tier=standard -->
 - [x] T009 [P] [US1] Add failing nearest-table, nested-table, expired-target, and missing-table tests in `tests/unit/target.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [x] T010 [P] [US1] Add failing exact-tab/frame injection, request routing, and single clipboard-write tests in `tests/integration/browser-interaction.test.ts`
+- [x] T010 [P] [US1] Add failing exact-tab/supported-frame injection, request routing, and single clipboard-write tests in `tests/integration/browser-interaction.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
 - [x] T011 [US1] Extend manifest tests to require exactly `activeTab`, `clipboardWrite`, `menus`, `notifications`, and `scripting` and forbid host/content-script/clipboard-read authority in `tests/unit/manifest.test.ts`
 
@@ -81,9 +81,9 @@
 ### Tests for User Story 2
 
 <!-- squad:agent=qa-engineer tier=full -->
-- [x] T019 [P] [US2] Add failing matrix extraction tests for sections, headers, uneven rows, empty cells, row/column spans, nested tables, images, links, and hidden/unsafe content in `tests/unit/extract.test.ts`
+- [x] T019 [P] [US2] Add failing matrix extraction tests for row groups, sections, headers, uneven rows, empty padding cells, HTML-correct row/column spans, nested tables, images, links, and hidden/unsafe content in `tests/unit/extract.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [x] T020 [P] [US2] Add failing byte-exact HTML/Markdown/text/CSV fixture tests in `tests/unit/serializers.test.ts`
+- [x] T020 [P] [US2] Add failing byte-exact HTML/Markdown/text/CSV fixture tests, including row-group-bounded `rowspan="0"`, in `tests/unit/serializers.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
 - [x] T021 [P] [US2] Add failing safe-inline URL, escaping, and executable-markup rejection tests in `tests/unit/safe-inline.test.ts`
 
@@ -119,7 +119,7 @@
 <!-- squad:agent=qa-engineer tier=standard -->
 - [x] T029 [P] [US3] Add failing fixed-copy, replacement, timeout, and accessibility tests for in-page feedback in `tests/unit/feedback.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [x] T030 [P] [US3] Add failing failure-category, zero-write, rejected-write, no-retry, no-log, and payload-release tests in `tests/integration/browser-interaction.test.ts`
+- [x] T030 [P] [US3] Add failing failure-category, zero-write, rejected-write, no-retry, no-log, payload-release, and post-injection delivery-loss tests in `tests/integration/browser-interaction.test.ts`
 
 ### Implementation for User Story 3
 
@@ -151,10 +151,25 @@
 
 ---
 
+## Phase 7: Final Review Corrections
+
+<!-- squad:agent=webextensions-engineer tier=full -->
+- [x] T040 Add a transport-faithful Firefox listener regression and return extraction responses as a real Promise without reserving responses for outcome or unrelated messages in `tests/unit/content-handler.test.ts` and `src/content/content-handler.ts`
+<!-- squad:agent=lead tier=standard -->
+- [x] T041 Record cross-origin embedded documents as unsupported without host permission across the specification, plan, contracts, documentation, and pending validation matrix while preserving fixed restriction feedback
+<!-- squad:agent=structured-data-engineer tier=full -->
+- [x] T042 Implement row-group-aware `rowspan="0"`, positive row-span clipping, distinct row/column limits, row-group preservation, and all-four-format byte-exact fixtures in `src/table/`, `tests/unit/`, and `tests/fixtures/tables/`
+<!-- squad:agent=lead tier=full -->
+- [x] T043 Add one fixed payload-free notification fallback for post-injection response/outcome delivery loss and prove successful payload release happens before notification in `src/background.ts` and `tests/integration/browser-interaction.test.ts`
+<!-- squad:agent=qa-engineer tier=full -->
+- [x] T044 Run focused tests and full `npm run verify`, append exact evidence to `.superpowers/sdd/002-copy-as-formats/task-3-report.md`, and preserve all Firefox GUI rows as pending
+
+---
+
 ## Dependencies and Execution Order
 
 - **Setup → Foundational → US1 → US2 → US3 → Verification** is the required phase order.
-- US1 establishes the browser interaction pipeline; US2 supplies its real extraction/serialization result; US3 completes trustworthy outcomes.
+- US1 establishes the browser interaction pipeline; US2 supplies its real extraction/serialization result; US3 completes trustworthy outcomes; Phase 7 closes whole-feature review findings before release validation.
 - Within each user story, all test tasks must be observed failing before corresponding implementation tasks begin.
 - T024-T027 may run in parallel after T023 because they own separate serializer files and consume the same stable model.
 - T034 and documentation drafting may proceed in parallel after US2, but final evidence waits for US3 and T035.

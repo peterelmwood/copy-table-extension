@@ -157,10 +157,41 @@ describe("logical table extraction", () => {
     });
   });
 
+  it("normalizes row spans within their owning row groups", () => {
+    const table = tableFromHtml(
+      readFileSync(resolve(fixtureDirectory, "rowspan-row-groups-table.html"), "utf8")
+    );
+
+    const logical = extractLogicalTable(table);
+
+    expect(logical.rows.map((row) => row.rowGroupIndex)).toEqual([0, 1, 1, 1, 2]);
+    expect(logical.rows[0]?.cells[0]).toMatchObject({
+      kind: "origin",
+      text: "Heading",
+      rowSpan: 1
+    });
+    expect(logical.rows[1]?.cells[0]).toMatchObject({
+      kind: "origin",
+      text: "Group A",
+      rowSpan: 3
+    });
+    expect(logical.rows[2]?.cells[0]).toEqual({
+      kind: "covered",
+      text: "",
+      ownerRow: 1,
+      ownerColumn: 0
+    });
+    expect(logical.rows[4]?.cells[0]).toMatchObject({
+      kind: "origin",
+      text: "Group B",
+      rowSpan: 1
+    });
+  });
+
   it.each([
-    ["zero row span", '<table><tr><td rowspan="0">bad</td></tr></table>'],
     ["non-numeric column span", '<table><tr><td colspan="many">bad</td></tr></table>'],
-    ["row span beyond the table", '<table><tr><td rowspan="2">bad</td></tr></table>']
+    ["row span above the HTML limit", '<table><tr><td rowspan="65535">bad</td></tr></table>'],
+    ["column span above the HTML limit", '<table><tr><td colspan="1001">bad</td></tr></table>']
   ])("rejects invalid table geometry: %s", (_caseName, html) => {
     expect(() => extractLogicalTable(tableFromHtml(html))).toThrowError("Invalid table geometry");
   });
