@@ -9,11 +9,11 @@
 **Purpose**: Extend the verified scaffold without weakening its deterministic build or permission gates.
 
 <!-- squad:agent=lead tier=standard -->
-- [ ] T001 Add content-bundle entry points and reviewed source/test paths to `scripts/build.mjs`, `tsconfig.json`, `eslint.config.js`, and `prettier.config.js`
+- [x] T001 Add content-bundle entry points and reviewed source/test paths to `scripts/build.mjs`, `tsconfig.json`, `eslint.config.js`, and `prettier.config.js`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T002 [P] Create reusable semantic-table fixtures and expected-output fixture layout under `tests/fixtures/tables/`
+- [x] T002 [P] Create reusable semantic-table fixtures and expected-output fixture layout under `tests/fixtures/tables/`
 <!-- squad:agent=lead tier=full -->
-- [ ] T003 Update build/package allowlists for the content bundle while preserving deterministic ZIP and safe-clean invariants in `tests/integration/build.test.ts` and `tests/integration/package.test.ts`
+- [x] T003 Update build/package allowlists for the content bundle while preserving deterministic ZIP and safe-clean invariants in `tests/integration/build.test.ts` and `tests/integration/package.test.ts`
 
 ---
 
@@ -22,13 +22,13 @@
 **Purpose**: Establish shared domain and browser message contracts required by all user stories.
 
 <!-- squad:agent=structured-data-engineer tier=full -->
-- [ ] T004 Add Copy Format, request/result, logical table, row/cell, safe-inline, and outcome types in `src/table/model.ts`
+- [x] T004 Add Copy Format, request/result, logical table, row/cell, safe-inline, and outcome types in `src/table/model.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T005 [P] Add typed browser request, response, and outcome message guards in `src/browser/messages.ts`
+- [x] T005 [P] Add typed browser request, response, and outcome message guards in `src/browser/messages.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T006 [P] Add failing message validation and unknown-input tests in `tests/unit/messages.test.ts`
+- [x] T006 [P] Add failing message validation and unknown-input tests in `tests/unit/messages.test.ts`
 <!-- squad:agent=lead tier=standard -->
-- [ ] T007 Make foundational type/message tests pass without adding runtime permissions or page access
+- [x] T007 Make foundational type/message tests pass without adding runtime permissions or page access
 
 **Checkpoint**: Shared contracts compile and reject malformed or payload-leaking failure messages.
 
@@ -43,30 +43,30 @@
 ### Tests for User Story 1
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T008 [P] [US1] Add failing exact menu hierarchy and idempotent-creation tests in `tests/unit/context-menu.test.ts`
+- [x] T008 [P] [US1] Add failing exact menu hierarchy and idempotent-creation tests in `tests/unit/context-menu.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T009 [P] [US1] Add failing nearest-table, nested-table, expired-target, and missing-table tests in `tests/unit/target.test.ts`
+- [x] T009 [P] [US1] Add failing nearest-table, nested-table, expired-target, and missing-table tests in `tests/unit/target.test.ts`
 <!-- squad:agent=qa-engineer tier=full -->
-- [ ] T010 [P] [US1] Add failing exact-tab/frame injection, request routing, and single clipboard-write tests in `tests/integration/browser-interaction.test.ts`
+- [x] T010 [P] [US1] Add failing exact-tab/frame injection, request routing, and single clipboard-write tests in `tests/integration/browser-interaction.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T011 [US1] Extend manifest tests to require only `activeTab`, `clipboardWrite`, `menus`, and `scripting` and forbid host/content-script/clipboard-read authority in `tests/unit/manifest.test.ts`
+- [x] T011 [US1] Extend manifest tests to require only `activeTab`, `clipboardWrite`, `menus`, and `scripting` and forbid host/content-script/clipboard-read authority in `tests/unit/manifest.test.ts`
 
 ### Implementation for User Story 1
 
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T012 [P] [US1] Implement the exact idempotent parent/child menu contract in `src/browser/context-menu.ts`
+- [x] T012 [P] [US1] Implement the exact idempotent parent/child menu contract in `src/browser/context-menu.ts`
 <!-- squad:agent=structured-data-engineer tier=standard -->
-- [ ] T013 [P] [US1] Implement expiring target resolution and nearest semantic-table selection in `src/content/target.ts`
+- [x] T013 [P] [US1] Implement expiring target resolution and nearest semantic-table selection in `src/content/target.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T014 [US1] Implement the guarded exact-frame content message handler in `src/content/content-handler.ts`
+- [x] T014 [US1] Implement the guarded exact-frame content message handler in `src/content/content-handler.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T015 [US1] Implement the injectable Firefox clipboard-write boundary in `src/browser/clipboard.ts`
+- [x] T015 [US1] Implement the injectable Firefox clipboard-write boundary in `src/browser/clipboard.ts`
 <!-- squad:agent=lead tier=full -->
-- [ ] T016 [US1] Orchestrate menu startup, one-off injection, exact-frame messaging, clipboard write, and payload release in `src/background.ts`
+- [x] T016 [US1] Orchestrate menu startup, one-off injection, exact-frame messaging, clipboard write, and payload release in `src/background.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T017 [US1] Update `src/manifest.json` and `scripts/build.mjs` for reviewed permissions and deterministic `content/content-handler.js` emission
+- [x] T017 [US1] Update `src/manifest.json` and `scripts/build.mjs` for reviewed permissions and deterministic `content/content-handler.js` emission
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T018 [US1] Make US1 tests pass and validate the new manifest/content bundle with Mozilla lint
+- [x] T018 [US1] Make US1 tests pass and validate the new manifest/content bundle with Mozilla lint
 
 **Checkpoint**: The P1 workflow is independently operational with no broad host access.
 

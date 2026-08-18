@@ -33,11 +33,12 @@ describe("Firefox manifest contract", () => {
     expect(action.default_popup).toBe("popup/index.html");
     expect(background.scripts).toEqual(["background.js"]);
     expect(background.service_worker).toBe("background.js");
-    expect(manifest.permissions).toBeUndefined();
+    expect(manifest.permissions).toEqual(["activeTab", "clipboardWrite", "menus", "scripting"]);
     expect(manifest.host_permissions).toBeUndefined();
     expect(manifest.optional_permissions).toBeUndefined();
     expect(manifest.optional_host_permissions).toBeUndefined();
     expect(manifest.content_scripts).toBeUndefined();
+    expect(manifest.permissions).not.toContain("clipboardRead");
     expect(manifest.externally_connectable).toBeUndefined();
     expect(manifest.native_messaging).toBeUndefined();
     expect(manifest.web_accessible_resources).toBeUndefined();
@@ -49,6 +50,7 @@ describe("Firefox manifest contract", () => {
 
   it("references only emitted extension files", () => {
     expect(existsSync(resolve(distDirectory, "background.js"))).toBe(true);
+    expect(existsSync(resolve(distDirectory, "content/content-handler.js"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/index.html"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.js"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.css"))).toBe(true);

@@ -40,6 +40,8 @@ describe("clean Firefox extension build", () => {
         .sort()
     ).toEqual([
       "background.js",
+      "content",
+      "content/content-handler.js",
       "manifest.json",
       "popup",
       "popup/index.html",

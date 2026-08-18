@@ -121,6 +121,7 @@ describe("Firefox release archive", () => {
 
     expect(files.map((file) => file.name).sort()).toEqual([
       "background.js",
+      "content/content-handler.js",
       "manifest.json",
       "popup/index.html",
       "popup/popup.css",

@@ -13,6 +13,7 @@ const webExtCommand = resolve(projectRoot, "node_modules/web-ext/bin/web-ext.js"
 const archiveFileName = "copy_table-1.0.0.zip";
 const archiveFiles = [
   "background.js",
+  "content/content-handler.js",
   "manifest.json",
   "popup/index.html",
   "popup/popup.css",
@@ -55,6 +56,7 @@ async function copyAssets() {
 async function buildExtension() {
   await clean();
   await mkdir(resolve(distDirectory, "popup"), { recursive: true });
+  await mkdir(resolve(distDirectory, "content"), { recursive: true });
   await copyAssets();
   await Promise.all([
     build({
@@ -74,6 +76,17 @@ async function buildExtension() {
       format: "esm",
       logLevel: "silent",
       outfile: resolve(distDirectory, "popup/popup.js"),
+      platform: "browser",
+      sourcemap: false,
+      target: "es2024"
+    }),
+    build({
+      bundle: true,
+      entryPoints: [resolve(sourceDirectory, "content/content-handler.ts")],
+      format: "iife",
+      globalName: "CopyTableContentHandler",
+      logLevel: "silent",
+      outfile: resolve(distDirectory, "content/content-handler.js"),
       platform: "browser",
       sourcemap: false,
       target: "es2024"
