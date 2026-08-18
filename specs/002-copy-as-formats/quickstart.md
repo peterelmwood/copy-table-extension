@@ -30,9 +30,10 @@ On a normal HTTPS page containing a semantic table:
 
 The nested table must be selected when clicked. Outside a table, feedback must appear and the existing clipboard must remain unchanged.
 
-If Firefox reports a restricted page or clipboard failure, record the outcome;
-do not retry automatically and do not inspect the clipboard. Table data is not
-stored, logged, or transmitted by Copy Table.
+If Firefox reports a restricted page, record the fixed extension notification;
+if it reports a clipboard failure, record the in-page message. Do not retry
+automatically or inspect the clipboard. Table data is not stored, logged, or
+transmitted by Copy Table.
 
 ## Manual release evidence
 

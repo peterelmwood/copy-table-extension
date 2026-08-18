@@ -118,16 +118,18 @@ describe("browser interaction", () => {
     }
   );
 
-  it("maps an injection rejection to restricted-page with no clipboard access or logs", async () => {
+  it("shows fixed protected-page notification when injection is rejected before a content receiver exists", async () => {
     const inject = vi.fn(async () => Promise.reject(new Error("protected page")));
     const sendMessage = vi.fn(async () => undefined);
-    const sendOutcome = vi.fn(async () => undefined);
+    const sendOutcome = vi.fn(async () => Promise.reject(new Error("no content receiver")));
+    const notifyRestrictedPage = vi.fn(async () => undefined);
     const writeText = vi.fn(async () => undefined);
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const controller = createBrowserInteractionController({
       inject,
       sendMessage,
       sendOutcome,
+      notifyRestrictedPage,
       writeText,
       nextRequestId: () => "request-restricted"
     });
@@ -138,18 +140,15 @@ describe("browser interaction", () => {
     );
 
     expect(sendMessage).not.toHaveBeenCalled();
+    expect(sendOutcome).not.toHaveBeenCalled();
     expect(writeText).not.toHaveBeenCalled();
     expect(consoleError).not.toHaveBeenCalled();
-    expect(sendOutcome).toHaveBeenCalledWith(
-      31,
-      {
-        type: "copy-table:outcome",
-        requestId: "request-restricted",
-        format: "html",
-        status: "restricted-page"
-      },
-      7
-    );
+    expect(notifyRestrictedPage).toHaveBeenCalledOnce();
+    expect(notifyRestrictedPage).toHaveBeenCalledWith({
+      type: "basic",
+      title: "Copy Table",
+      message: "Copy Table cannot access this protected page. Open a normal web page and try again."
+    });
   });
 
   it("performs one rejected write without retry or clipboard read and routes payload-free feedback", async () => {
@@ -193,5 +192,74 @@ describe("browser interaction", () => {
       7
     );
     expect(outcomes[0]).not.toHaveProperty("payload");
+  });
+
+  it("does not notify for an injectable-page extraction failure", async () => {
+    const inject = vi.fn(async () => undefined);
+    const sendMessage = vi.fn(async () => ({
+      ok: false as const,
+      requestId: "request-no-table",
+      format: "csv" as const,
+      reason: "no-table" as const
+    }));
+    const sendOutcome = vi.fn(async () => undefined);
+    const notifyRestrictedPage = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject,
+      sendMessage,
+      sendOutcome,
+      notifyRestrictedPage,
+      writeText,
+      nextRequestId: () => "request-no-table"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:csv", targetElementId: 9, frameId: 7 },
+      { id: 31 }
+    );
+
+    expect(notifyRestrictedPage).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      {
+        type: "copy-table:outcome",
+        requestId: "request-no-table",
+        format: "csv",
+        status: "no-table"
+      },
+      7
+    );
+  });
+
+  it("removes serialized payload from the response before waiting for feedback delivery", async () => {
+    const response = {
+      ok: true as const,
+      requestId: "request-lifetime",
+      format: "html" as const,
+      payload: "private table text"
+    };
+    let releaseOutcome: (() => void) | undefined;
+    const outcomePending = new Promise<void>((resolve) => {
+      releaseOutcome = resolve;
+    });
+    const sendOutcome = vi.fn(async () => outcomePending);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => response,
+      sendOutcome,
+      writeText: async () => undefined,
+      nextRequestId: () => "request-lifetime"
+    });
+
+    const operation = controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9, frameId: 7 },
+      { id: 31 }
+    );
+    await vi.waitFor(() => expect(sendOutcome).toHaveBeenCalledOnce());
+
+    expect(response).not.toHaveProperty("payload");
+    releaseOutcome?.();
+    await operation;
   });
 });

@@ -127,6 +127,19 @@ describe("Firefox release archive", () => {
       "popup/popup.css",
       "popup/popup.js"
     ]);
+    const packagedManifest = JSON.parse(
+      await archive.file("manifest.json")!.async("string")
+    ) as Record<string, unknown>;
+    expect(packagedManifest.permissions).toEqual([
+      "activeTab",
+      "clipboardWrite",
+      "menus",
+      "notifications",
+      "scripting"
+    ]);
+    expect(packagedManifest.host_permissions).toBeUndefined();
+    expect(packagedManifest.optional_permissions).toBeUndefined();
+    expect(packagedManifest.optional_host_permissions).toBeUndefined();
 
     const packagedJavaScript = await Promise.all(
       files.filter((file) => file.name.endsWith(".js")).map(async (file) => file.async("string"))

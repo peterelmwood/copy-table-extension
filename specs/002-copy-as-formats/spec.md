@@ -95,7 +95,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 - **PR-001**: Page access MUST be temporary and limited to the active tab after an explicit context-menu action.
 - **PR-002**: The extension MUST NOT request broad persistent access to all sites when temporary interaction-scoped access is sufficient.
 - **PR-003**: Clipboard authority MUST be limited to writing the explicit result; clipboard reads are prohibited.
-- **PR-004**: The only additional browser capabilities permitted are those strictly required to create the context menu, inspect the active interaction target, execute the user-requested conversion, and write the result.
+- **PR-004**: The only additional browser capabilities permitted are those strictly required to create the context menu, inspect the active interaction target, execute the user-requested conversion, write the result, and show one fixed local restriction notification when browser protection rejects injection before a page receiver exists.
 - **PR-005**: No page URL, table content, converted output, or interaction metadata may leave the local browser or survive the operation.
 
 ### Key Entities

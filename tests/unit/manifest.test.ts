@@ -33,7 +33,13 @@ describe("Firefox manifest contract", () => {
     expect(action.default_popup).toBe("popup/index.html");
     expect(background.scripts).toEqual(["background.js"]);
     expect(background.service_worker).toBe("background.js");
-    expect(manifest.permissions).toEqual(["activeTab", "clipboardWrite", "menus", "scripting"]);
+    expect(manifest.permissions).toEqual([
+      "activeTab",
+      "clipboardWrite",
+      "menus",
+      "notifications",
+      "scripting"
+    ]);
     expect(manifest.permissions).not.toContain("tabs");
     expect(manifest.permissions).not.toContain("storage");
     expect(manifest.permissions).not.toContain("webRequest");

@@ -47,9 +47,18 @@ Failures never contain table text or page metadata. Background maps injection fa
 
 Content displays one fixed, non-blocking toast and removes it automatically. Outcome messages contain no serialized payload.
 
+## Protected-page fallback
+
+If exact-frame injection is rejected before the content handler can exist,
+background does not attempt a same-frame outcome message. It creates one local
+Firefox `basic` notification with the fixed title `Copy Table` and fixed message
+`Copy Table cannot access this protected page. Open a normal web page and try again.`
+The notification contains no URL, target, format, payload, or page metadata and
+does not read or alter the clipboard.
+
 ## Clipboard invariant
 
 - Success performs one and only one clipboard write with the returned payload.
 - Extraction/injection failure performs zero clipboard operations.
 - Clipboard failure performs one rejected write and no retry or clipboard read.
-- All payload references are released after the attempt.
+- All payload references, including the content response field, are released after the attempt and before awaiting outcome feedback.

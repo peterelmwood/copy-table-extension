@@ -2,7 +2,7 @@
 
 ## Decision 1: Use interaction-scoped `activeTab`, not persistent host patterns
 
-**Decision**: Request menu, scripting, active-tab, and clipboard-write capabilities, with no host patterns and no clipboard-read authority.
+**Decision**: Request menu, scripting, active-tab, clipboard-write, and notifications capabilities, with no host patterns and no clipboard-read authority. The notification capability is used only to report a rejected exact-frame injection where a page toast cannot have a receiver.
 
 **Rationale**: Firefox grants `activeTab` when a user selects an extension context-menu item. It permits programmatic injection into the clicked tab only for that user action, matching the constitution's explicit-interaction and least-privilege rules.
 
@@ -10,6 +10,29 @@
 
 - Persistent all-site host access and a declared content script: rejected because it can inspect every matching page before a user request.
 - Optional broad host access: rejected because the action-specific grant is sufficient for ordinary web pages.
+
+## Decision 7: Use a fixed extension notification only for rejected injection
+
+**Decision**: When Firefox rejects exact-frame injection before the content
+handler exists, show one `basic` extension notification with fixed restriction
+copy. Do not send a same-frame outcome message, retry the injection, or include
+any page-derived data.
+
+**Rationale**: Browser-protected pages cannot render the injected in-page toast.
+Firefox's notifications API is extension controlled and requires the narrow
+`notifications` permission, without granting host, tab, clipboard-read, or
+network authority. The fixed message remains useful while disclosing no URL,
+target, requested format, converted table, or other page metadata.
+
+**Alternatives considered**:
+
+- A same-frame outcome message: rejected because a rejected injection means no
+  content receiver exists.
+- Persistent content scripts or broad host access: rejected because they would
+  weaken interaction-scoped access.
+- A notification for every result: rejected because ordinary pages can show the
+  less disruptive in-page toast; the capability is strictly a protected-page
+  fallback.
 
 ## Decision 2: Resolve Firefox's expiring target handle in the clicked document
 
@@ -68,3 +91,4 @@
 - [MDN permissions and activeTab](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/permissions)
 - [MDN clipboard interaction](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Interact_with_the_clipboard)
 - [MDN content scripts](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts)
+- [MDN notifications](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/user_interface/Notifications)

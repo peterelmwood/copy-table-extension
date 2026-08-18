@@ -5,7 +5,7 @@
 
 ## Summary
 
-Extend the Firefox-first Copy Table scaffold with a `Copy as` context-menu hierarchy for HTML, Markdown, plain text, and CSV. A menu click grants temporary active-tab authority, injects a guarded content handler into the exact clicked frame, resolves the clicked element through Firefox's target-element handle, constructs one logical table model, and returns the selected serialization to the background page for a single clipboard write. Success/failure feedback is shown in-page; no table content is persisted, logged, or transmitted.
+Extend the Firefox-first Copy Table scaffold with a `Copy as` context-menu hierarchy for HTML, Markdown, plain text, and CSV. A menu click grants temporary active-tab authority, injects a guarded content handler into the exact clicked frame, resolves the clicked element through Firefox's target-element handle, constructs one logical table model, and returns the selected serialization to the background page for a single clipboard write. Success/failure feedback is shown in-page; if Firefox rejects injection before a page receiver exists, a fixed extension notification reports the restriction. No table content is persisted, logged, or transmitted.
 
 ## Technical Context
 
@@ -27,7 +27,7 @@ Extend the Firefox-first Copy Table scaffold with a `Copy as` context-menu hiera
 |---|---|---|
 | Explicit Interaction and User Agency | Capture begins only after a chosen context-menu format | PASS — menu selection is the sole entry point |
 | Local-First Data Stewardship | Data remains local and ephemeral | PASS — model/result are memory-only; no storage, logs, telemetry, or network |
-| Least Privilege and Firefox-First Portability | Avoid broad host and clipboard-read authority | PASS — interaction-granted active-tab access plus menu, scripting, and clipboard-write capabilities only |
+| Least Privilege and Firefox-First Portability | Avoid broad host and clipboard-read authority | PASS — interaction-granted active-tab access plus menu, scripting, clipboard-write, and injection-rejection-only fixed notification capabilities |
 | Semantic Determinism and Format Fidelity | One model drives exact, tested serializers | PASS — fixtures and byte-for-byte format contracts cover spans and escaping |
 | Test-First Spec-Driven Delivery | Tests precede each extraction, serializer, and browser boundary | PASS — task order requires red tests before implementation |
 
@@ -105,7 +105,7 @@ tests/
 3. Background injects the guarded content bundle into `tab.id` and `info.frameId`, then sends `{targetElementId, format}` to that frame.
 4. Content code resolves the expiring target handle in the clicked document, finds the nearest containing table, builds the logical model, and serializes only the chosen format.
 5. Background receives a bounded result, writes the payload once using the Firefox extension clipboard boundary, then discards it.
-6. Background sends a payload-free outcome message to the same frame; content code renders a short success or failure toast.
+6. Background releases payload references before sending a payload-free outcome message to the same frame; content code renders a short success or failure toast. If injection itself was rejected, background instead displays the fixed local restriction notification.
 
 ## Delivery Phases
 
@@ -114,6 +114,7 @@ tests/
 - Confirm Firefox menu target-handle lifetime and same-document constraint.
 - Confirm context-menu actions activate `activeTab` and permit exact-frame one-off script injection without host patterns.
 - Confirm Firefox clipboard-write behavior after asynchronous extraction.
+- Confirm that the `notifications` API requires explicit permission and is usable as an extension-controlled restricted-page fallback without host or clipboard-read authority.
 - Define deterministic table geometry, safe inline content, and format rules.
 
 ### Phase 1 — Design and Contracts

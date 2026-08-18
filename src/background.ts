@@ -7,6 +7,14 @@ import {
 import { isCopyExtractResponse } from "./browser/messages";
 import type { CopyExtractRequest, CopyOutcomeMessage, CopyOutcomeStatus } from "./table/model";
 
+const RESTRICTED_PAGE_NOTIFICATION = {
+  type: "basic" as const,
+  title: "Copy Table",
+  message: "Copy Table cannot access this protected page. Open a normal web page and try again."
+};
+
+type RestrictedPageNotification = typeof RESTRICTED_PAGE_NOTIFICATION;
+
 export interface MenuClickData {
   menuItemId: unknown;
   targetElementId?: number;
@@ -21,6 +29,7 @@ export interface BrowserInteractionDependencies extends ClipboardWriter {
   inject(tabId: number, frameId: number, files: readonly string[]): Promise<void>;
   sendMessage(tabId: number, message: CopyExtractRequest, frameId: number): Promise<unknown>;
   sendOutcome?(tabId: number, message: CopyOutcomeMessage, frameId: number): Promise<void>;
+  notifyRestrictedPage?(notification: RestrictedPageNotification): Promise<void>;
   nextRequestId?(): string;
 }
 
@@ -29,6 +38,14 @@ function defaultRequestId(): string {
 }
 
 export function createBrowserInteractionController(dependencies: BrowserInteractionDependencies) {
+  async function notifyRestrictedPage(): Promise<void> {
+    try {
+      await dependencies.notifyRestrictedPage?.(RESTRICTED_PAGE_NOTIFICATION);
+    } catch {
+      // System notifications can be disabled; never log page data or retry.
+    }
+  }
+
   async function sendOutcome(
     tabId: number,
     request: CopyExtractRequest,
@@ -77,7 +94,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
       try {
         await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
       } catch {
-        await sendOutcome(tabId, request, frameId, "restricted-page");
+        await notifyRestrictedPage();
         return;
       }
 
@@ -103,7 +120,8 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         return;
       }
 
-      let payload = response.payload;
+      const successfulResponse = response;
+      let payload = successfulResponse.payload;
       let status: CopyOutcomeStatus = "copied";
       try {
         await dependencies.writeText(payload);
@@ -111,6 +129,8 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         status = "clipboard-failed";
       } finally {
         payload = "";
+        delete (successfulResponse as { payload?: string }).payload;
+        response = undefined;
       }
       await sendOutcome(tabId, request, frameId, status);
     }
@@ -134,6 +154,9 @@ interface BackgroundBrowserApi {
       options: { frameId: number }
     ): Promise<unknown>;
   };
+  notifications: {
+    create(id: string, options: RestrictedPageNotification): Promise<string>;
+  };
 }
 
 export function initializeBrowserCommandBoundary(
@@ -152,6 +175,9 @@ export function initializeBrowserCommandBoundary(
       browserApi.tabs.sendMessage(tabId, message, { frameId }),
     sendOutcome: async (tabId, message, frameId) => {
       await browserApi.tabs.sendMessage(tabId, message, { frameId });
+    },
+    notifyRestrictedPage: async (notification) => {
+      await browserApi.notifications.create("copy-table:restricted-page", notification);
     },
     ...createClipboardWriter(clipboard)
   });

@@ -39,9 +39,10 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 On a normal page containing a semantic `<table>`, right-click a cell, expand
 **Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
 The closest table containing the clicked element is copied. A short in-page
-message confirms success; outside a table, on restricted pages, or when the
-clipboard rejects the write, the message explains the failure and the existing
-clipboard is left unchanged.
+message confirms success. Outside a table or after a clipboard rejection, an
+in-page message explains the failure. If Firefox blocks page injection, a fixed
+extension notification explains that the protected page cannot be accessed; in
+every failure case, the existing clipboard is left unchanged.
 
 Automated verification does not claim Firefox GUI coverage. Record interactive
 results, including nested and no-table cases, in
@@ -89,8 +90,10 @@ same archive SHA-256 hash.
 
 ## Privacy, permissions, and boundaries
 
-The manifest declares exactly `activeTab`, `clipboardWrite`, `menus`, and
-`scripting`. It declares no host permissions, optional permissions,
+The manifest declares exactly `activeTab`, `clipboardWrite`, `menus`,
+`notifications`, and `scripting`. The notification capability is limited to
+fixed protected-page feedback after injection rejection; it receives no page
+data. The manifest declares no host permissions, optional permissions,
 content scripts, clipboard-read authority, storage, telemetry, or network
 destinations. Access is scoped to the user-selected menu action and its active
 tab/frame. Firefox Manifest V3 is the only supported runtime; Chromium
