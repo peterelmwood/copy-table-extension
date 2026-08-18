@@ -7,17 +7,21 @@
     "build": "node scripts/build.mjs build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "format:check": "prettier --check package.json package-lock.json tsconfig.json vitest.config.ts eslint.config.js prettier.config.js scripts src tests",
     "test": "vitest run",
     "lint:extension": "web-ext lint --source-dir dist",
     "start:firefox": "web-ext run --source-dir dist",
     "package": "web-ext build --source-dir dist --artifacts-dir web-ext-artifacts --overwrite-dest",
-    "verify": "npm run clean && npm run typecheck && npm run lint && npm test && npm run build && npm run lint:extension"
+    "verify": "npm run clean && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build && npm run lint:extension"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/eslint-parser": "^7.28.6",
+    "@babel/plugin-syntax-typescript": "^7.27.1",
     "@bradygaster/squad-cli": "^0.12.0",
     "@bradygaster/squad-sdk": "^0.12.0",
     "@eslint/js": "^9.0.0",

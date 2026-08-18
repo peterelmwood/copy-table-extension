@@ -16,7 +16,10 @@ async function clean() {
 
 async function copyAssets() {
   await cp(resolve(sourceDirectory, "manifest.json"), resolve(distDirectory, "manifest.json"));
-  await cp(resolve(sourceDirectory, "popup/index.html"), resolve(distDirectory, "popup/index.html"));
+  await cp(
+    resolve(sourceDirectory, "popup/index.html"),
+    resolve(distDirectory, "popup/index.html")
+  );
   await cp(resolve(sourceDirectory, "popup/popup.css"), resolve(distDirectory, "popup/popup.css"));
 }
 
@@ -24,17 +27,29 @@ async function buildExtension() {
   await clean();
   await mkdir(resolve(distDirectory, "popup"), { recursive: true });
   await copyAssets();
-  await build({
-    bundle: true,
-    entryPoints: [resolve(sourceDirectory, "background.ts"), resolve(sourceDirectory, "popup/popup.ts")],
-    format: "esm",
-    logLevel: "silent",
-    outbase: sourceDirectory,
-    outdir: distDirectory,
-    platform: "browser",
-    sourcemap: false,
-    target: "es2024"
-  });
+  await Promise.all([
+    build({
+      bundle: true,
+      entryPoints: [resolve(sourceDirectory, "background.ts")],
+      format: "iife",
+      globalName: "CopyTableBackground",
+      logLevel: "silent",
+      outfile: resolve(distDirectory, "background.js"),
+      platform: "browser",
+      sourcemap: false,
+      target: "es2024"
+    }),
+    build({
+      bundle: true,
+      entryPoints: [resolve(sourceDirectory, "popup/popup.ts")],
+      format: "esm",
+      logLevel: "silent",
+      outfile: resolve(distDirectory, "popup/popup.js"),
+      platform: "browser",
+      sourcemap: false,
+      target: "es2024"
+    })
+  ]);
 }
 
 const command = process.argv[2];

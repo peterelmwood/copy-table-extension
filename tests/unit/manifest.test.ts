@@ -1,11 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import { runInNewContext } from "node:vm";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const distDirectory = resolve(import.meta.dirname, "../../dist");
 const manifestPath = resolve(distDirectory, "manifest.json");
 const projectRoot = resolve(import.meta.dirname, "../..");
+const sourceManifestPath = resolve(projectRoot, "src/manifest.json");
 
 beforeAll(() => {
   execFileSync(process.execPath, ["scripts/build.mjs", "build"], {
@@ -34,6 +36,7 @@ describe("Firefox manifest contract", () => {
     expect(manifest.permissions).toBeUndefined();
     expect(manifest.host_permissions).toBeUndefined();
     expect(manifest.optional_permissions).toBeUndefined();
+    expect(manifest.optional_host_permissions).toBeUndefined();
     expect(manifest.content_scripts).toBeUndefined();
     expect(gecko.id).toBe("copy-structured-data@copytable.invalid");
     expect(dataCollectionPermissions.required).toEqual(["none"]);
@@ -44,5 +47,16 @@ describe("Firefox manifest contract", () => {
     expect(existsSync(resolve(distDirectory, "popup/index.html"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.js"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.css"))).toBe(true);
+  });
+
+  it("copies the reviewed source manifest without synthesis", () => {
+    expect(readFileSync(manifestPath, "utf8")).toBe(readFileSync(sourceManifestPath, "utf8"));
+  });
+
+  it("emits a classic script Firefox can execute for background.scripts", () => {
+    const backgroundSource = readFileSync(resolve(distDirectory, "background.js"), "utf8");
+
+    expect(backgroundSource).not.toMatch(/\b(?:export|import)\b/);
+    expect(() => runInNewContext(backgroundSource, Object.create(null))).not.toThrow();
   });
 });
