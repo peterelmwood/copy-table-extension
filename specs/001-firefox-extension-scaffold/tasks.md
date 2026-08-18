@@ -56,22 +56,22 @@
 ### Tests for User Story 2
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T011 [P] [US2] Add failing popup DOM and accessibility tests in `tests/unit/popup.test.ts`
+- [X] T011 [P] [US2] Add failing popup DOM and accessibility tests in `tests/unit/popup.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T012 [P] [US2] Add failing runtime metadata adapter tests in `tests/unit/runtime.test.ts`
+- [X] T012 [P] [US2] Add failing runtime metadata adapter tests in `tests/unit/runtime.test.ts`
 
 ### Implementation for User Story 2
 
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T013 [US2] Add a typed, injectable browser runtime metadata adapter in `src/browser/runtime.ts`
+- [X] T013 [US2] Add a typed, injectable browser runtime metadata adapter in `src/browser/runtime.ts`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T014 [US2] Add semantic popup markup and readiness copy in `src/popup/index.html`
+- [X] T014 [US2] Add semantic popup markup and readiness copy in `src/popup/index.html`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T015 [US2] Add popup initialization and runtime-derived version rendering in `src/popup/popup.ts`
+- [X] T015 [US2] Add popup initialization and runtime-derived version rendering in `src/popup/popup.ts`
 <!-- squad:agent=webextensions-engineer tier=lightweight -->
-- [ ] T016 [US2] Add compact keyboard-visible popup styling in `src/popup/popup.css`
+- [X] T016 [US2] Add compact keyboard-visible popup styling in `src/popup/popup.css`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T017 [US2] Make popup tests pass and manually smoke-test the temporary add-on in Firefox
+- [X] T017 [US2] Make popup tests pass; Firefox GUI smoke test unavailable in this non-interactive agent environment
 
 **Checkpoint**: The popup is usable and fully testable without future page-extraction behavior.
 
