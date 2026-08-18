@@ -33,6 +33,21 @@ const agents = [
     status: 'active',
   }),
   defineAgent({
+    name: 'release-engineer',
+    role: 'Release Automation and Firefox Add-ons Engineer',
+    description:
+      'Owns verified CI, reproducible release artifacts, and safe public AMO submission.',
+    model: 'gpt-4.1',
+    capabilities: [
+      { name: 'github-actions-ci-cd', level: 'expert' },
+      { name: 'firefox-addons-publishing', level: 'expert' },
+      { name: 'release-credential-isolation', level: 'expert' },
+      { name: 'reproducible-release-artifacts', level: 'expert' },
+      { name: 'release-status-recovery', level: 'proficient' },
+    ],
+    status: 'active',
+  }),
+  defineAgent({
     name: 'structured-data-engineer',
     role: 'DOM and Structured Data Engineer',
     description: 'Owns deterministic normalization and format fidelity.',
@@ -77,12 +92,13 @@ export default defineSquad({
   team: defineTeam({
     name: 'Copy Table Browser Extension Squad',
     description:
-      'A Firefox-first team for safe, deterministic structured-data capture.',
+      'A Firefox-first team for safe structured-data capture and verified public releases.',
     projectContext:
-      'Spec Kit artifacts are authoritative. Capture is explicit, local-only, permission-minimized, and Firefox-first.',
+      'Spec Kit artifacts are authoritative. Capture is explicit and local-only; releases are reproducible, credential-isolated, and Firefox-first.',
     members: [
       '@lead',
       '@webextensions-engineer',
+      '@release-engineer',
       '@structured-data-engineer',
       '@qa-engineer',
       '@scribe',
@@ -104,6 +120,14 @@ export default defineSquad({
         tier: 'standard',
         priority: 2,
         description: 'Firefox runtime, packaging, and browser boundaries.',
+      },
+      {
+        pattern: 'CI|CD|workflow|release|publish|publishing|AMO|Firefox Add-ons|tag|artifact|source archive|credential|GitHub Actions',
+        agents: ['@release-engineer'],
+        tier: 'standard',
+        priority: 2,
+        description:
+          'Build automation, release gates, artifacts, credentials, and public AMO submission.',
       },
       {
         pattern: 'DOM|table|normalize|HTML|Markdown|CSV|serializer|structured-data|rowspan|colspan|sanitize',
