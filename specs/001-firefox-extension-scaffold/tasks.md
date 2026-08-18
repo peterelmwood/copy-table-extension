@@ -9,13 +9,13 @@
 **Purpose**: Establish the toolchain and deterministic project layout used by every user story.
 
 <!-- squad:agent=lead tier=standard -->
-- [ ] T001 Add extension metadata, locked development dependencies, and build/quality scripts in `package.json` and `package-lock.json`
+- [X] T001 Add extension metadata, locked development dependencies, and build/quality scripts in `package.json` and `package-lock.json`
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T002 [P] Configure strict TypeScript and WebExtension types in `tsconfig.json`
+- [X] T002 [P] Configure strict TypeScript and WebExtension types in `tsconfig.json`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T003 [P] Configure Vitest/jsdom, ESLint, and Prettier in `vitest.config.ts`, `eslint.config.js`, and `prettier.config.js`
+- [X] T003 [P] Configure Vitest/jsdom, ESLint, and Prettier in `vitest.config.ts`, `eslint.config.js`, and `prettier.config.js`
 <!-- squad:agent=lead tier=full -->
-- [ ] T004 Create a clean deterministic asset-copy and bundle pipeline in `scripts/build.mjs`
+- [X] T004 Create a clean deterministic asset-copy and bundle pipeline in `scripts/build.mjs`
 
 ---
 
@@ -28,20 +28,20 @@
 ### Tests for User Story 1
 
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T005 [P] [US1] Add failing manifest contract tests for identity, Firefox target, referenced files, and zero permissions in `tests/unit/manifest.test.ts`
+- [X] T005 [P] [US1] Add failing manifest contract tests for identity, Firefox target, referenced files, and zero permissions in `tests/unit/manifest.test.ts`
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T006 [P] [US1] Add failing clean-build and required-file integration tests in `tests/integration/build.test.ts`
+- [X] T006 [P] [US1] Add failing clean-build and required-file integration tests in `tests/integration/build.test.ts`
 
 ### Implementation for User Story 1
 
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T007 [US1] Add the reviewed Firefox-first Manifest V3 definition in `src/manifest.json`
+- [X] T007 [US1] Add the reviewed Firefox-first Manifest V3 definition in `src/manifest.json`
 <!-- squad:agent=webextensions-engineer tier=lightweight -->
-- [ ] T008 [US1] Add the no-op browser command boundary in `src/background.ts`
+- [X] T008 [US1] Add the no-op browser command boundary in `src/background.ts`
 <!-- squad:agent=lead tier=standard -->
-- [ ] T009 [US1] Complete build entry-point bundling and asset emission in `scripts/build.mjs`
+- [X] T009 [US1] Complete build entry-point bundling and asset emission in `scripts/build.mjs`
 <!-- squad:agent=lead tier=standard -->
-- [ ] T010 [US1] Make manifest and build tests pass, then validate `dist/` with `npm run lint:extension`
+- [X] T010 [US1] Make manifest and build tests pass, then validate `dist/` with `npm run lint:extension`
 
 **Checkpoint**: A permission-minimal Firefox extension installs and starts independently of popup readiness styling.
 
