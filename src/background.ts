@@ -31,12 +31,12 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
   return {
     async handleMenuClick(info: MenuClickData, tab: ClickedTab): Promise<void> {
       const format = formatFromMenuItemId(info.menuItemId);
+      const frameId = info.frameId ?? 0;
       if (
         format === null ||
         typeof info.targetElementId !== "number" ||
         !Number.isInteger(info.targetElementId) ||
-        typeof info.frameId !== "number" ||
-        !Number.isInteger(info.frameId) ||
+        !Number.isInteger(frameId) ||
         typeof tab.id !== "number" ||
         !Number.isInteger(tab.id)
       ) {
@@ -50,7 +50,6 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         format
       };
       const tabId = tab.id;
-      const frameId = info.frameId;
 
       await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
       const response = await dependencies.sendMessage(tabId, request, frameId);

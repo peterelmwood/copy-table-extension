@@ -47,22 +47,35 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
   };
 }
 
+const CONTENT_HANDLER_INSTALL_GUARD = "__copyTableContentHandlerV1Installed";
+
 type BrowserMenuTargetApi = { getTargetElement(targetElementId: number): Element | null };
 type BrowserRuntimeMessages = {
   onMessage: { addListener(listener: (message: unknown) => unknown): void };
 };
+type FirefoxContentBrowserApi = {
+  menus: BrowserMenuTargetApi;
+  runtime: BrowserRuntimeMessages;
+};
+type ContentHandlerInstallationGlobal = Record<string, unknown>;
 
 export function registerContentHandler(
-  browserApi: BrowserMenuTargetApi & BrowserRuntimeMessages
+  browserApi: FirefoxContentBrowserApi,
+  installationGlobal: ContentHandlerInstallationGlobal = globalThis as ContentHandlerInstallationGlobal
 ): void {
-  browserApi.onMessage.addListener(
+  if (installationGlobal[CONTENT_HANDLER_INSTALL_GUARD] === true) {
+    return;
+  }
+
+  browserApi.runtime.onMessage.addListener(
     createContentMessageHandler({
-      getTargetElement: (targetElementId) => browserApi.getTargetElement(targetElementId)
+      getTargetElement: (targetElementId) => browserApi.menus.getTargetElement(targetElementId)
     })
   );
+  installationGlobal[CONTENT_HANDLER_INSTALL_GUARD] = true;
 }
 
-declare const browser: (BrowserMenuTargetApi & BrowserRuntimeMessages) | undefined;
+declare const browser: FirefoxContentBrowserApi | undefined;
 
 if (typeof browser !== "undefined") {
   registerContentHandler(browser);

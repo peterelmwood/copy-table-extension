@@ -53,4 +53,34 @@ describe("browser interaction", () => {
     expect(sendMessage).not.toHaveBeenCalled();
     expect(writeText).not.toHaveBeenCalled();
   });
+
+  it("uses top frame zero when Firefox omits the menu frame ID", async () => {
+    const inject = vi.fn(async () => undefined);
+    const sendMessage = vi.fn(async () => ({
+      ok: true as const,
+      requestId: "request-2",
+      format: "html" as const,
+      payload: "clicked-table"
+    }));
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject,
+      sendMessage,
+      writeText,
+      nextRequestId: () => "request-2"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9 },
+      { id: 31 }
+    );
+
+    expect(inject).toHaveBeenCalledWith(31, 0, ["content/content-handler.js"]);
+    expect(sendMessage).toHaveBeenCalledWith(
+      31,
+      expect.objectContaining({ format: "html", targetElementId: 9 }),
+      0
+    );
+    expect(writeText).toHaveBeenCalledWith("clicked-table");
+  });
 });

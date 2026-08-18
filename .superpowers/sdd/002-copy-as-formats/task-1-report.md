@@ -22,3 +22,14 @@ Final full verification: `node scripts/build.mjs verify` passed with 30 tests, T
 ## Scope boundary
 
 US2 serializers and US3 feedback/error outcome routing remain intentionally unimplemented. This batch neither scans pages nor requests persistent host/content-script access.
+
+## Review fix evidence — round 1
+
+- Corrected the injected handler to use the real Firefox namespaces: `browser.runtime.onMessage` for registration and `browser.menus.getTargetElement(...)` for exact clicked-element lookup.
+- Added the versioned `__copyTableContentHandlerV1Installed` global guard. Repeated one-off injections in the same frame now preserve one registered listener.
+- Normalized an omitted menu `frameId` to top frame `0`, while retaining any explicit frame ID for injection and message routing.
+- Added a realistic Firefox namespace registration test, a same-frame repeated-install test, and a missing-frame browser-interaction test. Before the production correction, these tests failed with the previous root-namespace `addListener` TypeError and zero injection calls for the missing-frame case.
+
+Review-fix focused verification: 5 tests passed across content-handler registration and browser-interaction routing.
+
+Review-fix full verification: `node scripts/build.mjs verify` passed with 33 tests, TypeScript typecheck, ESLint, Prettier, Firefox lint, build, and deterministic package creation. Mozilla lint remains at zero errors/notices with the existing `background.service_worker` ignored warning.
