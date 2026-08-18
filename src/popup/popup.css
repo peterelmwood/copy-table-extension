@@ -42,7 +42,7 @@ section {
   font-weight: 700;
 }
 
-:focus-visible {
+#readiness-region:focus-visible {
   outline: 3px solid #1455d9;
   outline-offset: 2px;
 }
