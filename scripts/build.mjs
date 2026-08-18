@@ -1,13 +1,26 @@
 import { spawn } from "node:child_process";
-import { cp, mkdir, rm } from "node:fs/promises";
+import { cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { build } from "esbuild";
+import JSZip from "jszip";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const sourceDirectory = resolve(projectRoot, "src");
 const distDirectory = resolve(projectRoot, "dist");
-const artifactsDirectory = resolve(projectRoot, "web-ext-artifacts");
+const artifactsDirectory = resolve(
+  projectRoot,
+  process.env.COPY_TABLE_ARTIFACTS_DIR ?? "web-ext-artifacts"
+);
 const webExtCommand = resolve(projectRoot, "node_modules/web-ext/bin/web-ext.js");
+const archiveFileName = "copy_table-1.0.0.zip";
+const archiveFiles = [
+  "background.js",
+  "manifest.json",
+  "popup/index.html",
+  "popup/popup.css",
+  "popup/popup.js"
+];
+const archiveTimestamp = new Date("1980-01-01T00:00:00.000Z");
 
 function runNodeCommand(arguments_) {
   return new Promise((resolveCommand, rejectCommand) => {
@@ -77,17 +90,37 @@ async function lintExtension() {
   await runNodeCommand([webExtCommand, "lint", "--source-dir", distDirectory]);
 }
 
+async function createDeterministicArchive() {
+  const archive = new JSZip();
+
+  for (const archiveFile of archiveFiles) {
+    archive.file(archiveFile, await readFile(resolve(distDirectory, archiveFile)), {
+      compression: "DEFLATE",
+      compressionOptions: { level: 9 },
+      createFolders: false,
+      date: archiveTimestamp,
+      unixPermissions: 0o100644
+    });
+  }
+
+  return archive.generateAsync({
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
+    platform: "UNIX",
+    streamFiles: false,
+    type: "nodebuffer"
+  });
+}
+
 async function packageExtension() {
   await buildExtension();
-  await runNodeCommand([
-    webExtCommand,
-    "build",
-    "--source-dir",
-    distDirectory,
-    "--artifacts-dir",
-    artifactsDirectory,
-    "--overwrite-dest"
-  ]);
+  await mkdir(artifactsDirectory, { recursive: true });
+
+  const archivePath = resolve(artifactsDirectory, archiveFileName);
+  const temporaryArchivePath = resolve(artifactsDirectory, `.${archiveFileName}.tmp`);
+
+  await writeFile(temporaryArchivePath, await createDeterministicArchive());
+  await rename(temporaryArchivePath, archivePath);
 }
 
 async function startFirefox() {
@@ -96,26 +129,31 @@ async function startFirefox() {
 }
 
 async function verify() {
-  await clean();
-  await runNodeCommand([resolve(projectRoot, "node_modules/typescript/lib/tsc.js"), "--noEmit"]);
-  await runNodeCommand([resolve(projectRoot, "node_modules/eslint/bin/eslint.js"), "."]);
-  await runNodeCommand([
-    resolve(projectRoot, "node_modules/prettier/bin/prettier.cjs"),
-    "--check",
-    "package.json",
-    "package-lock.json",
-    "tsconfig.json",
-    "vitest.config.ts",
-    "eslint.config.js",
-    "prettier.config.js",
-    "scripts",
-    "src",
-    "tests"
-  ]);
-  await runNodeCommand([resolve(projectRoot, "node_modules/vitest/vitest.mjs"), "run"]);
-  await buildExtension();
-  await lintExtension();
-  await packageExtension();
+  try {
+    await clean();
+    await runNodeCommand([resolve(projectRoot, "node_modules/typescript/lib/tsc.js"), "--noEmit"]);
+    await runNodeCommand([resolve(projectRoot, "node_modules/eslint/bin/eslint.js"), "."]);
+    await runNodeCommand([
+      resolve(projectRoot, "node_modules/prettier/bin/prettier.cjs"),
+      "--check",
+      "package.json",
+      "package-lock.json",
+      "tsconfig.json",
+      "vitest.config.ts",
+      "eslint.config.js",
+      "prettier.config.js",
+      "scripts",
+      "src",
+      "tests"
+    ]);
+    await runNodeCommand([resolve(projectRoot, "node_modules/vitest/vitest.mjs"), "run"]);
+    await buildExtension();
+    await lintExtension();
+    await packageExtension();
+  } catch (error) {
+    await clean();
+    throw error;
+  }
 }
 
 const command = process.argv[2];

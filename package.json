@@ -1,7 +1,7 @@
 {
   "name": "copy-table-extension",
   "version": "1.0.0",
-  "description": "Firefox-first Copy Structured Data extension scaffold",
+  "description": "Firefox-first Copy Table extension scaffold",
   "scripts": {
     "clean": "node scripts/build.mjs clean",
     "build": "node scripts/build.mjs build",
@@ -31,6 +31,7 @@
     "esbuild": "0.28.2",
     "eslint": "^9.0.0",
     "globals": "^16.0.0",
+    "jszip": "3.10.1",
     "jsdom": "^28.0.0",
     "prettier": "^3.0.0",
     "typescript": "7.0.2",

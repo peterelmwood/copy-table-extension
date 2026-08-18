@@ -5,7 +5,7 @@
 
 ## Summary
 
-Create the installable Firefox-first foundation for Copy Structured Data: a minimal Manifest V3 WebExtension with a popup, a background boundary, deterministic build/package commands, and automated checks for manifest validity, permissions, UI readiness, and archive contents. The scaffold intentionally contains no page-reading or clipboard behavior; those capabilities belong to later specs.
+Create the installable Firefox-first foundation for Copy Table: a minimal Manifest V3 WebExtension with a popup, a background boundary, deterministic build/package commands, and automated checks for manifest validity, permissions, UI readiness, and archive contents. The scaffold intentionally contains no page-reading or clipboard behavior; those capabilities belong to later specs.
 
 ## Technical Context
 
@@ -21,15 +21,15 @@ Create the installable Firefox-first foundation for Copy Structured Data: a mini
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Gate | Result |
-|---|---|---|
-| Explicit Interaction and User Agency | Scaffold must not inspect pages or copy data | PASS — no content script, host permission, or clipboard permission |
-| Local-First Data Stewardship | No captured data leaves the browser | PASS — feature has no capture path, network dependency, telemetry, or persistence |
-| Least Privilege and Firefox-First Portability | Permissions must be minimal and Firefox must be the validated target | PASS — zero privileged permissions; Firefox manifest is authoritative |
-| Semantic Determinism and Format Fidelity | Generated package and metadata must be reproducible | PASS — one clean build path and archive-content tests |
-| Test-First Spec-Driven Delivery | Tests precede implementation and map to acceptance criteria | PASS — manifest, popup, build, and package tests are required before source implementation |
+| Principle                                     | Gate                                                                 | Result                                                                                     |
+| --------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Explicit Interaction and User Agency          | Scaffold must not inspect pages or copy data                         | PASS — no content script, host permission, or clipboard permission                         |
+| Local-First Data Stewardship                  | No captured data leaves the browser                                  | PASS — feature has no capture path, network dependency, telemetry, or persistence          |
+| Least Privilege and Firefox-First Portability | Permissions must be minimal and Firefox must be the validated target | PASS — zero privileged permissions; Firefox manifest is authoritative                      |
+| Semantic Determinism and Format Fidelity      | Generated package and metadata must be reproducible                  | PASS — one clean build path and archive-content tests                                      |
+| Test-First Spec-Driven Delivery               | Tests precede implementation and map to acceptance criteria          | PASS — manifest, popup, build, and package tests are required before source implementation |
 
 Post-design re-check: **PASS**. The research and contracts introduce no constitutional exception. No Complexity Tracking entry is required.
 

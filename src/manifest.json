@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Copy Structured Data",
+  "name": "Copy Table",
   "version": "1.0.0",
   "action": {
     "default_popup": "popup/index.html"
@@ -11,7 +11,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "copy-structured-data@copytable.invalid",
+      "id": "copy-table@copytable.invalid",
       "data_collection_permissions": {
         "required": ["none"]
       }

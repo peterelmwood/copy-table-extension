@@ -52,3 +52,33 @@
   FR-002 and FR-003 still require the documented interactive Firefox
   temporary-load and popup smoke check; they are explicitly not claimed as
   completed by this non-GUI verification.
+
+## Final-review fix wave (I1–I3, M1–M2; I4 evidence gate)
+
+- **I1:** The shipped manifest, Gecko ID, popup title/heading, package metadata,
+  tests, contracts, model, plan, and contributor documentation now identify the
+  product as **Copy Table**. “Copy Structured Data” remains only a broader
+  descriptive concept where appropriate.
+- **I2:** Release packaging now uses JSZip with a fixed ordered allowlist,
+  1980-01-01 timestamp, Unix `0644` file mode, DEFLATE level 9, and non-streamed
+  output. The integration test waits across the legacy timestamp boundary and
+  compares SHA-256 hashes from two complete package runs.
+- **I3:** Archive tests package into OS-temporary directories instead of
+  `web-ext-artifacts/`. `verify` cleans generated output in its failure handler;
+  a test creates an intentionally unformatted but type-safe source fixture,
+  proves verification fails before its test stage, and verifies no release
+  artifact survives.
+- **M1/M2:** README and quickstart now contain prerequisite, stale-output,
+  Firefox loading/error-details, and expected-warning troubleshooting. Manifest
+  tests deny externally connectable, native messaging, web-accessible-resource,
+  CSP, and update surfaces; the package test checks emitted JavaScript for URL,
+  networking, and dynamic-code markers.
+- **I4:** `validation-record.md` is a concrete pending owner template for five
+  clean checkouts, timing, Firefox versions, temporary install, popup/keyboard
+  observations, errors, and interventions. No GUI or five-attempt outcome is
+  claimed here.
+- Fresh final command evidence: with this host's PowerShell npm-shell override,
+  `npm run verify` passed on 2026-08-18 with 5 test files and 13 tests,
+  TypeScript, ESLint, Prettier, Mozilla lint, build, and deterministic package
+  creation. Mozilla lint exited zero with the already documented
+  `BACKGROUND_SERVICE_WORKER_IGNORED` compatibility warning.

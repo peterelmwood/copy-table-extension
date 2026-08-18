@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 describe("popup readiness surface", () => {
-  it("identifies Copy Structured Data with a semantic ready state and deferred action copy", () => {
+  it("identifies Copy Table with a semantic ready state and deferred action copy", () => {
     loadPopupMarkup();
 
     const main = document.querySelector("main[aria-labelledby='popup-title']");
@@ -37,7 +37,7 @@ describe("popup readiness surface", () => {
     const deferredMessage = document.querySelector("#deferred-actions");
 
     expect(main).not.toBeNull();
-    expect(title?.textContent).toBe("Copy Structured Data");
+    expect(title?.textContent).toBe("Copy Table");
     expect(readiness?.textContent).toBe("Ready");
     expect(readiness?.getAttribute("aria-live")).toBe("polite");
     expect(deferredMessage?.textContent).toBe(

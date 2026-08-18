@@ -4,7 +4,7 @@
 
 **Decision**: Ship a Firefox Manifest V3 package and validate it with Mozilla's `web-ext` tooling.
 
-**Rationale**: Manifest V3 is Firefox's current extension platform. Mozilla's tooling provides target-specific linting, temporary-run support, and deterministic archive creation.
+**Rationale**: Manifest V3 is Firefox's current extension platform. Mozilla's tooling provides target-specific linting and temporary-run support. The project writes the release ZIP with fixed metadata rather than relying on tool-default archive timestamps.
 
 **Alternatives considered**:
 

@@ -36,4 +36,3 @@ to planning
 
 - All checklist items passed on the first validation review.
 - Firefox is a product scope constraint, not an implementation prescription.
-

@@ -28,7 +28,7 @@ describe("Firefox manifest contract", () => {
     const dataCollectionPermissions = gecko.data_collection_permissions as Record<string, unknown>;
 
     expect(manifest.manifest_version).toBe(3);
-    expect(manifest.name).toBe("Copy Structured Data");
+    expect(manifest.name).toBe("Copy Table");
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
     expect(action.default_popup).toBe("popup/index.html");
     expect(background.scripts).toEqual(["background.js"]);
@@ -38,7 +38,12 @@ describe("Firefox manifest contract", () => {
     expect(manifest.optional_permissions).toBeUndefined();
     expect(manifest.optional_host_permissions).toBeUndefined();
     expect(manifest.content_scripts).toBeUndefined();
-    expect(gecko.id).toBe("copy-structured-data@copytable.invalid");
+    expect(manifest.externally_connectable).toBeUndefined();
+    expect(manifest.native_messaging).toBeUndefined();
+    expect(manifest.web_accessible_resources).toBeUndefined();
+    expect(manifest.content_security_policy).toBeUndefined();
+    expect(manifest.update_url).toBeUndefined();
+    expect(gecko.id).toBe("copy-table@copytable.invalid");
     expect(dataCollectionPermissions.required).toEqual(["none"]);
   });
 
