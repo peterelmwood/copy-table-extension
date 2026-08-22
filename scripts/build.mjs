@@ -3,14 +3,17 @@ import { cp, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { build } from "esbuild";
 import JSZip from "jszip";
-import { cleanGeneratedOutput, resolveArtifactsDirectory } from "./artifact-path.mjs";
+import {
+  cleanGeneratedOutput,
+  extensionArchiveFileName,
+  resolveArtifactsDirectory
+} from "./artifact-path.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const sourceDirectory = resolve(projectRoot, "src");
 const distDirectory = resolve(projectRoot, "dist");
 const artifactsOverride = process.env.COPY_TABLE_ARTIFACTS_DIR;
 const webExtCommand = resolve(projectRoot, "node_modules/web-ext/bin/web-ext.js");
-const archiveFileName = "copy_table-1.0.0.zip";
 const archiveFiles = [
   "background.js",
   "content/content-handler.js",
@@ -123,6 +126,8 @@ async function createDeterministicArchive() {
 async function packageExtension() {
   await buildExtension();
   const artifactsDirectory = await resolveArtifactsDirectory({ artifactsOverride, projectRoot });
+  const manifest = JSON.parse(await readFile(resolve(distDirectory, "manifest.json"), "utf8"));
+  const archiveFileName = extensionArchiveFileName(manifest.version);
 
   await mkdir(artifactsDirectory, { recursive: true });
 
@@ -152,6 +157,18 @@ async function verify() {
       "vitest.config.ts",
       "eslint.config.js",
       "prettier.config.js",
+      "amo-metadata.json",
+      "AMO_BUILD.md",
+      "README.md",
+      ".github/workflows/build.yml",
+      ".github/workflows/publish-firefox.yml",
+      "specs/003-firefox-publishing/plan.md",
+      "specs/003-firefox-publishing/research.md",
+      "specs/003-firefox-publishing/data-model.md",
+      "specs/003-firefox-publishing/quickstart.md",
+      "specs/003-firefox-publishing/contracts",
+      "specs/003-firefox-publishing/tasks.md",
+      "specs/003-firefox-publishing/validation.md",
       "scripts",
       "src",
       "tests"

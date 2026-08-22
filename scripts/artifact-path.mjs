@@ -65,6 +65,10 @@ async function resolveTestArtifactsDirectory({ artifactsOverride, projectRoot, t
   return candidateDirectory;
 }
 
+export function extensionArchiveFileName(version) {
+  return `copy_table-${version}.zip`;
+}
+
 export async function resolveArtifactsDirectory({ artifactsOverride, projectRoot }) {
   if (artifactsOverride === undefined) {
     return resolve(projectRoot, "web-ext-artifacts");

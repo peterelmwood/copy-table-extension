@@ -54,7 +54,7 @@ describe("Firefox manifest contract", () => {
     expect(manifest.content_security_policy).toBeUndefined();
     expect(manifest.update_url).toBeUndefined();
     expect(manifest.developer).toBeUndefined();
-    expect(gecko.id).toBe("copy-table@copytable.invalid");
+    expect(gecko.id).toBe("copy-table@peterelmwood.com");
     expect(dataCollectionPermissions.required).toEqual(["none"]);
   });
 

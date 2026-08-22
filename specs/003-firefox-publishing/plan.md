@@ -18,7 +18,7 @@ workflow files remain declarative and dry runs never require credentials.
 
 **Language/Version**: JavaScript ES modules and TypeScript 7.0.2 on Node.js 24.18.0
 
-**Primary Dependencies**: Mozilla `web-ext` 9.4.0, JSZip 3.10.1, YAML 2.9.0,
+**Primary Dependencies**: Mozilla `web-ext` 10.6.0, JSZip 3.10.1, YAML 2.9.0,
 GitHub-hosted Actions runners, official GitHub checkout/setup-node/artifact actions
 
 **Storage**: No application storage; ephemeral `dist/`, `web-ext-artifacts/`,
