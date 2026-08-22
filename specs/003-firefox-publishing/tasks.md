@@ -201,7 +201,7 @@ Spec Kit traceability gates across all stories.
 
 <!-- squad:agent=qa-engineer tier=full -->
 
-- [ ] T025 Run two clean `release:dry-run` executions, compare extension and source SHA-256 hashes, and record reproducibility evidence in `specs/003-firefox-publishing/validation.md`
+- [x] T025 Run two clean `release:dry-run` executions, compare extension and source SHA-256 hashes, and record reproducibility evidence in `specs/003-firefox-publishing/validation.md`
 
 <!-- squad:agent=qa-engineer tier=standard -->
 
@@ -209,7 +209,7 @@ Spec Kit traceability gates across all stories.
 
 <!-- squad:agent=scribe tier=standard -->
 
-- [ ] T027 Run the final `npm.cmd run verify`, confirm all release tests and workflow contracts pass, and record exact counts and outputs in `specs/003-firefox-publishing/validation.md`
+- [x] T027 Run the final `npm.cmd run verify`, confirm all release tests and workflow contracts pass, and record exact counts and outputs in `specs/003-firefox-publishing/validation.md`
 
 <!-- squad:agent=qa-engineer tier=standard -->
 

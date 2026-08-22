@@ -18,3 +18,5 @@ export function validateReleaseVersions(
 ): ReleaseVersion;
 
 export function createReviewerSourceArchive(options: ReviewerSourceArchiveOptions): Promise<string>;
+
+export function collectRegularFiles(directory: string): Promise<string[]>;

@@ -95,8 +95,8 @@
 
 The following three checkpoints were captured before post-review hardening and
 are retained as historical context only. Their counts and hashes do not validate
-the current tree; T025-T027 are reopened until an esbuild-capable runner can
-repeat them.
+the current tree. T025 and T027 were later closed against the current tree; see
+the reproducibility and full-verification sections below.
 
 ### Historical pre-review reproducibility checkpoint
 
@@ -162,9 +162,9 @@ errors and the one established service-worker compatibility warning.
 - Reviewer-source safety explicitly rejects symbolic links plus environment and
   credential files even when they appear under an otherwise allowed source
   directory.
-- Tasks: 25 of 28 feature tasks are complete and retain their Squad routing
-  annotations. T025-T027 remain open solely for current-tree reproducibility,
-  quickstart replay, and full verification on an esbuild-capable runner.
+- Tasks: 27 of 28 feature tasks are complete and retain their Squad routing
+  annotations. T025 and T027 were closed by the current-tree evidence recorded
+  below; T026 remains open for the quickstart replay.
 
 ## Test timeout defects and current-tree reproducibility (2026-08-20)
 
@@ -191,21 +191,54 @@ run.
 ### Current-tree reproducibility (T025)
 
 Two consecutive credential-free dry runs on the current tree produced identical
-digests, each passing 20 test files and 147 tests:
+digests, each passing 20 test files and 152 tests:
 
 - Extension: `a336fce908da9c91178aa1e83ca7826819a7283b4f7568feddc8354b997f49ae`
-- Reviewer source: `a611a32a48eb9133c47d3f2e5703d32d04bce51bc9a309dddff57b86a39d2c68`
+- Reviewer source: `e51e4e1b58dcf532e1fa325ebbabb6589e65aa58e5317e77bb6d4f5eef168948`
 
 The extension digest is unchanged from the historical checkpoint above, because
 the timeout and documentation changes touch only tests and reviewer
 instructions. The reviewer-source digest supersedes the historical
 `8ca52a02...` value, because `AMO_BUILD.md` and both test files are inputs to
-the source archive.
+the source archive. The review fixes below moved it again, to the value above.
 
 ### Full verification (T027)
 
-`npm.cmd run verify` passed on the current tree: 20 test files, 147 tests, zero
+`npm.cmd run verify` passed on the current tree: 20 test files, 152 tests, zero
 TypeScript or ESLint errors, complete Prettier coverage, and Mozilla lint with
 zero errors and the one established service-worker compatibility warning.
 
 T026 remains open; the quickstart replay has not been repeated on this tree.
+
+## Automated review response (PR #2)
+
+Six inline findings were raised on the pull request. All six were reproduced
+against the code before any change was made, and each is now covered by a test.
+
+- Publish checkout resolved the tag name rather than the event revision, so a
+  tag retargeted between the push event and checkout could produce bytes that
+  disagree with the `github.sha` recorded in the release evidence. The step now
+  passes `ref: ${{ github.sha }}`, asserted by the workflow contract.
+- Evidence retention ran before the outcome summaries and blocked on
+  `if-no-files-found: error`. An upload failure after an accepted submission
+  therefore skipped all three summary steps through their implicit `success()`
+  condition, presenting a completed submission as a retryable failure and
+  inviting a duplicate release. Retention now runs last, after the outcome is
+  recorded, and the contract asserts that ordering.
+- `collectRegularFiles` rejected symbolic links among the entries it read but
+  not a link standing in for the traversal root, which `readdir` follows. The
+  root is now checked before its entries. The regression test exercises the
+  exported collector against a linked directory rather than replacing a real
+  source root, which would leave the repository broken if the test aborted.
+- The environment and credential deny policy covered only `.env`, `.env.*`, and
+  names beginning with `credential` or `secret`. It now also rejects `.npmrc`,
+  `.netrc`, `.pgpass`, `.git-credentials`, common private-key names, and the
+  `.env`, `.pem`, `.key`, `.p12`, `.pfx`, `.jks`, `.keystore`, `.asc`, `.gpg`,
+  and `.ppk` extensions.
+- Artifact destination containment was lexical only and never inspected the
+  filesystem, so a symbolic link standing in for a path segment could place the
+  reviewer archive outside the repository. The destination is now walked segment
+  by segment before anything is written, matching the protection already present
+  in `scripts/artifact-path.mjs`.
+- The task ledger contradicted the recorded evidence. T025 and T027 are now
+  checked, and the traceability note reads 27 of 28 with T026 outstanding.

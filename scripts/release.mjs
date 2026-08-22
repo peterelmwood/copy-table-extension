@@ -57,7 +57,21 @@ function isStrictChildDirectory(parentDirectory, candidateDirectory) {
   );
 }
 
-function validateArtifactsDirectory(projectRoot, artifactsDirectory) {
+async function lstatIfExists(path) {
+  try {
+    return await lstat(path);
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
+      return undefined;
+    }
+
+    throw error;
+  }
+}
+
+// A lexical containment check cannot see a symbolic link standing in for any path segment, so the
+// destination is also walked segment by segment before anything is written to it.
+async function validateArtifactsDirectory(projectRoot, artifactsDirectory) {
   const resolvedProjectRoot = resolve(projectRoot);
   const resolvedArtifactsDirectory = resolve(artifactsDirectory);
   const defaultArtifactsDirectory = resolve(resolvedProjectRoot, "web-ext-artifacts");
@@ -71,19 +85,73 @@ function validateArtifactsDirectory(projectRoot, artifactsDirectory) {
       "Reviewer artifact directory must use generated repository output under web-ext-artifacts or .copy-table-test-output."
     );
   }
+
+  let currentDirectory = resolvedProjectRoot;
+
+  for (const pathSegment of relative(resolvedProjectRoot, resolvedArtifactsDirectory).split(sep)) {
+    if (pathSegment === "") {
+      continue;
+    }
+
+    currentDirectory = resolve(currentDirectory, pathSegment);
+
+    if ((await lstatIfExists(currentDirectory))?.isSymbolicLink()) {
+      throw new Error(
+        `Reviewer artifact directory cannot traverse a symbolic link: ${currentDirectory}`
+      );
+    }
+  }
+
   return resolvedArtifactsDirectory;
 }
 
+const credentialFileNames = new Set([
+  ".env",
+  ".git-credentials",
+  ".netrc",
+  ".npmrc",
+  ".pgpass",
+  "id_dsa",
+  "id_ecdsa",
+  "id_ed25519",
+  "id_rsa"
+]);
+const credentialFileExtensions = new Set([
+  ".asc",
+  ".env",
+  ".gpg",
+  ".jks",
+  ".key",
+  ".keystore",
+  ".p12",
+  ".pem",
+  ".pfx",
+  ".ppk"
+]);
+
 function isEnvironmentOrCredentialFile(fileName) {
   const normalizedName = fileName.toLowerCase();
-  return (
-    normalizedName === ".env" ||
-    normalizedName.startsWith(".env.") ||
-    /^(?:credentials?|secrets?)(?:\.|$)/u.test(normalizedName)
-  );
+
+  if (credentialFileNames.has(normalizedName) || normalizedName.startsWith(".env.")) {
+    return true;
+  }
+
+  const extensionIndex = normalizedName.lastIndexOf(".");
+
+  if (extensionIndex > 0 && credentialFileExtensions.has(normalizedName.slice(extensionIndex))) {
+    return true;
+  }
+
+  return /^(?:credentials?|secrets?)(?:\.|$)/u.test(normalizedName);
 }
 
-async function collectRegularFiles(directory) {
+export async function collectRegularFiles(directory) {
+  // readdir follows a symbolic link standing in for the root itself, so the root is checked before
+  // its entries rather than only alongside them.
+  if ((await lstat(directory)).isSymbolicLink()) {
+    throw new Error(`Reviewer source cannot contain a symbolic link: ${directory}`);
+  }
+
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
   for (const entry of entries.sort((left, right) => compareBytewise(left.name, right.name))) {
@@ -109,7 +177,10 @@ function archiveEntryName(projectRoot, filePath) {
 }
 
 export async function createReviewerSourceArchive({ artifactsDirectory, projectRoot, version }) {
-  const validatedArtifactsDirectory = validateArtifactsDirectory(projectRoot, artifactsDirectory);
+  const validatedArtifactsDirectory = await validateArtifactsDirectory(
+    projectRoot,
+    artifactsDirectory
+  );
   const archive = new JSZip();
   const paths = [];
   for (const directory of sourceDirectories) {
