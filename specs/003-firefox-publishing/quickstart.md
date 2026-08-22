@@ -65,9 +65,18 @@ credentials, or unrelated local files.
 3. In GitHub, create the `firefox-production` environment and restrict it to
    protected version tags; optionally require an owner review.
 4. Add environment secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`.
-5. Merge the approved version bump to `main`, then create and push the matching
+5. Create a tag ruleset for `v*.*.*` that blocks updates and deletions, making
+   every release marker immutable.
+6. Merge the approved version bump to `main`, then create and push the matching
    stable tag, for example `v1.0.0`.
 
-The workflow's successful result means submitted to Mozilla. Confirm review and
-public availability in the AMO Developer Hub. After an ambiguous timeout, check
-the Developer Hub before rerunning the same version.
+The first successful listed-channel submission uses the committed manifest ID
+and `amo-metadata.json` to register the public listing. Do not create a second
+listing under a different extension ID.
+
+The workflow's successful result means submitted to Mozilla. It records the tag
+revision and archive hashes and retains both release archives for 30 days.
+Confirm review and public availability in the AMO Developer Hub. Correct a
+reported AMO validation or API rejection before releasing again. After an
+ambiguous timeout or transport failure, check the Developer Hub before
+rerunning the same version.

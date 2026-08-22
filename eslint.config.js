@@ -11,7 +11,13 @@ const languageOptions = {
 
 export default [
   {
-    ignores: ["dist/**", "web-ext-artifacts/**", "coverage/**", "node_modules/**"]
+    ignores: [
+      ".copy-table-test-output/**",
+      "coverage/**",
+      "dist/**",
+      "node_modules/**",
+      "web-ext-artifacts/**"
+    ]
   },
   {
     files: ["**/*.js", "**/*.mjs"],

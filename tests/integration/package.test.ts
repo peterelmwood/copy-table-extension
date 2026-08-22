@@ -155,6 +155,8 @@ describe("Firefox release archive", () => {
     expect(files.some((file) => file.name.endsWith(".map"))).toBe(false);
   });
 
+  // The spawned verification runs clean, tsc, ESLint, and Prettier before failing, which takes
+  // longer than the 5s default timeout on slower machines and CI runners.
   it("removes the release artifact when verification fails", async () => {
     const artifactsDirectory = await createTemporaryDirectory();
     const failureFixturePath = resolve(projectRoot, "src/.verify-failure.fixture.ts");
@@ -169,7 +171,7 @@ describe("Firefox release archive", () => {
     } finally {
       await rm(failureFixturePath, { force: true });
     }
-  });
+  }, 60_000);
 
   it.each([
     ["test-output root", "."],

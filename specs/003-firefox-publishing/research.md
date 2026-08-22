@@ -52,26 +52,30 @@ because pre-release distribution is explicitly out of scope. Automatically
 editing versions or creating tags was rejected because version review must
 remain a normal pull-request change.
 
-## Decision 4: Use locked web-ext 9.4.0 for listed submission
+## Decision 4: Use locked web-ext 10.6.0 for listed submission
 
-**Decision**: Keep the locked `web-ext` 9.4.0 and invoke `sign` with the listed
+**Decision**: Lock `web-ext` 10.6.0 and invoke `sign` with the listed
 channel, `dist/` source, committed AMO metadata, reviewer-source upload,
 noninteractive mode, and approval waiting disabled.
 
 **Rationale**: Since version 8, `web-ext sign` can create a new listed AMO entry
-and upload human-readable source. Version 9.4.0 supports the current project and
-Node 24, so a major tool upgrade is unrelated to this feature. Disabling the
-approval wait makes workflow success mean submitted, never necessarily public.
+and upload human-readable source. During implementation, npm's current advisory
+database reported critical transitive findings against 9.4.0 and identified
+10.6.0, Mozilla's 2026-08-04 release, as the remediation. The focused and full
+release gates pass under Node 24 with 10.6.0. Disabling the approval wait makes
+workflow success mean submitted, never necessarily public.
 
 **Alternatives considered**: Direct AMO API calls were rejected because they
-would recreate supported CLI behavior. Upgrading to web-ext 10 was rejected as
-unnecessary scope. Waiting synchronously for review was rejected because review
-can outlast a workflow and timeout ambiguously.
+would recreate supported CLI behavior. Retaining 9.4.0 was rejected after the
+advisory check exposed critical signer-path findings. Waiting synchronously for
+review was rejected because review can outlast a workflow and timeout
+ambiguously.
 
 **Sources**:
 
 - [Mozilla web-ext command reference](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/)
 - [Mozilla source code submission](https://extensionworkshop.com/documentation/publish/source-code-submission/)
+- [Mozilla web-ext 10.6.0 release](https://github.com/mozilla/web-ext/releases/tag/10.6.0)
 
 ## Decision 5: Commit minimal complete AMO metadata
 
@@ -112,9 +116,16 @@ dependencies, tests, and exact build instructions.
 ## Decision 7: Pin official GitHub actions to immutable commits
 
 **Decision**: Use only official GitHub actions and pin each `uses:` reference
-to a full commit SHA with a comment naming the corresponding release. Resolve
-the current compatible SHA immediately before implementation and cover the
-full-SHA form with workflow contract tests.
+to the following full commit SHA, with a comment naming the corresponding
+release:
+
+- `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (`v7.0.1`)
+- `actions/setup-node@820762786026740c76f36085b0efc47a31fe5020` (`v7.0.0`)
+- `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (`v7.0.1`)
+
+These releases were resolved from each official repository's latest release
+and verified against its tag reference with native Git on 2026-08-19. Cover
+the full-SHA form with workflow contract tests.
 
 **Rationale**: Immutable pins reduce supply-chain drift while comments preserve
 maintainability. Hosted `ubuntu-latest` runners satisfy current Node-based

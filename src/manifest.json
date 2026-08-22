@@ -12,7 +12,7 @@
   "permissions": ["activeTab", "clipboardWrite", "menus", "notifications", "scripting"],
   "browser_specific_settings": {
     "gecko": {
-      "id": "copy-table@copytable.invalid",
+      "id": "copy-table@peterelmwood.com",
       "data_collection_permissions": {
         "required": ["none"]
       }

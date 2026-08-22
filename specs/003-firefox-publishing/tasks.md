@@ -25,7 +25,8 @@ can be implemented and validated independently.
 
 **Purpose**: Add only the test tooling required to validate workflow YAML.
 
-- [ ] T001 Add direct `yaml` 2.9.0 development dependency for workflow contract parsing in `package.json` and `package-lock.json`
+- [x] T001 Add direct `yaml` 2.9.0 development dependency for workflow contract parsing in `package.json` and `package-lock.json`
+
 <!-- squad:agent=release-engineer tier=standard -->
 
 ---
@@ -37,9 +38,12 @@ before any workflow is authored.
 
 **⚠️ CRITICAL**: No user story work begins until both tasks complete.
 
-- [ ] T002 Run the unchanged baseline `npm.cmd run verify` and record its result, Node/npm versions, and artifact names in `specs/003-firefox-publishing/validation.md`
+- [x] T002 Run the unchanged baseline `npm.cmd run verify` and record its result, Node/npm versions, and artifact names in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T003 Resolve current compatible full commit SHAs for official checkout, setup-node, and upload-artifact actions and replace the implementation-time placeholder decision in `specs/003-firefox-publishing/research.md`
+
+- [x] T003 Resolve current compatible full commit SHAs for official checkout, setup-node, and upload-artifact actions and replace the implementation-time placeholder decision in `specs/003-firefox-publishing/research.md`
+
 <!-- squad:agent=release-engineer tier=full -->
 
 **Checkpoint**: Baseline behavior and immutable workflow dependencies are documented.
@@ -62,16 +66,22 @@ repository verification locally.
 > Write this test first and observe the expected failure because `build.yml`
 > does not exist.
 
-- [ ] T004 [US1] Add failing verification-workflow contract tests for triggers, permissions, pins, commands, retention, and secret isolation in `tests/contract/workflows.test.ts`
+- [x] T004 [US1] Add failing verification-workflow contract tests for triggers, permissions, pins, commands, retention, and secret isolation in `tests/contract/workflows.test.ts`
+
 <!-- squad:agent=qa-engineer tier=standard -->
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Create the read-only pull-request/main verification workflow in `.github/workflows/build.yml` to satisfy `contracts/build-workflow.md`
+- [x] T005 [US1] Create the read-only pull-request/main verification workflow in `.github/workflows/build.yml` to satisfy `contracts/build-workflow.md`
+
 <!-- squad:agent=release-engineer tier=standard -->
-- [ ] T006 [P] [US1] Document verification runs and the 30-day unsigned artifact in `README.md`
+
+- [x] T006 [P] [US1] Document verification runs and the 30-day unsigned artifact in `README.md`
+
 <!-- squad:agent=scribe tier=lightweight -->
-- [ ] T007 [US1] Run `tests/contract/workflows.test.ts` and the complete `npm.cmd run verify` pipeline, then record the US1 checkpoint in `specs/003-firefox-publishing/validation.md`
+
+- [x] T007 [US1] Run `tests/contract/workflows.test.ts` and the complete `npm.cmd run verify` pipeline, then record the US1 checkpoint in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=standard -->
 
 **Checkpoint**: User Story 1 is independently functional and cannot publish.
@@ -92,26 +102,42 @@ confirm no external request occurs when a pre-submission gate fails.
 > Write all four contracts before their corresponding implementation and
 > observe failures caused by the missing release module/files/workflow.
 
-- [ ] T008 [P] [US2] Add failing stable-tag and package/manifest version agreement tests in `tests/unit/release-version.test.ts`
+- [x] T008 [P] [US2] Add failing stable-tag and package/manifest version agreement tests in `tests/unit/release-version.test.ts`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T009 [P] [US2] Add failing permanent Firefox ID and AMO summary/category/license tests in `tests/contract/amo-metadata.test.ts` and `tests/unit/manifest.test.ts`
+
+- [x] T009 [P] [US2] Add failing permanent Firefox ID and AMO summary/category/license tests in `tests/contract/amo-metadata.test.ts` and `tests/unit/manifest.test.ts`
+
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T010 [P] [US2] Add failing reviewer-source allowlist and basic archive-content tests in `tests/integration/release-source-package.test.ts`
+
+- [x] T010 [P] [US2] Add failing reviewer-source allowlist and basic archive-content tests in `tests/integration/release-source-package.test.ts`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T011 [US2] Extend `tests/contract/workflows.test.ts` with failing publish trigger, environment, permission, concurrency, gate, source-upload, and credential-mapping tests
+
+- [x] T011 [US2] Extend `tests/contract/workflows.test.ts` with failing publish trigger, environment, permission, concurrency, gate, source-upload, and credential-mapping tests
+
 <!-- squad:agent=qa-engineer tier=standard -->
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Implement exported stable-tag/version validation and deterministic reviewer-source packaging in `scripts/release.mjs`
+- [x] T012 [US2] Implement exported stable-tag/version validation and deterministic reviewer-source packaging in `scripts/release.mjs`
+
 <!-- squad:agent=release-engineer tier=standard -->
-- [ ] T013 [P] [US2] Replace the placeholder Firefox ID in `src/manifest.json` and add public listing data in `amo-metadata.json`, `LICENSE`, and `AMO_BUILD.md`
+
+- [x] T013 [P] [US2] Replace the placeholder Firefox ID in `src/manifest.json` and add public listing data in `amo-metadata.json`, `LICENSE`, and `AMO_BUILD.md`
+
 <!-- squad:agent=webextensions-engineer tier=standard -->
-- [ ] T014 [US2] Add `release:validate` and `release:source` command entry points and formatting inputs in `package.json` and `package-lock.json`
+
+- [x] T014 [US2] Add `release:validate` and `release:source` command entry points and formatting inputs in `package.json` and `package-lock.json`
+
 <!-- squad:agent=release-engineer tier=standard -->
-- [ ] T015 [US2] Create the tag-driven, read-only, `firefox-production` publishing workflow in `.github/workflows/publish-firefox.yml` to satisfy `contracts/publish-workflow.md`
+
+- [x] T015 [US2] Create the tag-driven, read-only, `firefox-production` publishing workflow in `.github/workflows/publish-firefox.yml` to satisfy `contracts/publish-workflow.md`
+
 <!-- squad:agent=release-engineer tier=full -->
-- [ ] T016 [US2] Run the US2 unit, contract, and integration tests plus `npm.cmd run verify`, then record the US2 checkpoint in `specs/003-firefox-publishing/validation.md`
+
+- [x] T016 [US2] Run the US2 unit, contract, and integration tests plus `npm.cmd run verify`, then record the US2 checkpoint in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=standard -->
 
 **Checkpoint**: User Stories 1 and 2 work independently; only an eligible tag can reach AMO submission.
@@ -132,20 +158,30 @@ summaries to confirm honest pending and recovery language.
 > Extend tests first and observe failures for determinism, symlink rejection,
 > dry-run orchestration, and missing outcome guidance.
 
-- [ ] T017 [US3] Extend `tests/integration/release-source-package.test.ts` with failing reproducibility, forbidden-path, symbolic-link, and no-credential dry-run tests
+- [x] T017 [US3] Extend `tests/integration/release-source-package.test.ts` with failing reproducibility, forbidden-path, symbolic-link, and no-credential dry-run tests
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T018 [US3] Extend `tests/contract/workflows.test.ts` with failing submitted-not-published summary, ambiguous-failure recovery, noninteractive, and approval-wait tests
+
+- [x] T018 [US3] Extend `tests/contract/workflows.test.ts` with failing submitted-not-published summary, ambiguous-failure recovery, noninteractive, and approval-wait tests
+
 <!-- squad:agent=qa-engineer tier=standard -->
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Complete deterministic source safety checks and implement `release:dry-run` orchestration in `scripts/release.mjs` and `package.json`
+- [x] T019 [US3] Complete deterministic source safety checks and implement `release:dry-run` orchestration in `scripts/release.mjs` and `package.json`
+
 <!-- squad:agent=release-engineer tier=standard -->
-- [ ] T020 [US3] Add submitted/pending and ambiguous-failure job summaries without credential interpolation in `.github/workflows/publish-firefox.yml`
+
+- [x] T020 [US3] Add submitted/pending and ambiguous-failure job summaries without credential interpolation in `.github/workflows/publish-firefox.yml`
+
 <!-- squad:agent=release-engineer tier=standard -->
-- [ ] T021 [P] [US3] Complete owner setup, reviewer build, dry-run, and recovery instructions in `AMO_BUILD.md`, `README.md`, and `specs/003-firefox-publishing/quickstart.md`
+
+- [x] T021 [P] [US3] Complete owner setup, reviewer build, dry-run, and recovery instructions in `AMO_BUILD.md`, `README.md`, and `specs/003-firefox-publishing/quickstart.md`
+
 <!-- squad:agent=scribe tier=lightweight -->
-- [ ] T022 [US3] Run all US3 tests and one no-credential dry run, then record the US3 checkpoint in `specs/003-firefox-publishing/validation.md`
+
+- [x] T022 [US3] Run all US3 tests and one no-credential dry run, then record the US3 checkpoint in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=standard -->
 
 **Checkpoint**: All user stories are independently functional and operationally auditable.
@@ -157,17 +193,28 @@ summaries to confirm honest pending and recovery language.
 **Purpose**: Close formatting, security, reproducibility, documentation, and
 Spec Kit traceability gates across all stories.
 
-- [ ] T023 Update Prettier and ESLint coverage for `.github/workflows/`, release metadata, scripts, tests, and docs in `package.json` and `eslint.config.js`
+- [x] T023 Update Prettier and ESLint coverage for `.github/workflows/`, release metadata, scripts, tests, and docs in `package.json` and `eslint.config.js`
+
 <!-- squad:agent=release-engineer tier=standard -->
-- [ ] T024 Perform a static security review for action pins, permissions, secret references, manifest permissions, remote code, source-map leakage, and archive exclusions; record evidence in `specs/003-firefox-publishing/validation.md`
+
+- [x] T024 Perform a static security review for action pins, permissions, secret references, manifest permissions, remote code, source-map leakage, and archive exclusions; record evidence in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=full -->
+
 - [ ] T025 Run two clean `release:dry-run` executions, compare extension and source SHA-256 hashes, and record reproducibility evidence in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=standard -->
+
 - [ ] T026 Execute every command in `specs/003-firefox-publishing/quickstart.md` that does not contact AMO and reconcile any documentation drift in `README.md`, `AMO_BUILD.md`, and `specs/003-firefox-publishing/quickstart.md`
+
 <!-- squad:agent=scribe tier=standard -->
+
 - [ ] T027 Run the final `npm.cmd run verify`, confirm all release tests and workflow contracts pass, and record exact counts and outputs in `specs/003-firefox-publishing/validation.md`
+
 <!-- squad:agent=qa-engineer tier=standard -->
-- [ ] T028 Review `specs/003-firefox-publishing/spec.md`, `plan.md`, `contracts/`, and `tasks.md` against the implementation; fix traceability gaps and mark every completed task `[X]` in `specs/003-firefox-publishing/tasks.md`
+
+- [x] T028 Review `specs/003-firefox-publishing/spec.md`, `plan.md`, `contracts/`, and `tasks.md` against the implementation; fix traceability gaps and mark every completed task `[X]` in `specs/003-firefox-publishing/tasks.md`
+
 <!-- squad:agent=lead tier=full -->
 
 ---

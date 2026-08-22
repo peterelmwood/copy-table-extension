@@ -25,6 +25,14 @@ the automated tests, builds `dist/`, runs Mozilla's Firefox manifest lint, and
 creates one release archive in `web-ext-artifacts/`. It is safe to repeat: the
 build test compares the generated file set and file contents across two builds.
 
+## Continuous verification
+
+Every pull request and push to `main` runs the same locked install and complete
+`npm run verify` pipeline on GitHub Actions. A successful run retains the
+unsigned Firefox ZIP as the `copy-table-firefox-unsigned` workflow artifact for
+exactly 30 days. This verification workflow has read-only repository access and
+cannot reach the Firefox publishing environment or AMO credentials.
+
 ## Load temporarily in Firefox
 
 ```powershell
@@ -68,6 +76,37 @@ Each archive is generated with a fixed entry order, timestamp, file mode, and
 compression settings. Packaging the same committed input twice produces the
 same archive SHA-256 hash.
 
+## Dry-run and publish a Firefox release
+
+Before creating a tag, reproduce the complete release candidate without AMO
+credentials:
+
+```powershell
+npm run release:dry-run -- v1.0.0
+```
+
+The stable tag must exactly match both package and manifest versions. The dry
+run executes every local gate and writes both the unsigned extension ZIP and
+`copy-table-source-1.0.0.zip`, printing a SHA-256 digest for each without
+contacting AMO.
+
+Public submission is handled only by `.github/workflows/publish-firefox.yml`
+for a pushed `vX.Y.Z` tag. The repository owner must create a protected
+`firefox-production` GitHub environment with environment secrets
+`AMO_JWT_ISSUER` and `AMO_JWT_SECRET`, plus a tag ruleset matching `v*.*.*`
+that blocks tag updates and deletions. The workflow also rejects deleted,
+forced, or non-new tag events. The first successful listed-channel submission
+registers the permanent `copy-table@peterelmwood.com` identity and listing
+metadata with AMO; later tags submit new versions of the same listing.
+
+A green publish workflow means submitted to AMO and pending review, not
+publicly available. The run summary records the exact revision and SHA-256
+digests, and the unsigned extension and reviewer-source archives are retained
+for 30 days. A known AMO validation or API rejection is reported as a failed
+gate. If the submission times out, loses its response, or otherwise has an
+uncertain result, treat the outcome as ambiguous: inspect the AMO Developer Hub
+before rerunning the same version to avoid a duplicate submission.
+
 ## Troubleshooting
 
 - **`web-ext` cannot find Firefox:** Confirm `node --version` reports Node 24
@@ -95,6 +134,11 @@ same archive SHA-256 hash.
 - **Mozilla lint warning:** `BACKGROUND_SERVICE_WORKER_IGNORED` is an expected
   non-blocking Firefox compatibility warning; lint errors are failures and must
   be resolved before packaging.
+- **Release tag is rejected:** Use an exact stable tag such as `v1.0.0`, and
+  confirm it matches `package.json` and `src/manifest.json` before retrying.
+- **Firefox submission outcome is unclear:** Inspect the version in the AMO
+  Developer Hub first. Do not rerun the same version until you know the prior
+  upload was not accepted.
 
 ## Privacy, permissions, and boundaries
 
