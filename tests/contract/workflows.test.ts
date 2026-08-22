@@ -101,7 +101,10 @@ describe("Firefox publishing workflow contract", () => {
     ]);
 
     const checkout = publish.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
-    expect(checkout?.with).toEqual({ "persist-credentials": false });
+    expect(checkout?.with).toEqual({
+      ref: "${{ github.sha }}",
+      "persist-credentials": false
+    });
     const commands = publish.steps.filter((step) => step.run).map((step) => step.run);
     expect(commands).toContain("npm ci");
     expect(commands).toContain('npm run release:dry-run -- "$RELEASE_TAG"');
@@ -165,6 +168,14 @@ describe("Firefox publishing workflow contract", () => {
 
     const summaries = `${submittedSummary?.run ?? ""}\n${failureSummary?.run ?? ""}`;
     expect(summaries).not.toMatch(/AMO_JWT_|WEB_EXT_API_|secrets\./);
+
+    // A blocking upload placed before these summaries would skip all three through their implicit
+    // success() condition, hiding an accepted submission behind a failed job.
+    const stepNames = publish.steps.map((step) => step.name);
+    const retentionIndex = stepNames.indexOf("Retain release evidence");
+    expect(retentionIndex).toBeGreaterThan(stepNames.indexOf("Record submitted outcome"));
+    expect(retentionIndex).toBeGreaterThan(stepNames.indexOf("Record known rejection"));
+    expect(retentionIndex).toBeGreaterThan(stepNames.indexOf("Record ambiguous outcome"));
   });
 
   it("records and retains release evidence linked to the tag revision", () => {

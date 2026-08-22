@@ -21,6 +21,10 @@ jobs:
       - name: Check out exact tag revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # Build from the immutable revision the event carried, not from the tag name. A tag
+          # retargeted between the push event and this checkout would otherwise produce bytes that
+          # do not match the github.sha recorded in the release evidence.
+          ref: "${{ github.sha }}"
           persist-credentials: false
 
       - name: Use Node.js 24
@@ -80,17 +84,6 @@ jobs:
           WEB_EXT_API_SECRET: "${{ secrets.AMO_JWT_SECRET }}"
         run: node scripts/submit-firefox.mjs
 
-      - name: Retain release evidence
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: firefox-release-${{ github.ref_name }}
-          path: |
-            web-ext-artifacts/copy_table-*.zip
-            web-ext-artifacts/copy-table-source-*.zip
-          if-no-files-found: error
-          retention-days: 30
-
       - name: Record submitted outcome
         if: steps.submit.outcome == 'success'
         shell: pwsh
@@ -113,3 +106,17 @@ jobs:
           'The submission step failed and its outcome may be ambiguous.' >> $env:GITHUB_STEP_SUMMARY
           'Inspect the AMO Developer Hub before rerunning this version.' >> $env:GITHUB_STEP_SUMMARY
           throw 'Firefox submission did not complete successfully.'
+
+      # Retention runs after the outcome is recorded. When it ran first, an upload failure after an
+      # accepted submission skipped the summary steps through their implicit success() condition,
+      # which made a completed submission look retryable and invited a duplicate release.
+      - name: Retain release evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: firefox-release-${{ github.ref_name }}
+          path: |
+            web-ext-artifacts/copy_table-*.zip
+            web-ext-artifacts/copy-table-source-*.zip
+          if-no-files-found: error
+          retention-days: 30

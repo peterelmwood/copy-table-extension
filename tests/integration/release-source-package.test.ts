@@ -5,7 +5,7 @@ import { mkdir, readFile, readdir, rm, symlink, unlink, writeFile } from "node:f
 import { resolve } from "node:path";
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
-import { createReviewerSourceArchive } from "../../scripts/release.mjs";
+import { collectRegularFiles, createReviewerSourceArchive } from "../../scripts/release.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "../..");
 const testRoot = resolve(projectRoot, ".copy-table-test-output/release-source-tests");
@@ -13,7 +13,17 @@ const artifactsDirectory = resolve(testRoot, "basic");
 const forbiddenDirectory = resolve(projectRoot, ".reviewer-source-forbidden");
 const environmentFixturePath = resolve(projectRoot, "src/.env.reviewer-fixture");
 const credentialFixturePath = resolve(projectRoot, "src/credentials.json");
+const npmrcFixturePath = resolve(projectRoot, "src/.npmrc");
+const suffixedEnvFixturePath = resolve(projectRoot, "src/reviewer-fixture.env");
+const privateKeyFixturePath = resolve(projectRoot, "src/reviewer-fixture.pem");
 const sourceLinkPath = resolve(projectRoot, "src/.reviewer-source-link-fixture");
+const deniedFixturePaths = [
+  environmentFixturePath,
+  credentialFixturePath,
+  npmrcFixturePath,
+  suffixedEnvFixturePath,
+  privateKeyFixturePath
+];
 
 function archiveHash(archivePath: string): Promise<string> {
   return readFile(archivePath).then((content) =>
@@ -21,10 +31,33 @@ function archiveHash(archivePath: string): Promise<string> {
   );
 }
 
+// Windows refuses link creation without the privilege, so callers skip instead of failing.
+async function createDirectoryLink(
+  target: string,
+  linkPath: string,
+  context: { skip: (reason: string) => void }
+): Promise<boolean> {
+  try {
+    await symlink(target, linkPath, process.platform === "win32" ? "junction" : "dir");
+    return true;
+  } catch (error) {
+    if (
+      process.platform === "win32" &&
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error.code === "EACCES" || error.code === "EPERM")
+    ) {
+      context.skip("Windows denied creation of the symbolic-link fixture.");
+      return false;
+    }
+    throw error;
+  }
+}
+
 afterEach(async () => {
   await unlink(sourceLinkPath).catch(() => undefined);
-  await rm(environmentFixturePath, { force: true });
-  await rm(credentialFixturePath, { force: true });
+  await Promise.all(deniedFixturePaths.map((path) => rm(path, { force: true })));
   await rm(testRoot, { force: true, recursive: true });
   await rm(forbiddenDirectory, { force: true, recursive: true });
 });
@@ -113,7 +146,10 @@ describe("Firefox reviewer source package", () => {
 
   it.each([
     ["environment file", environmentFixturePath, "AMO_JWT_SECRET=fixture-only\n"],
-    ["credential file", credentialFixturePath, '{"secret":"fixture-only"}\n']
+    ["credential file", credentialFixturePath, '{"secret":"fixture-only"}\n'],
+    ["registry configuration", npmrcFixturePath, "//registry.npmjs.org/:_authToken=fixture\n"],
+    ["suffixed environment file", suffixedEnvFixturePath, "AMO_JWT_ISSUER=fixture-only\n"],
+    ["private key", privateKeyFixturePath, "-----BEGIN PRIVATE KEY-----\nfixture\n"]
   ])("rejects a %s inside an allowed source directory", async (_kind, fixturePath, content) => {
     await writeFile(fixturePath, content);
 
@@ -124,6 +160,43 @@ describe("Firefox reviewer source package", () => {
         version: "1.0.0"
       })
     ).rejects.toThrow(/environment or credential file/i);
+  });
+
+  // readdir follows a symbolic link that replaces the traversal root, so the root needs its own
+  // check. Exercised through the exported collector rather than by replacing a real source
+  // directory, which would leave the repository broken if the test aborted midway.
+  it("rejects a source root that is itself a symbolic link", async (context) => {
+    const targetDirectory = resolve(testRoot, "external-root-target");
+    const linkedRoot = resolve(testRoot, "linked-root");
+
+    await mkdir(targetDirectory, { recursive: true });
+    await writeFile(resolve(targetDirectory, "sentinel.txt"), "must not be archived\n");
+
+    if (!(await createDirectoryLink(targetDirectory, linkedRoot, context))) {
+      return;
+    }
+
+    await expect(collectRegularFiles(linkedRoot)).rejects.toThrow(/symbolic link/i);
+  });
+
+  it("rejects an archive destination reached through a symbolic link", async (context) => {
+    const targetDirectory = resolve(testRoot, "external-destination");
+    const linkedDestination = resolve(testRoot, "linked-destination");
+
+    await mkdir(targetDirectory, { recursive: true });
+
+    if (!(await createDirectoryLink(targetDirectory, linkedDestination, context))) {
+      return;
+    }
+
+    await expect(
+      createReviewerSourceArchive({
+        artifactsDirectory: linkedDestination,
+        projectRoot,
+        version: "1.0.0"
+      })
+    ).rejects.toThrow(/symbolic link/i);
+    expect(existsSync(resolve(targetDirectory, "copy-table-source-1.0.0.zip"))).toBe(false);
   });
 
   // This test spawns a complete nested verification (clean, tsc, ESLint, Prettier, the full test
