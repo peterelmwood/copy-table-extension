@@ -31,6 +31,17 @@ describe("Firefox manifest contract", () => {
     expect(manifest.name).toBe("Copy Table");
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
     expect(action.default_popup).toBe("popup/index.html");
+    expect(action.default_icon).toEqual({
+      16: "icons/table-16.svg",
+      32: "icons/table.svg"
+    });
+    expect(manifest.icons).toEqual({
+      16: "icons/table-16.svg",
+      32: "icons/table.svg",
+      48: "icons/table.svg",
+      96: "icons/table.svg",
+      128: "icons/table.svg"
+    });
     expect(background.scripts).toEqual(["background.js"]);
     expect(background.service_worker).toBe("background.js");
     expect(manifest.permissions).toEqual([
@@ -64,6 +75,22 @@ describe("Firefox manifest contract", () => {
     expect(existsSync(resolve(distDirectory, "popup/index.html"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.js"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.css"))).toBe(true);
+    expect(existsSync(resolve(distDirectory, "icons/table.svg"))).toBe(true);
+    expect(existsSync(resolve(distDirectory, "icons/table-16.svg"))).toBe(true);
+  });
+
+  it("ships theme-adaptive icons that carry no scripting and no remote references", () => {
+    const iconSources = [
+      readFileSync(resolve(distDirectory, "icons/table.svg"), "utf8"),
+      readFileSync(resolve(distDirectory, "icons/table-16.svg"), "utf8")
+    ];
+
+    for (const iconSource of iconSources) {
+      expect(iconSource).toMatch(/prefers-color-scheme: dark/u);
+      expect(iconSource).not.toMatch(/<script/iu);
+      expect(iconSource).not.toMatch(/\bon[a-z]+\s*=/iu);
+      expect(iconSource).not.toMatch(/https?:\/\/(?!www\.w3\.org\/2000\/svg)/iu);
+    }
   });
 
   it("copies the reviewed source manifest without synthesis", () => {

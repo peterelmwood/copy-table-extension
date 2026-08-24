@@ -14,6 +14,8 @@ const archiveFileName = "copy_table-1.0.0.zip";
 const archiveFiles = [
   "background.js",
   "content/content-handler.js",
+  "icons/table-16.svg",
+  "icons/table.svg",
   "manifest.json",
   "popup/index.html",
   "popup/popup.css",
@@ -51,12 +53,18 @@ async function copyAssets() {
     resolve(distDirectory, "popup/index.html")
   );
   await cp(resolve(sourceDirectory, "popup/popup.css"), resolve(distDirectory, "popup/popup.css"));
+  await cp(resolve(sourceDirectory, "icons/table.svg"), resolve(distDirectory, "icons/table.svg"));
+  await cp(
+    resolve(sourceDirectory, "icons/table-16.svg"),
+    resolve(distDirectory, "icons/table-16.svg")
+  );
 }
 
 async function buildExtension() {
   await clean();
   await mkdir(resolve(distDirectory, "popup"), { recursive: true });
   await mkdir(resolve(distDirectory, "content"), { recursive: true });
+  await mkdir(resolve(distDirectory, "icons"), { recursive: true });
   await copyAssets();
   await Promise.all([
     build({
