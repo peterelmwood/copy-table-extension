@@ -8,6 +8,7 @@ const distDirectory = resolve(import.meta.dirname, "../../dist");
 const manifestPath = resolve(distDirectory, "manifest.json");
 const projectRoot = resolve(import.meta.dirname, "../..");
 const sourceManifestPath = resolve(projectRoot, "src/manifest.json");
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 beforeAll(() => {
   execFileSync(process.execPath, ["scripts/build.mjs", "build"], {
@@ -89,7 +90,25 @@ describe("Firefox manifest contract", () => {
       expect(iconSource).toMatch(/prefers-color-scheme: dark/u);
       expect(iconSource).not.toMatch(/<script/iu);
       expect(iconSource).not.toMatch(/\bon[a-z]+\s*=/iu);
-      expect(iconSource).not.toMatch(/https?:\/\/(?!www\.w3\.org\/2000\/svg)/iu);
+
+      // Elements and attributes that can pull in an external resource have no
+      // place in a toolbar icon, whatever scheme they would resolve through.
+      expect(iconSource).not.toMatch(/<(?:image|use|foreignObject|iframe)\b/iu);
+      expect(iconSource).not.toMatch(/\b(?:xlink:href|href)\s*=/iu);
+      expect(iconSource).not.toMatch(/@import/iu);
+
+      // url() may address a same-document fragment and nothing else, so
+      // url(#mask) passes while url(//host), url(https://…) and url(data:…)
+      // are all rejected.
+      expect(iconSource).not.toMatch(/\burl\(\s*["']?(?!#)/iu);
+
+      // Outside the one permitted namespace literal, no scheme-qualified URL,
+      // no protocol-relative authority, and no data: payload may appear.
+      const outsideNamespace = iconSource.replaceAll(SVG_NAMESPACE, "");
+
+      expect(outsideNamespace).not.toMatch(/[a-z][a-z\d+.-]*:\/\//iu);
+      expect(outsideNamespace).not.toMatch(/\/\//u);
+      expect(outsideNamespace).not.toMatch(/\bdata:/iu);
     }
   });
 
