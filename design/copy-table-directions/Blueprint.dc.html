@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #3D7FB8; text-decoration: underline; }
+    a:hover { color: #2C5F8A; }
+    .sec-h { margin: 0; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6E7688; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+    .note { margin: 0; font-size: 12px; line-height: 1.5; color: #6E7688; text-wrap: pretty; }
+  </style>
+</helmet>
+<div style="box-sizing: border-box; width: 560px; height: 1560px; padding: 32px; background: #F7F8FA; color: #22283A; font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 26px">
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span class="mono" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border: 1.5px solid {{accent}}; color: {{accent}}; font-size: 12px; font-weight: 500">A</span>
+      <p style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em">Blueprint</p>
+    </div>
+    <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #4C5468; text-wrap: pretty">A precision instrument. Hairline rules, a measured grid, one steel accent. It says the extraction is exact and the tool holds no opinion of its own, which is the actual promise: it copies what is there and nothing else.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">The mark</p>
+    <div style="display: flex; align-items: center; gap: 26px; padding: 26px; background: #FFFFFF; border: 1px solid #DCE0E8; background-image: linear-gradient(#EDF0F5 1px, transparent 1px), linear-gradient(90deg, #EDF0F5 1px, transparent 1px); background-size: 16px 16px">
+      <svg width="112" height="112" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table mark, Blueprint direction">
+        <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" stroke="{{accent}}" stroke-width="1.5" stroke-dasharray="3 2.6" opacity="0.6"></rect>
+        <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#FFFFFF" stroke="#22283A" stroke-width="2"></rect>
+        <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="{{accent}}" opacity="0.18"></path>
+        <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2"></path>
+        <path d="M5.75 33.4 H35.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+        <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.45; text-wrap: pretty">A table, and the copy of it lifting away.</p>
+        <p class="note">The dashed outline is the duplicate, not a second table, so it reads as intent rather than clutter. The tinted band is the header row, which is what the extractor keys on.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">At size</p>
+
+    <div style="display: flex; align-items: flex-end; gap: 28px; padding: 20px 26px; background: #FFFFFF; border: 1px solid #DCE0E8">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mark at 48 pixels">
+          <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" stroke="{{accent}}" stroke-width="1.5" stroke-dasharray="3 2.6" opacity="0.6"></rect>
+          <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#FFFFFF" stroke="#22283A" stroke-width="2"></rect>
+          <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="{{accent}}" opacity="0.18"></path>
+          <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2"></path>
+          <path d="M5.75 33.4 H35.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+          <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+        </svg>
+        <span class="mono" style="font-size: 10px; color: #6E7688">48</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mark at 32 pixels">
+          <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" stroke="{{accent}}" stroke-width="1.8" stroke-dasharray="3.4 2.8" opacity="0.6"></rect>
+          <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#FFFFFF" stroke="#22283A" stroke-width="2.4"></rect>
+          <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="{{accent}}" opacity="0.18"></path>
+          <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2.4"></path>
+          <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.6" opacity="0.5"></path>
+        </svg>
+        <span class="mono" style="font-size: 10px; color: #6E7688">32</span>
+      </div>
+      <p class="note" style="color: #4C5468; padding-bottom: 4px">The 32 cut drops the second body rule. Below that the drawing changes rather than shrinks.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #F9F9FB; border: 1px solid #DCE0E8; border-radius: 6px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><rect x="3.6" y="3.6" width="8.8" height="8.8" rx="2" stroke="#9AA0AE" stroke-width="1.3"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><circle cx="8" cy="8" r="5.2" stroke="#9AA0AE" stroke-width="1.3"></circle><circle cx="8" cy="8" r="1.6" fill="#9AA0AE"></circle></svg>
+        <span style="width: 1px; height: 16px; background: #DCE0E8"></span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table at 16 pixels on a light toolbar">
+          <rect x="5.6" y="2.6" width="7.8" height="6.8" rx="1.1" stroke="{{accent}}" stroke-width="1" stroke-dasharray="2 1.6" opacity="0.7"></rect>
+          <rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="#FFFFFF" stroke="#22283A" stroke-width="1.3"></rect>
+          <path d="M3.6 5.5 H10.4 A1.1 1.1 0 0 1 11.5 6.6 V8.2 H2.5 V6.6 A1.1 1.1 0 0 1 3.6 5.5 Z" fill="{{accent}}" opacity="0.22"></path>
+          <path d="M2.5 8.2 H11.5" stroke="#22283A" stroke-width="1.2"></path>
+          <path d="M7 8.2 V13.5" stroke="#22283A" stroke-width="0.95" opacity="0.55"></path>
+        </svg>
+        <span class="mono" style="margin-left: auto; font-size: 10px; color: #8A8F9C">16 / light toolbar</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #1C1B22; border: 1px solid #34333C; border-radius: 6px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><rect x="3.6" y="3.6" width="8.8" height="8.8" rx="2" stroke="#6E7484" stroke-width="1.3"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><circle cx="8" cy="8" r="5.2" stroke="#6E7484" stroke-width="1.3"></circle><circle cx="8" cy="8" r="1.6" fill="#6E7484"></circle></svg>
+        <span style="width: 1px; height: 16px; background: #3C3B46"></span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table at 16 pixels on a dark toolbar">
+          <rect x="5.6" y="2.6" width="7.8" height="6.8" rx="1.1" stroke="#6BA8D8" stroke-width="1" stroke-dasharray="2 1.6" opacity="0.75"></rect>
+          <rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="#1C1B22" stroke="#E3E6EE" stroke-width="1.3"></rect>
+          <path d="M3.6 5.5 H10.4 A1.1 1.1 0 0 1 11.5 6.6 V8.2 H2.5 V6.6 A1.1 1.1 0 0 1 3.6 5.5 Z" fill="#6BA8D8" opacity="0.35"></path>
+          <path d="M2.5 8.2 H11.5" stroke="#E3E6EE" stroke-width="1.2"></path>
+          <path d="M7 8.2 V13.5" stroke="#E3E6EE" stroke-width="0.95" opacity="0.6"></path>
+        </svg>
+        <span class="mono" style="margin-left: auto; font-size: 10px; color: #7C8090">16 / dark toolbar</span>
+      </div>
+      <p class="note" style="font-size: 11px">Neighbouring glyphs are placeholders, there to judge the mark in company. Dark needs its own asset: ink inverts, accent lifts to #6BA8D8.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Palette</p>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #22283A; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#22283A ink</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #6E7688; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#6E7688 muted</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: {{accent}}; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">steel accent</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #2C8A6A; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#2C8A6A ready</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #F7F8FA; border: 1px solid #DCE0E8; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#F7F8FA ground</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #FFFFFF; border: 1px solid #DCE0E8; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#FFFFFF surface</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #DCE0E8; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#DCE0E8 rule</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #E8A87C; border-radius: 3px"></span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">#E8A87C alert</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Type</p>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; background: #FFFFFF; border: 1px solid #DCE0E8">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span style="font-size: 25px; font-weight: 700; letter-spacing: -0.02em">Copied as Markdown</span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">Space Grotesk 700</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span style="font-size: 14px; font-weight: 400; color: #4C5468">Right-click a cell, then Copy as.</span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">Space Grotesk 400</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span class="mono" style="font-size: 13px; color: #22283A">HTML · Markdown · Plain text · CSV</span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">JetBrains Mono 400</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Applied</p>
+    <div style="display: flex; align-items: flex-start; gap: 16px">
+
+      <div style="box-sizing: border-box; width: 304px; display: grid; gap: 13px; padding: 16px; background: #FFFFFF; border: 1px solid #DCE0E8">
+        <div style="display: flex; align-items: center; gap: 9px">
+          <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table">
+            <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" stroke="{{accent}}" stroke-width="2" stroke-dasharray="3.4 2.8" opacity="0.6"></rect>
+            <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#FFFFFF" stroke="#22283A" stroke-width="2.6"></rect>
+            <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="{{accent}}" opacity="0.18"></path>
+            <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2.6"></path>
+            <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.8" opacity="0.5"></path>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 1px">
+            <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.01em">Copy Table</span>
+            <span class="mono" style="font-size: 10px; color: #6E7688">Firefox foundation</span>
+          </div>
+        </div>
+        <div style="height: 1px; background: #DCE0E8"></div>
+        <div style="display: grid; gap: 6px">
+          <span class="sec-h">Status</span>
+          <div style="display: flex; align-items: center; gap: 7px">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #2C8A6A"></span>
+            <span style="font-size: 13.5px; font-weight: 500; color: #2C8A6A">Ready</span>
+          </div>
+          <span style="font-size: 12px; line-height: 1.5; color: #6E7688; text-wrap: pretty">Structured-data copy actions are coming in a later feature.</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <span class="mono" style="font-size: 10.5px; color: #6E7688">Version 1.0.0</span>
+          <button type="button" style="border: 1px solid #22283A; border-radius: 2px; background: #FFFFFF; padding: 6px 14px; font-family: inherit; font-size: 12.5px; font-weight: 500; color: #22283A">Close</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; flex-grow: 1">
+        <div style="display: flex; align-items: center; gap: 9px; padding: 11px 13px; background: #22283A; border-radius: 2px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copied"><path d="M3 8.4 L6.4 11.8 L13 5.2" stroke="#6BA8D8" stroke-width="1.9" stroke-linecap="square"></path></svg>
+          <span style="font-size: 12.5px; color: #FFFFFF">Copied as Markdown.</span>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 9px; padding: 11px 13px; background: #22283A; border-radius: 2px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Failed" style="flex-shrink: 0; margin-top: 1px"><path d="M8 3.4 V9" stroke="#E8A87C" stroke-width="1.9" stroke-linecap="square"></path><rect x="7.05" y="10.9" width="1.9" height="1.9" fill="#E8A87C"></rect></svg>
+          <span style="font-size: 12.5px; line-height: 1.4; color: #FFFFFF">No table found at the selected location.</span>
+        </div>
+        <p class="note" style="font-size: 11px">Square corners and a mono-adjacent voice. The toast keeps its existing three-second life and bottom-right anchor.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: #FFFFFF; border-left: 2px solid {{accent}}">
+    <p class="sec-h">The honest cost</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.55; color: #4C5468; text-wrap: pretty">Hairlines are the whole character, and hairlines are exactly what 16px destroys. The 16 cut above already had to drop a rule and a tier of detail, and you ship two icon files rather than one.</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.55; color: #4C5468; text-wrap: pretty">There is a subtler cost. The front table is filled so it can hide the dashed copy behind it, which means the fill is really the toolbar color in disguise. On a custom Firefox theme that becomes a visible rectangle. The production asset would need to clip the copy rather than paint over it.</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.55; color: #4C5468; text-wrap: pretty">Pick this if the audience is people who read the permissions list before installing.</p>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#3D7FB8","section":"Colour"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? "#3D7FB8" };
+  }
+}
+</script>
+</body>
+</html>

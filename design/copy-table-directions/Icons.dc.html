@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #3D7FB8; text-decoration: underline; }
+    a:hover { color: #2C5F8A; }
+    .sec-h { margin: 0; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6E7688; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+    .note { margin: 0; font-size: 12px; line-height: 1.5; color: #6E7688; text-wrap: pretty; }
+  </style>
+</helmet>
+<div style="box-sizing: border-box; width: 560px; height: 1320px; padding: 32px; background: #F7F8FA; color: #22283A; font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 26px">
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <p style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em">Icon — construction</p>
+    <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #4C5468; text-wrap: pretty">Two SVG files, both self-theming. Everything below is what is actually in <span class="mono" style="font-size: 12.5px">src/icons/</span>, not a mockup of it.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">The two cuts</p>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; background: #FFFFFF; border: 1px solid #DCE0E8">
+        <svg width="96" height="96" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="align-self: center" role="img" aria-label="table.svg at 96 pixels">
+          <mask id="ic-a"><rect width="48" height="48" fill="#FFFFFF"></rect><rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#000000" stroke="#000000" stroke-width="3.6"></rect></mask>
+          <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" fill="none" stroke="#3D7FB8" stroke-width="1.5" stroke-dasharray="3 2.6" opacity="0.75" mask="url(#ic-a)"></rect>
+          <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="#3D7FB8" opacity="0.18"></path>
+          <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="none" stroke="#22283A" stroke-width="2"></rect>
+          <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2"></path>
+          <path d="M5.75 33.4 H35.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+          <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+        </svg>
+        <div style="display: flex; flex-direction: column; gap: 3px">
+          <span class="mono" style="font-size: 11px; font-weight: 500">table.svg</span>
+          <span class="note" style="font-size: 11px">48 grid · serves 32 and up</span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 20px; background: #FFFFFF; border: 1px solid #DCE0E8">
+        <svg width="96" height="96" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="align-self: center" role="img" aria-label="table-16.svg magnified to 96 pixels">
+          <mask id="ic-b"><rect width="16" height="16" fill="#FFFFFF"></rect><rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="#000000" stroke="#000000" stroke-width="2.3"></rect></mask>
+          <rect x="5.6" y="2.6" width="7.8" height="6.8" rx="1.1" fill="none" stroke="#3D7FB8" stroke-width="1" stroke-dasharray="2 1.6" opacity="0.8" mask="url(#ic-b)"></rect>
+          <path d="M3.6 5.5 H10.4 A1.1 1.1 0 0 1 11.5 6.6 V8.2 H2.5 V6.6 A1.1 1.1 0 0 1 3.6 5.5 Z" fill="#3D7FB8" opacity="0.22"></path>
+          <rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="none" stroke="#22283A" stroke-width="1.3"></rect>
+          <path d="M2.5 8.2 H11.5" stroke="#22283A" stroke-width="1.2"></path>
+          <path d="M7 8.2 V13.5" stroke="#22283A" stroke-width="0.95" opacity="0.55"></path>
+        </svg>
+        <div style="display: flex; flex-direction: column; gap: 3px">
+          <span class="mono" style="font-size: 11px; font-weight: 500">table-16.svg</span>
+          <span class="note" style="font-size: 11px">16 grid · magnified 6× here</span>
+        </div>
+      </div>
+
+    </div>
+    <p class="note" style="font-size: 11px">The 16 cut drops both body rules and the second column, and thickens what is left. It is a different drawing, not a smaller one.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Why the copy is masked, not covered</p>
+    <div style="display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: #4A3B6B">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <svg width="52" height="52" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Filled plate showing a pale rectangle on a custom theme">
+          <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" fill="none" stroke="#6BA8D8" stroke-width="1.5" stroke-dasharray="3 2.6" opacity="0.75"></rect>
+          <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#F7F8FA" stroke="#E3E6EE" stroke-width="2"></rect>
+          <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2"></path>
+          <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+        </svg>
+        <span class="mono" style="font-size: 9.5px; color: #C9BEE4">filled</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <svg width="52" height="52" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Masked plate sitting cleanly on a custom theme">
+          <mask id="ic-c"><rect width="48" height="48" fill="#FFFFFF"></rect><rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#000000" stroke="#000000" stroke-width="3.6"></rect></mask>
+          <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" fill="none" stroke="#6BA8D8" stroke-width="1.5" stroke-dasharray="3 2.6" opacity="0.75" mask="url(#ic-c)"></rect>
+          <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="#6BA8D8" opacity="0.32"></path>
+          <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="none" stroke="#E3E6EE" stroke-width="2"></rect>
+          <path d="M5.75 24.5 H35.25" stroke="#E3E6EE" stroke-width="2"></path>
+          <path d="M5.75 33.4 H35.25" stroke="#E3E6EE" stroke-width="1.3" opacity="0.5"></path>
+          <path d="M20.5 24.5 V42.25" stroke="#E3E6EE" stroke-width="1.3" opacity="0.5"></path>
+        </svg>
+        <span class="mono" style="font-size: 9.5px; color: #C9BEE4">masked</span>
+      </div>
+      <p style="margin: 0; font-size: 12px; line-height: 1.55; color: #E4DDF5; text-wrap: pretty">The board flagged this as a cost of the direction. It is fixed rather than shipped: a mask knocks the plate-shaped hole out of the dashed copy, so nothing paints a background and the mark sits on any theme.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Theme response</p>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 13px; background: #F9F9FB; border: 1px solid #DCE0E8; border-radius: 6px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="16 pixel light">
+          <mask id="ic-d"><rect width="16" height="16" fill="#FFFFFF"></rect><rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="#000000" stroke="#000000" stroke-width="2.3"></rect></mask>
+          <rect x="5.6" y="2.6" width="7.8" height="6.8" rx="1.1" fill="none" stroke="#3D7FB8" stroke-width="1" stroke-dasharray="2 1.6" opacity="0.8" mask="url(#ic-d)"></rect>
+          <path d="M3.6 5.5 H10.4 A1.1 1.1 0 0 1 11.5 6.6 V8.2 H2.5 V6.6 A1.1 1.1 0 0 1 3.6 5.5 Z" fill="#3D7FB8" opacity="0.22"></path>
+          <rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="none" stroke="#22283A" stroke-width="1.3"></rect>
+          <path d="M2.5 8.2 H11.5" stroke="#22283A" stroke-width="1.2"></path>
+          <path d="M7 8.2 V13.5" stroke="#22283A" stroke-width="0.95" opacity="0.55"></path>
+        </svg>
+        <span class="mono" style="font-size: 10px; color: #6E7688">light theme · ink #22283A · copy #3D7FB8</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 13px; background: #1C1B22; border: 1px solid #34333C; border-radius: 6px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="16 pixel dark">
+          <mask id="ic-e"><rect width="16" height="16" fill="#FFFFFF"></rect><rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="#000000" stroke="#000000" stroke-width="2.3"></rect></mask>
+          <rect x="5.6" y="2.6" width="7.8" height="6.8" rx="1.1" fill="none" stroke="#6BA8D8" stroke-width="1" stroke-dasharray="2 1.6" opacity="0.8" mask="url(#ic-e)"></rect>
+          <path d="M3.6 5.5 H10.4 A1.1 1.1 0 0 1 11.5 6.6 V8.2 H2.5 V6.6 A1.1 1.1 0 0 1 3.6 5.5 Z" fill="#6BA8D8" opacity="0.35"></path>
+          <rect x="2.5" y="5.5" width="9" height="8" rx="1.1" fill="none" stroke="#E3E6EE" stroke-width="1.3"></rect>
+          <path d="M2.5 8.2 H11.5" stroke="#E3E6EE" stroke-width="1.2"></path>
+          <path d="M7 8.2 V13.5" stroke="#E3E6EE" stroke-width="0.95" opacity="0.55"></path>
+        </svg>
+        <span class="mono" style="font-size: 10px; color: #8A8F9C">dark theme · ink #E3E6EE · copy #6BA8D8</span>
+      </div>
+      <p class="note" style="font-size: 11px">One <span class="mono" style="font-size: 10.5px">prefers-color-scheme</span> block inside each SVG, so there is no light/dark asset pair and no <span class="mono" style="font-size: 10.5px">theme_icons</span> mapping to get backwards.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Manifest mapping</p>
+    <div style="display: flex; flex-direction: column; gap: 0; background: #FFFFFF; border: 1px solid #DCE0E8">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 14px; border-bottom: 1px solid #DCE0E8">
+        <span class="mono" style="font-size: 10.5px; color: #6E7688">icons.16 · action.default_icon.16</span>
+        <span class="mono" style="font-size: 10.5px">icons/table-16.svg</span>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 14px">
+        <span class="mono" style="font-size: 10.5px; color: #6E7688">icons.32 / 48 / 96 / 128 · default_icon.32</span>
+        <span class="mono" style="font-size: 10.5px">icons/table.svg</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: #FFFFFF; border-left: 2px solid #3D7FB8">
+    <p class="sec-h">Still to confirm by hand</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.55; color: #4C5468; text-wrap: pretty">Firefox rendering SVG action icons is documented, but how a given build rasterises the dashed copy at exactly 16px is worth one look in the browser before release. That belongs in the validation record alongside the existing manual checks.</p>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
