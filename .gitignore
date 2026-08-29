@@ -30,3 +30,4 @@ web-ext-artifacts/
 .DS_Store
 Thumbs.db
 *.swp
+out/
