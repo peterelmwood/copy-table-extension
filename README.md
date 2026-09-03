@@ -69,8 +69,9 @@ npm run package
 The command rebuilds before packaging and writes exactly one unsigned Firefox
 archive (currently a `.zip`) to `web-ext-artifacts/`. The archive contains only
 `manifest.json`, `background.js`, `content/content-handler.js`,
-`popup/index.html`, `popup/popup.js`, and `popup/popup.css`. Both generated
-directories are ignored by Git and must not be edited by hand.
+`popup/index.html`, `popup/popup.js`, `popup/popup.css`, `icons/table.svg`, and
+`icons/table-16.svg`. Both generated directories are ignored by Git and must not
+be edited by hand.
 
 Each archive is generated with a fixed entry order, timestamp, file mode, and
 compression settings. Packaging the same committed input twice produces the
@@ -153,6 +154,15 @@ top-level or same-origin document in its active tab. Cross-origin embedded
 documents are explicitly out of scope rather than covered by broader host
 authority. Firefox Manifest V3 is the only supported runtime; Chromium
 packaging and validation are intentionally deferred.
+
+The toolbar icon is two SVG files under `src/icons/`: `table.svg` carries the
+full drawing for 32px and above, and `table-16.svg` is a separately drawn
+16px cut rather than the same artwork scaled down. Both adapt to the active
+theme through a `prefers-color-scheme` media query inside the SVG, so no
+`theme_icons` pair is required, and neither file paints a background — the
+duplicate plate is masked rather than covered, so the icon carries no assumption
+about the toolbar color. The icons contain no script, no event handlers, and no
+remote references; `tests/unit/manifest.test.ts` enforces all three.
 
 Browser-facing code is isolated in `src/background.ts`, the clipboard,
 context-menu, message, and runtime adapters under `src/browser/`, and

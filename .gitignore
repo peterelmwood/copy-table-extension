@@ -15,6 +15,9 @@ dist/
 build/
 coverage/
 web-ext-artifacts/
+# Design canvas: generated single-file output, re-seeded from the .dc.html
+# sources and canvas.json alongside it
+design/**/copy-table-icon-directions.html
 .copy-table-test-output/
 *.log
 .specify/extensions/.cache/
