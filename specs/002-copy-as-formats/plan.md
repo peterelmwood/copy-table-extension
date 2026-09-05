@@ -21,15 +21,15 @@ Extend the Firefox-first Copy Table scaffold with a `Copy as` context-menu hiera
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Gate | Result |
-|---|---|---|
-| Explicit Interaction and User Agency | Capture begins only after a chosen context-menu format | PASS — menu selection is the sole entry point |
-| Local-First Data Stewardship | Data remains local and ephemeral | PASS — model/result are memory-only; no storage, logs, telemetry, or network |
-| Least Privilege and Firefox-First Portability | Avoid broad host and clipboard-read authority | PASS — interaction-granted active-tab access plus menu, scripting, clipboard-write, and fixed notification capabilities for injection rejection and post-injection delivery loss |
-| Semantic Determinism and Format Fidelity | One model drives exact, tested serializers | PASS — fixtures and byte-for-byte format contracts cover spans and escaping |
-| Test-First Spec-Driven Delivery | Tests precede each extraction, serializer, and browser boundary | PASS — task order requires red tests before implementation |
+| Principle                                     | Gate                                                            | Result                                                                                                                                                                           |
+| --------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Explicit Interaction and User Agency          | Capture begins only after a chosen context-menu format          | PASS — menu selection is the sole entry point                                                                                                                                    |
+| Local-First Data Stewardship                  | Data remains local and ephemeral                                | PASS — model/result are memory-only; no storage, logs, telemetry, or network                                                                                                     |
+| Least Privilege and Firefox-First Portability | Avoid broad host and clipboard-read authority                   | PASS — interaction-granted active-tab access plus menu, scripting, clipboard-write, and fixed notification capabilities for injection rejection and post-injection delivery loss |
+| Semantic Determinism and Format Fidelity      | One model drives exact, tested serializers                      | PASS — fixtures and byte-for-byte format contracts cover spans and escaping                                                                                                      |
+| Test-First Spec-Driven Delivery               | Tests precede each extraction, serializer, and browser boundary | PASS — task order requires red tests before implementation                                                                                                                       |
 
 Post-design re-check: **PASS**. The content handler may remain registered in a page after first injection, but it performs no scan and stores no payload; it acts only on a new background message resulting from an explicit menu action. No constitutional exception is required.
 

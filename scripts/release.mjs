@@ -10,12 +10,13 @@ const stableTagPattern = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const archiveTimestamp = new Date("1980-01-01T00:00:00.000Z");
 const sourceDirectories = ["scripts", "src", "tests"];
 const sourceFiles = [
+  ".prettierignore",
   "AMO_BUILD.md",
   "LICENSE",
   "README.md",
   "amo-metadata.json",
+  "bun.lock",
   "eslint.config.js",
-  "package-lock.json",
   "package.json",
   "prettier.config.js",
   "tsconfig.json",

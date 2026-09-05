@@ -76,7 +76,7 @@ describe("Firefox reviewer source package", () => {
     expect(entries).toContain("src/manifest.json");
     expect(entries).toContain("scripts/build.mjs");
     expect(entries).toContain("tests/unit/manifest.test.ts");
-    expect(entries).toContain("package-lock.json");
+    expect(entries).toContain("bun.lock");
     expect(entries).toContain("AMO_BUILD.md");
     expect(entries).toContain("amo-metadata.json");
     expect(entries).not.toContain(".github/workflows/build.yml");

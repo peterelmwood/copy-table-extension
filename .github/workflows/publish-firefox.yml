@@ -31,21 +31,25 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-          cache: npm
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
 
       - name: Install locked dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build and inspect release candidate
         env:
           RELEASE_TAG: "${{ github.ref_name }}"
-        run: npm run release:dry-run -- "$RELEASE_TAG"
+        run: bun run release:dry-run "$RELEASE_TAG"
 
       - name: Resolve reviewer source path
         id: release
         shell: pwsh
         run: |
-          $version = npm run --silent release:validate -- $env:GITHUB_REF_NAME
+          $version = bun run --silent release:validate $env:GITHUB_REF_NAME
           "source_archive=web-ext-artifacts/copy-table-source-$version.zip" >> $env:GITHUB_OUTPUT
 
       - name: Record release evidence

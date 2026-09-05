@@ -8,7 +8,7 @@
 
 **Input**: User description: "Add separate build and publish workflows, register Copy Table publicly with Firefox Add-ons using the permanent ID copy-table@peterelmwood.com, and publish stable releases from matching version tags."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Verify Every Proposed Change (Priority: P1)
 
@@ -118,7 +118,7 @@ Firefox Add-ons developer portal before retrying.
 - A future change adds a browser permission without updating the accepted
   feature specification and release evidence.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -163,7 +163,7 @@ Firefox Add-ons developer portal before retrying.
 - **FR-018**: Release artifacts and logs MUST provide enough evidence to trace
   a submitted version back to its immutable repository revision.
 
-### Privacy and Permission Requirements *(mandatory for browser features)*
+### Privacy and Permission Requirements _(mandatory for browser features)_
 
 - **PR-001**: Public submission MUST begin only from an explicit release marker
   created by an authorized repository maintainer.
@@ -203,7 +203,7 @@ Firefox Add-ons developer portal before retrying.
 - Adding telemetry, remote services, new browser permissions, or a privacy
   policy requirement unrelated to the existing local-only behavior.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

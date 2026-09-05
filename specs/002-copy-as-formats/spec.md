@@ -5,7 +5,7 @@
 **Status**: Approved  
 **Input**: Add a Firefox context-menu `Copy as` submenu that copies the table directly interacted with by the user as HTML, Markdown, plain text, or CSV.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 — Copy the table under the pointer (Priority: P1)
 
@@ -68,7 +68,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 - The target element disappearing between the context-menu opening and format selection.
 - Clipboard or page access being revoked while the operation is in progress.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -90,7 +90,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 - **FR-016**: The feature MUST work with the existing Firefox scaffold and MUST NOT produce or claim a Chrome package in this feature.
 - **FR-017**: Automated tests MUST cover menu structure, Firefox Promise response transport, target resolution, row-group-bounded logical matrix construction, all four serializers, complex spans/escaping, safe HTML, success feedback, and failure behavior.
 
-### Privacy & Permission Requirements *(mandatory)*
+### Privacy & Permission Requirements _(mandatory)_
 
 - **PR-001**: Page access MUST be temporary and limited to the active tab and supported top-level or same-origin documents after an explicit context-menu action.
 - **PR-002**: The extension MUST NOT request broad persistent access to all sites when temporary interaction-scoped access is sufficient.
@@ -122,7 +122,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 - Rich multi-MIME clipboard writes; each action writes the selected representation as text.
 - Inspecting tables inside cross-origin embedded documents or requesting broad/optional host permission to do so.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

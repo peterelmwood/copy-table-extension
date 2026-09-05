@@ -8,7 +8,7 @@ operation, written once to the clipboard on success, and then discarded.
 ## Prerequisites
 
 - Node.js 24 or later
-- npm
+- Bun 1.3.14 or later
 - Firefox desktop for the manual temporary-install check
 
 ## Install and verify
@@ -16,8 +16,8 @@ operation, written once to the clipboard on success, and then discarded.
 From a clean checkout:
 
 ```powershell
-npm install
-npm run verify
+bun install
+bun run verify
 ```
 
 `verify` removes generated output, type-checks, lints, checks formatting, runs
@@ -28,7 +28,7 @@ build test compares the generated file set and file contents across two builds.
 ## Continuous verification
 
 Every pull request and push to `main` runs the same locked install and complete
-`npm run verify` pipeline on GitHub Actions. A successful run retains the
+`bun run verify` pipeline on GitHub Actions. A successful run retains the
 unsigned Firefox ZIP as the `copy-table-firefox-unsigned` workflow artifact for
 exactly 30 days. This verification workflow has read-only repository access and
 cannot reach the Firefox publishing environment or AMO credentials.
@@ -36,13 +36,13 @@ cannot reach the Firefox publishing environment or AMO credentials.
 ## Load temporarily in Firefox
 
 ```powershell
-npm run start:firefox
+bun run start:firefox
 ```
 
 The command first creates a fresh `dist/` directory and then invokes Firefox
 through `web-ext`. Alternatively, open `about:debugging#/runtime/this-firefox`,
 choose **Load Temporary Add-on**, and select `dist/manifest.json` after
-`npm run build`.
+`bun run build`.
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
@@ -63,7 +63,7 @@ before release.
 ## Package and inspect
 
 ```powershell
-npm run package
+bun run package
 ```
 
 The command rebuilds before packaging and writes exactly one unsigned Firefox
@@ -83,7 +83,7 @@ Before creating a tag, reproduce the complete release candidate without AMO
 credentials:
 
 ```powershell
-npm run release:dry-run -- v1.0.0
+bun run release:dry-run v1.0.0
 ```
 
 The stable tag must exactly match both package and manifest versions. The dry
@@ -112,10 +112,10 @@ before rerunning the same version to avoid a duplicate submission.
 
 - **`web-ext` cannot find Firefox:** Confirm `node --version` reports Node 24
   or later and that Firefox desktop is installed. Use the manual
-  `about:debugging#/runtime/this-firefox` fallback after `npm run build`.
+  `about:debugging#/runtime/this-firefox` fallback after `bun run build`.
 - **Firefox reports a startup error or the menu does not appear:** Open
   `about:debugging#/runtime/this-firefox`, select Copy Table, and inspect its
-  error details. Rebuild with `npm run clean` followed by `npm run build` before
+  error details. Rebuild with `bun run clean` followed by `bun run build` before
   loading `dist/manifest.json` again.
 - **Copy reports no table:** Right-click a cell inside a semantic `<table>`;
   visually table-like `<div>` layouts are not supported.
@@ -129,8 +129,8 @@ before rerunning the same version to avoid a duplicate submission.
 - **Clipboard access fails:** Confirm Firefox is allowed to write to the
   clipboard, then retry the explicit menu action. Copy Table never reads the
   clipboard and does not retry a rejected write.
-- **A generated file seems stale:** Run `npm run clean` before `npm run verify`
-  or `npm run package`. A failed verification removes `dist/` and the release
+- **A generated file seems stale:** Run `bun run clean` before `bun run verify`
+  or `bun run package`. A failed verification removes `dist/` and the release
   archive rather than leaving it as a candidate.
 - **Mozilla lint warning:** `BACKGROUND_SERVICE_WORKER_IGNORED` is an expected
   non-blocking Firefox compatibility warning; lint errors are failures and must

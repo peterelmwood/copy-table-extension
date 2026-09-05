@@ -49,15 +49,18 @@ describe("verification workflow contract", () => {
     expect(job.steps.map((step) => step.uses).filter(Boolean)).toEqual([
       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
       "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020",
+      "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6",
       "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     ]);
     const checkout = job.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
     const setupNode = job.steps.find((step) => step.uses?.startsWith("actions/setup-node@"));
+    const setupBun = job.steps.find((step) => step.uses?.startsWith("oven-sh/setup-bun@"));
     expect(checkout?.with).toEqual({ "persist-credentials": false });
-    expect(setupNode?.with).toEqual({ "node-version": 24, cache: "npm" });
+    expect(setupNode?.with).toEqual({ "node-version": 24 });
+    expect(setupBun?.with).toEqual({ "bun-version-file": "package.json" });
     expect(job.steps.filter((step) => step.run).map((step) => step.run)).toEqual([
-      "npm ci",
-      "npm run verify"
+      "bun install --frozen-lockfile",
+      "bun run verify"
     ]);
 
     const upload = job.steps.at(-1);
@@ -97,6 +100,7 @@ describe("Firefox publishing workflow contract", () => {
     expect(publish.steps.map((step) => step.uses).filter(Boolean)).toEqual([
       "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
       "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020",
+      "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6",
       "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
     ]);
 
@@ -105,9 +109,11 @@ describe("Firefox publishing workflow contract", () => {
       ref: "${{ github.sha }}",
       "persist-credentials": false
     });
+    const setupBun = publish.steps.find((step) => step.uses?.startsWith("oven-sh/setup-bun@"));
+    expect(setupBun?.with).toEqual({ "bun-version-file": "package.json" });
     const commands = publish.steps.filter((step) => step.run).map((step) => step.run);
-    expect(commands).toContain("npm ci");
-    expect(commands).toContain('npm run release:dry-run -- "$RELEASE_TAG"');
+    expect(commands).toContain("bun install --frozen-lockfile");
+    expect(commands).toContain('bun run release:dry-run "$RELEASE_TAG"');
 
     const dryRun = publish.steps.find(
       (step) => step.name === "Build and inspect release candidate"

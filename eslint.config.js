@@ -18,6 +18,7 @@ export default [
       "coverage/**",
       "dist/**",
       "node_modules/**",
+      "out/**",
       "web-ext-artifacts/**"
     ]
   },

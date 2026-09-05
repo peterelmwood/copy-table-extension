@@ -1,8 +1,8 @@
+import { build } from "esbuild";
+import JSZip from "jszip";
 import { spawn } from "node:child_process";
 import { cp, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { build } from "esbuild";
-import JSZip from "jszip";
 import {
   cleanGeneratedOutput,
   extensionArchiveFileName,
@@ -156,30 +156,12 @@ async function verify() {
     await clean();
     await runNodeCommand([resolve(projectRoot, "node_modules/typescript/lib/tsc.js"), "--noEmit"]);
     await runNodeCommand([resolve(projectRoot, "node_modules/eslint/bin/eslint.js"), "."]);
+    // Scope lives in .prettierignore (which prettier reads alongside .gitignore),
+    // so this stays a single "everything we own" check.
     await runNodeCommand([
       resolve(projectRoot, "node_modules/prettier/bin/prettier.cjs"),
       "--check",
-      "package.json",
-      "package-lock.json",
-      "tsconfig.json",
-      "vitest.config.ts",
-      "eslint.config.js",
-      "prettier.config.js",
-      "amo-metadata.json",
-      "AMO_BUILD.md",
-      "README.md",
-      ".github/workflows/build.yml",
-      ".github/workflows/publish-firefox.yml",
-      "specs/003-firefox-publishing/plan.md",
-      "specs/003-firefox-publishing/research.md",
-      "specs/003-firefox-publishing/data-model.md",
-      "specs/003-firefox-publishing/quickstart.md",
-      "specs/003-firefox-publishing/contracts",
-      "specs/003-firefox-publishing/tasks.md",
-      "specs/003-firefox-publishing/validation.md",
-      "scripts",
-      "src",
-      "tests"
+      "."
     ]);
     await runNodeCommand([resolve(projectRoot, "node_modules/vitest/vitest.mjs"), "run"]);
     await buildExtension();

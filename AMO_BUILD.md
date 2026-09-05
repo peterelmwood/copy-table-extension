@@ -1,11 +1,12 @@
 # AMO reviewer build instructions
 
-Copy Table is built with Node.js 24 and the committed npm lockfile. No AMO
-credentials are required to reproduce or inspect either local artifact.
+Copy Table is built with Node.js 24 and Bun 1.3.14, using the committed
+`bun.lock` lockfile. No AMO credentials are required to reproduce or inspect
+either local artifact.
 
 ```powershell
-npm.cmd ci
-npm.cmd run release:dry-run -- v1.0.0
+bun install --frozen-lockfile
+bun run release:dry-run v1.0.0
 ```
 
 The dry run validates the tag against both version declarations, runs type
@@ -18,10 +19,10 @@ The reviewer-source archive is written to
 `web-ext-artifacts/copy-table-source-1.0.0.zip`. Generated output is not an
 input to either archive and should not be edited.
 
-For a source-only rebuild after `npm.cmd ci`, run:
+For a source-only rebuild after `bun install --frozen-lockfile`, run:
 
 ```powershell
-npm.cmd run release:source -- v1.0.0
+bun run release:source v1.0.0
 ```
 
 If a submitted version has an unclear outcome, the repository owner checks the
