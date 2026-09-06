@@ -7,7 +7,7 @@
     "build": "node scripts/build.mjs build",
     "typecheck": "node node_modules/typescript/lib/tsc.js --noEmit",
     "lint": "node node_modules/eslint/bin/eslint.js .",
-    "format:check": "prettier --check .",
+    "format:check": "prettier --check --cache .",
     "test": "node node_modules/vitest/vitest.mjs run",
     "lint:extension": "node scripts/build.mjs lint",
     "start:firefox": "node scripts/build.mjs start:firefox",
