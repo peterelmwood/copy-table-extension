@@ -106,7 +106,7 @@ describe("popup readiness surface", () => {
           "selectorText" in rule && rule.selectorText === "#close-popup:focus-visible"
       );
 
-    expect(focusVisibleRule?.style.getPropertyValue("outline")).toBe("3px solid #1455d9");
+    expect(focusVisibleRule?.style.getPropertyValue("outline")).toBe("3px solid var(--ct-focus)");
     expect(focusVisibleRule?.style.getPropertyValue("outline-offset")).toBe("2px");
   });
 });

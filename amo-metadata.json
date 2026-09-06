@@ -1,0 +1,9 @@
+{
+  "summary": {
+    "en-US": "Copy HTML tables as HTML, Markdown, plain text, or CSV from the context menu."
+  },
+  "categories": ["web-development"],
+  "version": {
+    "license": "ISC"
+  }
+}

@@ -8,6 +8,7 @@ const distDirectory = resolve(import.meta.dirname, "../../dist");
 const manifestPath = resolve(distDirectory, "manifest.json");
 const projectRoot = resolve(import.meta.dirname, "../..");
 const sourceManifestPath = resolve(projectRoot, "src/manifest.json");
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 beforeAll(() => {
   execFileSync(process.execPath, ["scripts/build.mjs", "build"], {
@@ -31,6 +32,17 @@ describe("Firefox manifest contract", () => {
     expect(manifest.name).toBe("Copy Table");
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
     expect(action.default_popup).toBe("popup/index.html");
+    expect(action.default_icon).toEqual({
+      16: "icons/table-16.svg",
+      32: "icons/table.svg"
+    });
+    expect(manifest.icons).toEqual({
+      16: "icons/table-16.svg",
+      32: "icons/table.svg",
+      48: "icons/table.svg",
+      96: "icons/table.svg",
+      128: "icons/table.svg"
+    });
     expect(background.scripts).toEqual(["background.js"]);
     expect(background.service_worker).toBe("background.js");
     expect(manifest.permissions).toEqual([
@@ -54,7 +66,7 @@ describe("Firefox manifest contract", () => {
     expect(manifest.content_security_policy).toBeUndefined();
     expect(manifest.update_url).toBeUndefined();
     expect(manifest.developer).toBeUndefined();
-    expect(gecko.id).toBe("copy-table@copytable.invalid");
+    expect(gecko.id).toBe("copy-table@peterelmwood.com");
     expect(dataCollectionPermissions.required).toEqual(["none"]);
   });
 
@@ -64,6 +76,40 @@ describe("Firefox manifest contract", () => {
     expect(existsSync(resolve(distDirectory, "popup/index.html"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.js"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "popup/popup.css"))).toBe(true);
+    expect(existsSync(resolve(distDirectory, "icons/table.svg"))).toBe(true);
+    expect(existsSync(resolve(distDirectory, "icons/table-16.svg"))).toBe(true);
+  });
+
+  it("ships theme-adaptive icons that carry no scripting and no remote references", () => {
+    const iconSources = [
+      readFileSync(resolve(distDirectory, "icons/table.svg"), "utf8"),
+      readFileSync(resolve(distDirectory, "icons/table-16.svg"), "utf8")
+    ];
+
+    for (const iconSource of iconSources) {
+      expect(iconSource).toMatch(/prefers-color-scheme: dark/u);
+      expect(iconSource).not.toMatch(/<script/iu);
+      expect(iconSource).not.toMatch(/\bon[a-z]+\s*=/iu);
+
+      // Elements and attributes that can pull in an external resource have no
+      // place in a toolbar icon, whatever scheme they would resolve through.
+      expect(iconSource).not.toMatch(/<(?:image|use|foreignObject|iframe)\b/iu);
+      expect(iconSource).not.toMatch(/\b(?:xlink:href|href)\s*=/iu);
+      expect(iconSource).not.toMatch(/@import/iu);
+
+      // url() may address a same-document fragment and nothing else, so
+      // url(#mask) passes while url(//host), url(https://…) and url(data:…)
+      // are all rejected.
+      expect(iconSource).not.toMatch(/\burl\(\s*["']?(?!#)/iu);
+
+      // Outside the one permitted namespace literal, no scheme-qualified URL,
+      // no protocol-relative authority, and no data: payload may appear.
+      const outsideNamespace = iconSource.replaceAll(SVG_NAMESPACE, "");
+
+      expect(outsideNamespace).not.toMatch(/[a-z][a-z\d+.-]*:\/\//iu);
+      expect(outsideNamespace).not.toMatch(/\/\//u);
+      expect(outsideNamespace).not.toMatch(/\bdata:/iu);
+    }
   });
 
   it("copies the reviewed source manifest without synthesis", () => {
