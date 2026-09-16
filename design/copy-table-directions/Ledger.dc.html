@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Karla:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #B0664B; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: #8A4C36; }
+    .sec-h { margin: 0; font-family: "Karla", "Segoe UI", system-ui, sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase; color: #9C9184; }
+    .body { font-family: "Karla", "Segoe UI", system-ui, sans-serif; }
+    .note { margin: 0; font-family: "Karla", "Segoe UI", system-ui, sans-serif; font-size: 12px; line-height: 1.55; color: #7A7065; text-wrap: pretty; }
+  </style>
+</helmet>
+<div style="box-sizing: border-box; width: 560px; height: 1560px; padding: 32px; background: #F6F1E7; color: #3A3129; font-family: 'Karla', 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 26px">
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: {{accent}}; color: #FFFDF8; font-size: 12px; font-weight: 600">B</span>
+      <p style="margin: 0; font-family: 'Newsreader', Georgia, 'Times New Roman', serif; font-size: 30px; font-weight: 400; letter-spacing: -0.01em">Ledger</p>
+    </div>
+    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #5C5349; text-wrap: pretty">Paper and ink. Warm ground, ruled columns, a terracotta rule where the header sits. The privacy promise rendered as quietness rather than as a padlock: this is a thing that handles your data the way a notebook does.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">The mark</p>
+    <div style="display: flex; align-items: center; gap: 26px; padding: 26px; background: #FFFDF8; border: 1px solid #E2D9C9; border-radius: 10px">
+      <svg width="112" height="112" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table mark, Ledger direction">
+        <rect x="13.7" y="5.7" width="29" height="25" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="1.5" opacity="0.5"></rect>
+        <rect x="5.75" y="15.75" width="30" height="27" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="2"></rect>
+        <path d="M5.75 23.6 H35.75" stroke="{{accent}}" stroke-width="2.6"></path>
+        <path d="M9.5 30.6 H32" stroke="#3A3129" stroke-width="1.3" opacity="0.42"></path>
+        <path d="M9.5 36.2 H32" stroke="#3A3129" stroke-width="1.3" opacity="0.42"></path>
+        <path d="M20.75 23.6 V42.75" stroke="#3A3129" stroke-width="1.3" opacity="0.3"></path>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <p style="margin: 0; font-family: 'Newsreader', Georgia, serif; font-size: 17px; line-height: 1.4; text-wrap: pretty">Two sheets, one laid over the other.</p>
+        <p class="note">Solid paper rather than outlines, so the duplicate reads as a second physical copy. The terracotta rule marks the header row, the one piece of structure the extractor actually cares about.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">At size</p>
+
+    <div style="display: flex; align-items: flex-end; gap: 28px; padding: 20px 26px; background: #FFFDF8; border: 1px solid #E2D9C9; border-radius: 10px">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mark at 48 pixels">
+          <rect x="13.7" y="5.7" width="29" height="25" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="1.5" opacity="0.5"></rect>
+          <rect x="5.75" y="15.75" width="30" height="27" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="2"></rect>
+          <path d="M5.75 23.6 H35.75" stroke="{{accent}}" stroke-width="2.6"></path>
+          <path d="M9.5 30.6 H32" stroke="#3A3129" stroke-width="1.3" opacity="0.42"></path>
+          <path d="M9.5 36.2 H32" stroke="#3A3129" stroke-width="1.3" opacity="0.42"></path>
+          <path d="M20.75 23.6 V42.75" stroke="#3A3129" stroke-width="1.3" opacity="0.3"></path>
+        </svg>
+        <span style="font-size: 10px; color: #9C9184">48</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mark at 32 pixels">
+          <rect x="13.7" y="5.7" width="29" height="25" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="1.8" opacity="0.5"></rect>
+          <rect x="5.75" y="15.75" width="30" height="27" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="2.4"></rect>
+          <path d="M5.75 23.6 H35.75" stroke="{{accent}}" stroke-width="3"></path>
+          <path d="M9.5 32.6 H32" stroke="#3A3129" stroke-width="1.6" opacity="0.42"></path>
+          <path d="M20.75 23.6 V42.75" stroke="#3A3129" stroke-width="1.5" opacity="0.3"></path>
+        </svg>
+        <span style="font-size: 10px; color: #9C9184">32</span>
+      </div>
+      <p class="note" style="color: #5C5349; padding-bottom: 4px">At 32 the two body rules collapse into one, centred. The terracotta rule thickens so it survives the reduction.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #F9F9FB; border: 1px solid #E2D9C9; border-radius: 6px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><rect x="3.6" y="3.6" width="8.8" height="8.8" rx="2" stroke="#9AA0AE" stroke-width="1.3"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><circle cx="8" cy="8" r="5.2" stroke="#9AA0AE" stroke-width="1.3"></circle><circle cx="8" cy="8" r="1.6" fill="#9AA0AE"></circle></svg>
+        <span style="width: 1px; height: 16px; background: #DDD5C6"></span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table at 16 pixels on a light toolbar">
+          <rect x="5" y="2.6" width="8.4" height="7" rx="1.5" fill="#FFFDF8" stroke="#3A3129" stroke-width="1" opacity="0.55"></rect>
+          <rect x="2.5" y="5.4" width="9" height="8.2" rx="1.5" fill="#FFFDF8" stroke="#3A3129" stroke-width="1.3"></rect>
+          <path d="M2.5 8.1 H11.5" stroke="{{accent}}" stroke-width="1.7"></path>
+          <path d="M4.4 11 H9.8" stroke="#3A3129" stroke-width="0.9" opacity="0.45"></path>
+          <path d="M7 8.1 V13.6" stroke="#3A3129" stroke-width="0.9" opacity="0.3"></path>
+        </svg>
+        <span style="margin-left: auto; font-size: 10px; color: #9C9184">16 / light toolbar</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #1C1B22; border: 1px solid #34333C; border-radius: 6px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><rect x="3.6" y="3.6" width="8.8" height="8.8" rx="2" stroke="#6E7484" stroke-width="1.3"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder neighbour"><circle cx="8" cy="8" r="5.2" stroke="#6E7484" stroke-width="1.3"></circle><circle cx="8" cy="8" r="1.6" fill="#6E7484"></circle></svg>
+        <span style="width: 1px; height: 16px; background: #3C3B46"></span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table at 16 pixels on a dark toolbar">
+          <rect x="5" y="2.6" width="8.4" height="7" rx="1.5" fill="#1C1B22" stroke="#F0E8DC" stroke-width="1" opacity="0.55"></rect>
+          <rect x="2.5" y="5.4" width="9" height="8.2" rx="1.5" fill="#1C1B22" stroke="#F0E8DC" stroke-width="1.3"></rect>
+          <path d="M2.5 8.1 H11.5" stroke="#D08A6C" stroke-width="1.7"></path>
+          <path d="M4.4 11 H9.8" stroke="#F0E8DC" stroke-width="0.9" opacity="0.5"></path>
+          <path d="M7 8.1 V13.6" stroke="#F0E8DC" stroke-width="0.9" opacity="0.35"></path>
+        </svg>
+        <span style="margin-left: auto; font-size: 10px; color: #8C8378">16 / dark toolbar</span>
+      </div>
+      <p class="note" style="font-size: 11px">Neighbouring glyphs are placeholders. The overlap between the sheets is the first thing to go at 16px, which is why the front sheet keeps the heavier stroke. Dark is a separate asset: ink inverts to #F0E8DC and the terracotta lifts to #D08A6C.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Palette</p>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #3A3129; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#3A3129 ink</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #7A7065; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#7A7065 muted</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: {{accent}}; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">terracotta accent</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #3C8768; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#3C8768 ready</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #F6F1E7; border: 1px solid #E2D9C9; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#F6F1E7 ground</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #FFFDF8; border: 1px solid #E2D9C9; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#FFFDF8 paper</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #E2D9C9; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#E2D9C9 rule</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="height: 40px; background: #D08A6C; border-radius: 5px"></span>
+        <span style="font-size: 9.5px; color: #9C9184">#D08A6C alert</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Type</p>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; background: #FFFDF8; border: 1px solid #E2D9C9; border-radius: 10px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span style="font-family: 'Newsreader', Georgia, serif; font-size: 30px; font-weight: 400">Copied as Markdown</span>
+        <span style="font-size: 9.5px; color: #9C9184">Newsreader 400</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span style="font-size: 14px; font-weight: 400; color: #5C5349">Right-click a cell, then Copy as.</span>
+        <span style="font-size: 9.5px; color: #9C9184">Karla 400</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: #3A3129">HTML · Markdown · Plain text · CSV</span>
+        <span style="font-size: 9.5px; color: #9C9184">Karla 600</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Applied</p>
+    <div style="display: flex; align-items: flex-start; gap: 16px">
+
+      <div style="box-sizing: border-box; width: 304px; display: grid; gap: 13px; padding: 17px; background: #FFFDF8; border: 1px solid #E2D9C9; border-radius: 10px">
+        <div style="display: flex; align-items: center; gap: 9px">
+          <svg width="21" height="21" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table">
+            <rect x="13.7" y="5.7" width="29" height="25" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="2" opacity="0.5"></rect>
+            <rect x="5.75" y="15.75" width="30" height="27" rx="4" fill="#FFFDF8" stroke="#3A3129" stroke-width="2.6"></rect>
+            <path d="M5.75 23.6 H35.75" stroke="{{accent}}" stroke-width="3.2"></path>
+            <path d="M9.5 32.6 H32" stroke="#3A3129" stroke-width="1.6" opacity="0.42"></path>
+            <path d="M20.75 23.6 V42.75" stroke="#3A3129" stroke-width="1.6" opacity="0.3"></path>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 0">
+            <span style="font-family: 'Newsreader', Georgia, serif; font-size: 18px; font-weight: 400">Copy Table</span>
+            <span style="font-size: 10.5px; color: #9C9184">Firefox foundation</span>
+          </div>
+        </div>
+        <div style="height: 1px; background: #E2D9C9"></div>
+        <div style="display: grid; gap: 6px">
+          <span class="sec-h">Status</span>
+          <div style="display: flex; align-items: center; gap: 7px">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #3C8768"></span>
+            <span style="font-size: 13.5px; font-weight: 600; color: #3C8768">Ready</span>
+          </div>
+          <span style="font-size: 12px; line-height: 1.55; color: #7A7065; text-wrap: pretty">Structured-data copy actions are coming in a later feature.</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <span style="font-size: 11px; color: #9C9184">Version 1.0.0</span>
+          <button type="button" style="border: 1px solid #D6CBB8; border-radius: 999px; background: #F6F1E7; padding: 6px 16px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: #3A3129">Close</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; flex-grow: 1">
+        <div style="display: flex; align-items: center; gap: 9px; padding: 11px 14px; background: #3A3129; border-radius: 999px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copied"><path d="M3.2 8.4 L6.4 11.6 L12.8 5.2" stroke="#8FBFA4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span style="font-size: 12.5px; color: #FFFDF8">Copied as Markdown.</span>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 9px; padding: 11px 14px; background: #3A3129; border-radius: 14px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Failed" style="flex-shrink: 0; margin-top: 1px"><circle cx="8" cy="8" r="5.6" stroke="#D08A6C" stroke-width="1.5"></circle><path d="M8 5.1 V8.6" stroke="#D08A6C" stroke-width="1.5" stroke-linecap="round"></path><circle cx="8" cy="10.9" r="0.9" fill="#D08A6C"></circle></svg>
+          <span style="font-size: 12.5px; line-height: 1.45; color: #FFFDF8">No table found at the selected location.</span>
+        </div>
+        <p class="note" style="font-size: 11px">Rounded to the point of softness. Success is a pill, failure widens into a card because it has more to say.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: #FFFDF8; border-radius: 10px; border-left: 3px solid {{accent}}">
+    <p class="sec-h">The honest cost</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.6; color: #5C5349; text-wrap: pretty">This is the least distinctive of the three in a toolbar. Warm paper reads beautifully at 112px and reads as a generic document icon at 16. The serif also sits oddly against Firefox chrome, which is a sans everywhere.</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.6; color: #5C5349; text-wrap: pretty">It carries the same two costs Blueprint does, and the board should say so rather than let them pass. The dark cut is a separate asset, so this ships two icon files. And the sheets are filled in order to overlap, so that fill is standing in for the toolbar color and will show as a pale rectangle on a custom theme.</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.6; color: #5C5349; text-wrap: pretty">Pick this if the listing page and the extension's voice matter more to you than the toolbar slot.</p>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#B0664B","section":"Colour"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? "#B0664B" };
+  }
+}
+</script>
+</body>
+</html>

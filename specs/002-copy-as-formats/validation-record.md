@@ -5,26 +5,26 @@
 
 ## Firefox interaction matrix
 
-| Scenario | Firefox/version | Fixture | Expected | Observed | Elapsed | Pass |
-|---|---|---|---|---|---|---|
-| Copy as HTML | Pending | complex table | safe standalone table | Pending | Pending | [ ] |
-| Copy as Markdown | Pending | spans and pipes | exact reviewed Markdown | Pending | Pending | [ ] |
-| Copy as Plain text | Pending | multiline cells | tab/LF matrix | Pending | Pending | [ ] |
-| Copy as CSV | Pending | quotes/commas/newlines | exact reviewed CSV | Pending | Pending | [ ] |
-| Nested target | Pending | nested tables | nearest nested table only | Pending | Pending | [ ] |
-| No table | Pending | ordinary paragraph | feedback; clipboard unchanged | Pending | Pending | [ ] |
-| Protected page | Pending | browser-protected URL | fixed extension restriction notification; clipboard unchanged | Pending | Pending | [ ] |
-| Cross-origin embedded table | Pending | semantic table in cross-origin iframe | fixed extension restriction notification; no fallback target; clipboard unchanged | Pending | Pending | [ ] |
-| Frame removed after injection | Pending | semantic table in removable frame | fixed payload-free delivery notification after payload release; no retry | Pending | Pending | [ ] |
-| Keyboard menu | Pending | semantic table | discover and complete without popup | Pending | Pending | [ ] |
+| Scenario                      | Firefox/version | Fixture                               | Expected                                                                          | Observed | Elapsed | Pass |
+| ----------------------------- | --------------- | ------------------------------------- | --------------------------------------------------------------------------------- | -------- | ------- | ---- |
+| Copy as HTML                  | Pending         | complex table                         | safe standalone table                                                             | Pending  | Pending | [ ]  |
+| Copy as Markdown              | Pending         | spans and pipes                       | exact reviewed Markdown                                                           | Pending  | Pending | [ ]  |
+| Copy as Plain text            | Pending         | multiline cells                       | tab/LF matrix                                                                     | Pending  | Pending | [ ]  |
+| Copy as CSV                   | Pending         | quotes/commas/newlines                | exact reviewed CSV                                                                | Pending  | Pending | [ ]  |
+| Nested target                 | Pending         | nested tables                         | nearest nested table only                                                         | Pending  | Pending | [ ]  |
+| No table                      | Pending         | ordinary paragraph                    | feedback; clipboard unchanged                                                     | Pending  | Pending | [ ]  |
+| Protected page                | Pending         | browser-protected URL                 | fixed extension restriction notification; clipboard unchanged                     | Pending  | Pending | [ ]  |
+| Cross-origin embedded table   | Pending         | semantic table in cross-origin iframe | fixed extension restriction notification; no fallback target; clipboard unchanged | Pending  | Pending | [ ]  |
+| Frame removed after injection | Pending         | semantic table in removable frame     | fixed payload-free delivery notification after payload release; no retry          | Pending  | Pending | [ ]  |
+| Keyboard menu                 | Pending         | semantic table                        | discover and complete without popup                                               | Pending  | Pending | [ ]  |
 
 ## Performance record
 
 Record 20 attempts against the reviewed 100×50 fixture. At least 19 must finish within 2 seconds.
 
-| Attempts | Within 2 seconds | Slowest | Environment | Pass |
-|---|---|---|---|---|
-| 20 | At least 19 (gate passed) | Not persisted by automated gate | jsdom/Vitest | [x] |
+| Attempts | Within 2 seconds          | Slowest                         | Environment  | Pass |
+| -------- | ------------------------- | ------------------------------- | ------------ | ---- |
+| 20       | At least 19 (gate passed) | Not persisted by automated gate | jsdom/Vitest | [x]  |
 
 ## Automated evidence
 

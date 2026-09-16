@@ -1,0 +1,126 @@
+name: Submit Firefox release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firefox-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    environment: firefox-production
+    if: github.event.created == true && github.event.deleted == false && github.event.forced == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact tag revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Build from the immutable revision the event carried, not from the tag name. A tag
+          # retargeted between the push event and this checkout would otherwise produce bytes that
+          # do not match the github.sha recorded in the release evidence.
+          ref: "${{ github.sha }}"
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Use Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build and inspect release candidate
+        env:
+          RELEASE_TAG: "${{ github.ref_name }}"
+        run: bun run release:dry-run "$RELEASE_TAG"
+
+      - name: Resolve reviewer source path
+        id: release
+        shell: pwsh
+        run: |
+          $version = bun run --silent release:validate $env:GITHUB_REF_NAME
+          "source_archive=web-ext-artifacts/copy-table-source-$version.zip" >> $env:GITHUB_OUTPUT
+
+      - name: Record release evidence
+        shell: pwsh
+        run: |
+          $extensions = @(Get-ChildItem 'web-ext-artifacts/copy_table-*.zip')
+          if ($extensions.Count -ne 1) {
+            throw "Expected exactly one unsigned extension archive, found $($extensions.Count)."
+          }
+          $source = Resolve-Path '${{ steps.release.outputs.source_archive }}'
+          $extensionHash = (Get-FileHash -Algorithm SHA256 $extensions[0].FullName).Hash.ToLowerInvariant()
+          $sourceHash = (Get-FileHash -Algorithm SHA256 $source).Hash.ToLowerInvariant()
+          'Release evidence' >> $env:GITHUB_STEP_SUMMARY
+          'Revision: ${{ github.sha }}' >> $env:GITHUB_STEP_SUMMARY
+          "Unsigned extension SHA-256: $extensionHash" >> $env:GITHUB_STEP_SUMMARY
+          "Reviewer source SHA-256: $sourceHash" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Require AMO credentials
+        shell: pwsh
+        env:
+          WEB_EXT_API_KEY: "${{ secrets.AMO_JWT_ISSUER }}"
+          WEB_EXT_API_SECRET: "${{ secrets.AMO_JWT_SECRET }}"
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WEB_EXT_API_KEY) -or
+              [string]::IsNullOrWhiteSpace($env:WEB_EXT_API_SECRET)) {
+            throw "Both AMO credentials are required for submission."
+          }
+
+      - name: Submit listed Firefox release
+        id: submit
+        continue-on-error: true
+        shell: pwsh
+        env:
+          REVIEWER_SOURCE_ARCHIVE: "${{ steps.release.outputs.source_archive }}"
+          WEB_EXT_API_KEY: "${{ secrets.AMO_JWT_ISSUER }}"
+          WEB_EXT_API_SECRET: "${{ secrets.AMO_JWT_SECRET }}"
+        run: node scripts/submit-firefox.mjs
+
+      - name: Record submitted outcome
+        if: steps.submit.outcome == 'success'
+        shell: pwsh
+        run: |
+          'Firefox release submitted to AMO and pending review.' >> $env:GITHUB_STEP_SUMMARY
+          'This workflow does not confirm public availability.' >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Record known rejection
+        if: steps.submit.outcome == 'failure' && steps.submit.outputs.failure_kind == 'known'
+        shell: pwsh
+        run: |
+          'AMO returned a known validation or API rejection.' >> $env:GITHUB_STEP_SUMMARY
+          'Treat the submission step as a failed gate and correct the reported issue.' >> $env:GITHUB_STEP_SUMMARY
+          throw 'Firefox submission was rejected.'
+
+      - name: Record ambiguous outcome
+        if: steps.submit.outcome == 'failure' && steps.submit.outputs.failure_kind != 'known'
+        shell: pwsh
+        run: |
+          'The submission step failed and its outcome may be ambiguous.' >> $env:GITHUB_STEP_SUMMARY
+          'Inspect the AMO Developer Hub before rerunning this version.' >> $env:GITHUB_STEP_SUMMARY
+          throw 'Firefox submission did not complete successfully.'
+
+      # Retention runs after the outcome is recorded. When it ran first, an upload failure after an
+      # accepted submission skipped the summary steps through their implicit success() condition,
+      # which made a completed submission look retryable and invited a duplicate release.
+      - name: Retain release evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: firefox-release-${{ github.ref_name }}
+          path: |
+            web-ext-artifacts/copy_table-*.zip
+            web-ext-artifacts/copy-table-source-*.zip
+          if-no-files-found: error
+          retention-days: 30

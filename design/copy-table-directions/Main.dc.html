@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #3D7FB8; text-decoration: underline; }
+    a:hover { color: #2C5F8A; }
+    .sec-h { margin: 0; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6E7688; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+    .note { margin: 0; font-size: 12px; line-height: 1.5; color: #6E7688; text-wrap: pretty; }
+    .sysui { font-family: system-ui, "Segoe UI", sans-serif; }
+    .sysmono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; }
+  </style>
+</helmet>
+<div style="box-sizing: border-box; width: 700px; height: 1400px; padding: 32px; background: #F7F8FA; color: #22283A; font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 26px">
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: center; gap: 11px">
+      <svg width="30" height="30" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Copy Table">
+        <mask id="mn-a"><rect width="48" height="48" fill="#FFFFFF"></rect><rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="#000000" stroke="#000000" stroke-width="3.6"></rect></mask>
+        <rect x="14.75" y="5.75" width="27.5" height="24.5" rx="2.5" fill="none" stroke="#3D7FB8" stroke-width="1.5" stroke-dasharray="3 2.6" opacity="0.75" mask="url(#mn-a)"></rect>
+        <path d="M8.25 16.75 H32.75 A2.5 2.5 0 0 1 35.25 19.25 V24.5 H5.75 V19.25 A2.5 2.5 0 0 1 8.25 16.75 Z" fill="#3D7FB8" opacity="0.18"></path>
+        <rect x="5.75" y="16.75" width="29.5" height="25.5" rx="2.5" fill="none" stroke="#22283A" stroke-width="2"></rect>
+        <path d="M5.75 24.5 H35.25" stroke="#22283A" stroke-width="2"></path>
+        <path d="M5.75 33.4 H35.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+        <path d="M20.5 24.5 V42.25" stroke="#22283A" stroke-width="1.3" opacity="0.5"></path>
+      </svg>
+      <p style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em">Blueprint — the system</p>
+    </div>
+    <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #4C5468; text-wrap: pretty">Direction A, as built. Everything on this board is in the repository and passes the package gate: two icon files, a restyled popup, and a restyled in-page toast. The three original direction boards are kept on the second page as the record of the decision.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Tokens</p>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: #FFFFFF; border: 1px solid #DCE0E8">
+        <span class="sec-h">Light</span>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #22283A; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">ink</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #6E7688; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">muted</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #3D7FB8; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">accent</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #2C8A6A; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">ready</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #E8A87C; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">alert</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #F7F8FA; border: 1px solid #DCE0E8; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">ground</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #FFFFFF; border: 1px solid #DCE0E8; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">surface</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #DCE0E8; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #6E7688">rule</span></div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: #1C1B22; border: 1px solid #35353F">
+        <span class="sec-h" style="color: #9AA1B2">Dark</span>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #E3E6EE; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">ink</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #9AA1B2; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">muted</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #6BA8D8; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">accent</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #63BF9A; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">ready</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #E8A87C; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">alert</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #1C1B22; border: 1px solid #35353F; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">ground</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #24242E; border: 1px solid #35353F; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">surface</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px"><span style="height: 34px; background: #35353F; border-radius: 3px"></span><span class="mono" style="font-size: 9px; color: #9AA1B2">rule</span></div>
+        </div>
+      </div>
+
+    </div>
+    <p class="note" style="font-size: 11px">Declared once as custom properties on <span class="mono" style="font-size: 10.5px">:root</span> in <span class="mono" style="font-size: 10.5px">popup.css</span>, redefined under <span class="mono" style="font-size: 10.5px">prefers-color-scheme: dark</span>. The focus ring is its own token at #2C5F8A, dark enough to clear contrast requirements rather than reusing the accent.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Type — what changed and why</p>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; background: #FFFFFF; border: 1px solid #DCE0E8">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span class="sysui" style="font-size: 22px; font-weight: 650; letter-spacing: -0.01em">Copy Table</span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">system-ui 650</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span class="sysui" style="font-size: 13px; color: #4C5468">Structured-data copy actions are coming in a later feature.</span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">system-ui 400</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+        <span class="sysmono" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #6E7688">Status · Version 1.0.0</span>
+        <span class="mono" style="font-size: 9.5px; color: #6E7688">system mono</span>
+      </div>
+      <p class="note" style="font-size: 11.5px; padding-top: 2px">The board pitched Space Grotesk and JetBrains Mono. Neither ships. The extension declares no network destinations, so a Google Fonts link would break the privacy claim outright, and embedding two faces would add more weight to a reviewed package than the typefaces are worth here. Blueprint's character was never the typeface — it is the hairline rules, the graphite, and the mono labels, all of which survive on system stacks.</p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Popup, as shipped</p>
+    <div style="display: flex; align-items: flex-start; gap: 16px">
+
+      <div class="sysui" style="box-sizing: border-box; width: 304px; display: grid; gap: 0.875rem; padding: 16px; background: #F7F8FA; color: #22283A; border: 1px solid #DCE0E8">
+        <div style="display: grid; gap: 2px">
+          <span style="font-size: 18px; font-weight: 650; letter-spacing: -0.01em">Copy Table</span>
+          <span class="sysmono" style="font-size: 11px; color: #6E7688">Firefox foundation</span>
+        </div>
+        <div style="display: grid; gap: 8px; border-top: 1px solid #DCE0E8; padding-top: 14px">
+          <span class="sysmono" style="font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6E7688">Status</span>
+          <span style="display: flex; align-items: center; gap: 7px; color: #2C8A6A; font-size: 14px; font-weight: 600"><span style="width: 7px; height: 7px; border-radius: 50%; background: currentColor"></span>Ready</span>
+          <span style="font-size: 13px; line-height: 1.5; color: #6E7688; text-wrap: pretty">Structured-data copy actions are coming in a later feature.</span>
+        </div>
+        <span class="sysmono" style="font-size: 11px; color: #6E7688; border-top: 1px solid #DCE0E8; padding-top: 14px">Version 1.0.0</span>
+        <button type="button" style="justify-self: start; border: 1px solid #22283A; border-radius: 2px; background: #FFFFFF; padding: 6px 14px; font-family: inherit; font-size: 13px; font-weight: 500; color: #22283A">Close</button>
+      </div>
+
+      <div class="sysui" style="box-sizing: border-box; width: 304px; display: grid; gap: 0.875rem; padding: 16px; background: #1C1B22; color: #E3E6EE; border: 1px solid #35353F">
+        <div style="display: grid; gap: 2px">
+          <span style="font-size: 18px; font-weight: 650; letter-spacing: -0.01em">Copy Table</span>
+          <span class="sysmono" style="font-size: 11px; color: #9AA1B2">Firefox foundation</span>
+        </div>
+        <div style="display: grid; gap: 8px; border-top: 1px solid #35353F; padding-top: 14px">
+          <span class="sysmono" style="font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA1B2">Status</span>
+          <span style="display: flex; align-items: center; gap: 7px; color: #63BF9A; font-size: 14px; font-weight: 600"><span style="width: 7px; height: 7px; border-radius: 50%; background: currentColor"></span>Ready</span>
+          <span style="font-size: 13px; line-height: 1.5; color: #9AA1B2; text-wrap: pretty">Structured-data copy actions are coming in a later feature.</span>
+        </div>
+        <span class="sysmono" style="font-size: 11px; color: #9AA1B2; border-top: 1px solid #35353F; padding-top: 14px">Version 1.0.0</span>
+        <button type="button" style="justify-self: start; border: 1px solid #E3E6EE; border-radius: 2px; background: #24242E; padding: 6px 14px; font-family: inherit; font-size: 13px; font-weight: 500; color: #E3E6EE">Close</button>
+      </div>
+
+    </div>
+    <p class="note" style="font-size: 11px">Dark support is new — the popup previously had a single hard-coded light palette, which renders as a white card against a dark Firefox theme.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <p class="sec-h">Toast, as shipped</p>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div class="sysui" style="align-self: flex-start; max-width: 24rem; padding: 0.6875rem 0.875rem; background: #22283A; color: #FFFFFF; border-radius: 2px; border-left: 3px solid #6BA8D8; font-size: 13px; font-weight: 500; line-height: 1.45">Copied as Markdown.</div>
+      <div class="sysui" style="align-self: flex-start; max-width: 24rem; padding: 0.6875rem 0.875rem; background: #22283A; color: #FFFFFF; border-radius: 2px; border-left: 3px solid #E8A87C; font-size: 13px; font-weight: 500; line-height: 1.45">No table found at the selected location.</div>
+      <p class="note" style="font-size: 11px">The board drew icons in the toast; they are not there. This element is injected into whatever page the user right-clicked, so it stays a single text-only node with no child elements. A steel rule for success and an amber one for failure carry the status instead — which the old toast did not distinguish at all.</p>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; background: #FFFFFF; border-left: 2px solid #3D7FB8">
+    <p class="sec-h">One cost the board named that no longer applies</p>
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.55; color: #4C5468; text-wrap: pretty">Blueprint was charged two icon files for a light and a dark asset. It does ship two files, but they are the 48 and 16 optical cuts, not a theme pair: each one carries its own <span class="mono" style="font-size: 11.5px">prefers-color-scheme</span> block and handles both toolbars. Masking the duplicate instead of painting over it removed the background assumption at the same time. The remaining honest cost stands — hairlines still soften at 16px, and the 16 cut is a reduced drawing.</p>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

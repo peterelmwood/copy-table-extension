@@ -1,19 +1,24 @@
+import { build } from "esbuild";
+import JSZip from "jszip";
 import { spawn } from "node:child_process";
 import { cp, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { build } from "esbuild";
-import JSZip from "jszip";
-import { cleanGeneratedOutput, resolveArtifactsDirectory } from "./artifact-path.mjs";
+import {
+  cleanGeneratedOutput,
+  extensionArchiveFileName,
+  resolveArtifactsDirectory
+} from "./artifact-path.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const sourceDirectory = resolve(projectRoot, "src");
 const distDirectory = resolve(projectRoot, "dist");
 const artifactsOverride = process.env.COPY_TABLE_ARTIFACTS_DIR;
 const webExtCommand = resolve(projectRoot, "node_modules/web-ext/bin/web-ext.js");
-const archiveFileName = "copy_table-1.0.0.zip";
 const archiveFiles = [
   "background.js",
   "content/content-handler.js",
+  "icons/table-16.svg",
+  "icons/table.svg",
   "manifest.json",
   "popup/index.html",
   "popup/popup.css",
@@ -51,12 +56,18 @@ async function copyAssets() {
     resolve(distDirectory, "popup/index.html")
   );
   await cp(resolve(sourceDirectory, "popup/popup.css"), resolve(distDirectory, "popup/popup.css"));
+  await cp(resolve(sourceDirectory, "icons/table.svg"), resolve(distDirectory, "icons/table.svg"));
+  await cp(
+    resolve(sourceDirectory, "icons/table-16.svg"),
+    resolve(distDirectory, "icons/table-16.svg")
+  );
 }
 
 async function buildExtension() {
   await clean();
   await mkdir(resolve(distDirectory, "popup"), { recursive: true });
   await mkdir(resolve(distDirectory, "content"), { recursive: true });
+  await mkdir(resolve(distDirectory, "icons"), { recursive: true });
   await copyAssets();
   await Promise.all([
     build({
@@ -123,6 +134,8 @@ async function createDeterministicArchive() {
 async function packageExtension() {
   await buildExtension();
   const artifactsDirectory = await resolveArtifactsDirectory({ artifactsOverride, projectRoot });
+  const manifest = JSON.parse(await readFile(resolve(distDirectory, "manifest.json"), "utf8"));
+  const archiveFileName = extensionArchiveFileName(manifest.version);
 
   await mkdir(artifactsDirectory, { recursive: true });
 
@@ -143,18 +156,12 @@ async function verify() {
     await clean();
     await runNodeCommand([resolve(projectRoot, "node_modules/typescript/lib/tsc.js"), "--noEmit"]);
     await runNodeCommand([resolve(projectRoot, "node_modules/eslint/bin/eslint.js"), "."]);
+    // Scope lives in .prettierignore (which prettier reads alongside .gitignore),
+    // so this stays a single "everything we own" check.
     await runNodeCommand([
       resolve(projectRoot, "node_modules/prettier/bin/prettier.cjs"),
       "--check",
-      "package.json",
-      "package-lock.json",
-      "tsconfig.json",
-      "vitest.config.ts",
-      "eslint.config.js",
-      "prettier.config.js",
-      "scripts",
-      "src",
-      "tests"
+      "."
     ]);
     await runNodeCommand([resolve(projectRoot, "node_modules/vitest/vitest.mjs"), "run"]);
     await buildExtension();

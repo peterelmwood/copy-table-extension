@@ -11,7 +11,7 @@ the first delivery increment. The extension will eventually capture structured
 data from the page a user or authorized agent is directly interacting with;
 this increment establishes the safe, tested Firefox foundation."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Install the Firefox Foundation (Priority: P1)
 
@@ -99,7 +99,7 @@ and the documented source boundaries are present.
 - A failed build leaves stale output from an earlier successful build.
 - The extension is reloaded or updated during a browser session.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -126,7 +126,7 @@ and the documented source boundaries are present.
 - **FR-011**: Chrome packaging and Chrome runtime validation MUST remain outside
   this feature.
 
-### Privacy and Permission Requirements *(mandatory for browser features)*
+### Privacy and Permission Requirements _(mandatory for browser features)_
 
 - **PR-001**: The scaffold MUST perform no page-data capture; a later accepted
   feature must identify the explicit user or authorized-agent interaction that
@@ -141,7 +141,7 @@ and the documented source boundaries are present.
 - **PR-005**: Firefox is the only required browser; Chromium packaging and
   validation are explicitly deferred.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Extension Artifact**: The reproducible output that Firefox can temporarily
   install; identified by product name and release metadata.
@@ -150,7 +150,7 @@ and the documented source boundaries are present.
 - **Permission Declaration**: The complete set of browser access requested by
   the scaffold, with traceability to accepted behavior.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

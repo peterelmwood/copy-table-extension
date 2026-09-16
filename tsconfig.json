@@ -14,6 +14,22 @@
     "verbatimModuleSyntax": true,
     "types": ["firefox-webext-browser", "node"]
   },
-  "include": ["src/**/*.ts", "scripts/**/*.mjs", "tests/**/*.ts"],
-  "exclude": ["dist", "web-ext-artifacts", "node_modules"]
+  // Hand-written source only. The build scripts are plain .mjs and are covered
+  // through their checked-in .d.mts declarations; checking the .mjs bodies
+  // themselves needs allowJs/checkJs and is not enabled.
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.d.mts",
+    "tests/**/*.ts",
+    "vitest.config.ts",
+    "squad.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out",
+    "coverage",
+    "web-ext-artifacts",
+    ".copy-table-test-output"
+  ]
 }

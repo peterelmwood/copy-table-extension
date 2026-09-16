@@ -1,0 +1,72 @@
+{
+  "pages": [
+    { "id": "system", "name": "Blueprint system" },
+    { "id": "directions", "name": "The three directions" }
+  ],
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "title": "Blueprint — the system",
+      "page": "system",
+      "x": 0,
+      "y": 0,
+      "w": 700,
+      "h": 1400
+    },
+    {
+      "file": "Icons.dc.html",
+      "title": "Icon — construction",
+      "page": "system",
+      "x": 760,
+      "y": 0,
+      "w": 560,
+      "h": 1320
+    },
+    {
+      "file": "Blueprint.dc.html",
+      "title": "A — Blueprint (chosen)",
+      "page": "directions",
+      "x": 0,
+      "y": 0,
+      "w": 560,
+      "h": 1560
+    },
+    {
+      "file": "Ledger.dc.html",
+      "title": "B — Ledger",
+      "page": "directions",
+      "x": 620,
+      "y": 0,
+      "w": 560,
+      "h": 1560
+    },
+    {
+      "file": "Stamp.dc.html",
+      "title": "C — Stamp",
+      "page": "directions",
+      "x": 1240,
+      "y": 0,
+      "w": 560,
+      "h": 1560
+    }
+  ],
+  "annotations": [
+    {
+      "id": "shipped",
+      "page": "system",
+      "x": 0,
+      "y": -150,
+      "w": 700,
+      "text": "Direction A, built and verified.\nThe icons pass Mozilla's lint with zero errors and the package rebuilds to an identical hash. Where the build departs from the pitch, the board says so and why."
+    },
+    {
+      "id": "record",
+      "page": "directions",
+      "x": 0,
+      "y": -130,
+      "w": 560,
+      "text": "Kept as the decision record, unchanged.\nLedger and Stamp were not built."
+    }
+  ],
+  "launch": { "view": "canvas", "page": "system" }
+}

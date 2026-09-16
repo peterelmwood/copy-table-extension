@@ -11,7 +11,16 @@ const languageOptions = {
 
 export default [
   {
-    ignores: ["dist/**", "web-ext-artifacts/**", "coverage/**", "node_modules/**"]
+    ignores: [
+      // Claude Code checks worktrees out here; their build output is not project source.
+      ".claude/**",
+      ".copy-table-test-output/**",
+      "coverage/**",
+      "dist/**",
+      "node_modules/**",
+      "out/**",
+      "web-ext-artifacts/**"
+    ]
   },
   {
     files: ["**/*.js", "**/*.mjs"],

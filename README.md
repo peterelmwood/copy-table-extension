@@ -8,7 +8,7 @@ operation, written once to the clipboard on success, and then discarded.
 ## Prerequisites
 
 - Node.js 24 or later
-- npm
+- Bun 1.3.14 or later
 - Firefox desktop for the manual temporary-install check
 
 ## Install and verify
@@ -16,8 +16,8 @@ operation, written once to the clipboard on success, and then discarded.
 From a clean checkout:
 
 ```powershell
-npm install
-npm run verify
+bun install
+bun run verify
 ```
 
 `verify` removes generated output, type-checks, lints, checks formatting, runs
@@ -25,16 +25,24 @@ the automated tests, builds `dist/`, runs Mozilla's Firefox manifest lint, and
 creates one release archive in `web-ext-artifacts/`. It is safe to repeat: the
 build test compares the generated file set and file contents across two builds.
 
+## Continuous verification
+
+Every pull request and push to `main` runs the same locked install and complete
+`bun run verify` pipeline on GitHub Actions. A successful run retains the
+unsigned Firefox ZIP as the `copy-table-firefox-unsigned` workflow artifact for
+exactly 30 days. This verification workflow has read-only repository access and
+cannot reach the Firefox publishing environment or AMO credentials.
+
 ## Load temporarily in Firefox
 
 ```powershell
-npm run start:firefox
+bun run start:firefox
 ```
 
 The command first creates a fresh `dist/` directory and then invokes Firefox
 through `web-ext`. Alternatively, open `about:debugging#/runtime/this-firefox`,
 choose **Load Temporary Add-on**, and select `dist/manifest.json` after
-`npm run build`.
+`bun run build`.
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
@@ -55,27 +63,59 @@ before release.
 ## Package and inspect
 
 ```powershell
-npm run package
+bun run package
 ```
 
 The command rebuilds before packaging and writes exactly one unsigned Firefox
 archive (currently a `.zip`) to `web-ext-artifacts/`. The archive contains only
 `manifest.json`, `background.js`, `content/content-handler.js`,
-`popup/index.html`, `popup/popup.js`, and `popup/popup.css`. Both generated
-directories are ignored by Git and must not be edited by hand.
+`popup/index.html`, `popup/popup.js`, `popup/popup.css`, `icons/table.svg`, and
+`icons/table-16.svg`. Both generated directories are ignored by Git and must not
+be edited by hand.
 
 Each archive is generated with a fixed entry order, timestamp, file mode, and
 compression settings. Packaging the same committed input twice produces the
 same archive SHA-256 hash.
 
+## Dry-run and publish a Firefox release
+
+Before creating a tag, reproduce the complete release candidate without AMO
+credentials:
+
+```powershell
+bun run release:dry-run v1.0.0
+```
+
+The stable tag must exactly match both package and manifest versions. The dry
+run executes every local gate and writes both the unsigned extension ZIP and
+`copy-table-source-1.0.0.zip`, printing a SHA-256 digest for each without
+contacting AMO.
+
+Public submission is handled only by `.github/workflows/publish-firefox.yml`
+for a pushed `vX.Y.Z` tag. The repository owner must create a protected
+`firefox-production` GitHub environment with environment secrets
+`AMO_JWT_ISSUER` and `AMO_JWT_SECRET`, plus a tag ruleset matching `v*.*.*`
+that blocks tag updates and deletions. The workflow also rejects deleted,
+forced, or non-new tag events. The first successful listed-channel submission
+registers the permanent `copy-table@peterelmwood.com` identity and listing
+metadata with AMO; later tags submit new versions of the same listing.
+
+A green publish workflow means submitted to AMO and pending review, not
+publicly available. The run summary records the exact revision and SHA-256
+digests, and the unsigned extension and reviewer-source archives are retained
+for 30 days. A known AMO validation or API rejection is reported as a failed
+gate. If the submission times out, loses its response, or otherwise has an
+uncertain result, treat the outcome as ambiguous: inspect the AMO Developer Hub
+before rerunning the same version to avoid a duplicate submission.
+
 ## Troubleshooting
 
 - **`web-ext` cannot find Firefox:** Confirm `node --version` reports Node 24
   or later and that Firefox desktop is installed. Use the manual
-  `about:debugging#/runtime/this-firefox` fallback after `npm run build`.
+  `about:debugging#/runtime/this-firefox` fallback after `bun run build`.
 - **Firefox reports a startup error or the menu does not appear:** Open
   `about:debugging#/runtime/this-firefox`, select Copy Table, and inspect its
-  error details. Rebuild with `npm run clean` followed by `npm run build` before
+  error details. Rebuild with `bun run clean` followed by `bun run build` before
   loading `dist/manifest.json` again.
 - **Copy reports no table:** Right-click a cell inside a semantic `<table>`;
   visually table-like `<div>` layouts are not supported.
@@ -89,12 +129,17 @@ same archive SHA-256 hash.
 - **Clipboard access fails:** Confirm Firefox is allowed to write to the
   clipboard, then retry the explicit menu action. Copy Table never reads the
   clipboard and does not retry a rejected write.
-- **A generated file seems stale:** Run `npm run clean` before `npm run verify`
-  or `npm run package`. A failed verification removes `dist/` and the release
+- **A generated file seems stale:** Run `bun run clean` before `bun run verify`
+  or `bun run package`. A failed verification removes `dist/` and the release
   archive rather than leaving it as a candidate.
 - **Mozilla lint warning:** `BACKGROUND_SERVICE_WORKER_IGNORED` is an expected
   non-blocking Firefox compatibility warning; lint errors are failures and must
   be resolved before packaging.
+- **Release tag is rejected:** Use an exact stable tag such as `v1.0.0`, and
+  confirm it matches `package.json` and `src/manifest.json` before retrying.
+- **Firefox submission outcome is unclear:** Inspect the version in the AMO
+  Developer Hub first. Do not rerun the same version until you know the prior
+  upload was not accepted.
 
 ## Privacy, permissions, and boundaries
 
@@ -109,6 +154,15 @@ top-level or same-origin document in its active tab. Cross-origin embedded
 documents are explicitly out of scope rather than covered by broader host
 authority. Firefox Manifest V3 is the only supported runtime; Chromium
 packaging and validation are intentionally deferred.
+
+The toolbar icon is two SVG files under `src/icons/`: `table.svg` carries the
+full drawing for 32px and above, and `table-16.svg` is a separately drawn
+16px cut rather than the same artwork scaled down. Both adapt to the active
+theme through a `prefers-color-scheme` media query inside the SVG, so no
+`theme_icons` pair is required, and neither file paints a background — the
+duplicate plate is masked rather than covered, so the icon carries no assumption
+about the toolbar color. The icons contain no script, no event handlers, and no
+remote references; `tests/unit/manifest.test.ts` enforces all three.
 
 Browser-facing code is isolated in `src/background.ts`, the clipboard,
 context-menu, message, and runtime adapters under `src/browser/`, and

@@ -2,14 +2,9 @@
   "mcpServers": {
     "squad_state": {
       "command": "node",
-      "args": [
-        "./node_modules/@bradygaster/squad-cli/dist/cli-entry.js",
-        "state-mcp"
-      ],
+      "args": ["./node_modules/@bradygaster/squad-cli/dist/cli-entry.js", "state-mcp"],
       "env": {},
-      "tools": [
-        "*"
-      ]
+      "tools": ["*"]
     }
   }
 }
