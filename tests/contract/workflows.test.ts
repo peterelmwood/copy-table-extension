@@ -74,6 +74,41 @@ describe("verification workflow contract", () => {
     const serializedWorkflow = JSON.stringify(workflow);
     expect(serializedWorkflow).not.toMatch(/AMO_|WEB_EXT_API_|secrets\./);
   });
+
+  it("runs the Firefox end-to-end suite against the packaged extension", () => {
+    const workflow = loadWorkflow("build.yml");
+    const job = workflow.jobs.e2e;
+
+    expect(job).toBeDefined();
+    if (!job) {
+      throw new Error("The verification workflow must define an e2e job.");
+    }
+
+    expect(job["runs-on"]).toBe("ubuntu-latest");
+    expect(job.steps.map((step) => step.uses).filter(Boolean)).toEqual([
+      "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020",
+      "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6",
+      "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+    ]);
+    const checkout = job.steps.find((step) => step.uses?.startsWith("actions/checkout@"));
+    expect(checkout?.with).toEqual({ "persist-credentials": false });
+
+    // The suite installs the archive that ships, so packaging must come first.
+    const commands = job.steps.filter((step) => step.run).map((step) => step.run);
+    expect(commands).toContain("bun install --frozen-lockfile");
+    expect(commands.indexOf("bun run package")).toBeGreaterThan(-1);
+    expect(commands.indexOf("bun run test:e2e")).toBeGreaterThan(
+      commands.indexOf("bun run package")
+    );
+
+    const diagnostics = job.steps.at(-1);
+    expect(diagnostics?.if).toBe("failure()");
+    expect(diagnostics?.with).toMatchObject({
+      name: "copy-table-e2e-diagnostics",
+      path: ".copy-table-test-output/e2e/"
+    });
+  });
 });
 
 describe("Firefox publishing workflow contract", () => {
