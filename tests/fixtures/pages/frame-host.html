@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Copy Table end-to-end host page</title>
+  </head>
+  <body>
+    <p id="outside">This paragraph is not inside any table.</p>
+    <!-- Served from the same origin as this page, so the extension can reach it. -->
+    <iframe id="same-origin-frame" src="../tables/basic-table.html" title="Basic table"></iframe>
+  </body>
+</html>

@@ -25,6 +25,12 @@ const rowSpanRowGroupsExpected = JSON.parse(
   readFileSync(resolve(fixtureDirectory, "expected/rowspan-row-groups-table.json"), "utf8")
 ) as Record<CopyFormat, string>;
 
+function expectedFixture(name: string): Record<CopyFormat, string> {
+  return JSON.parse(
+    readFileSync(resolve(fixtureDirectory, `expected/${name}.json`), "utf8")
+  ) as Record<CopyFormat, string>;
+}
+
 const serializers = {
   html: serializeHtml,
   markdown: serializeMarkdown,
@@ -102,6 +108,24 @@ describe("table serializers", () => {
     (format) => {
       expect(serializers[format](fixtureLogicalTable("rowspan-row-groups-table.html"))).toBe(
         rowSpanRowGroupsExpected[format]
+      );
+    }
+  );
+
+  it.each(["html", "markdown", "text", "csv"] as const)(
+    "matches the basic %s fixture byte-for-byte",
+    (format) => {
+      expect(serializers[format](fixtureLogicalTable("basic-table.html"))).toBe(
+        expectedFixture("basic-table")[format]
+      );
+    }
+  );
+
+  it.each(["html", "markdown", "text", "csv"] as const)(
+    "matches the nested-table outer %s fixture byte-for-byte, excluding the inner table",
+    (format) => {
+      expect(serializers[format](fixtureLogicalTable("nested-table.html"))).toBe(
+        expectedFixture("nested-table")[format]
       );
     }
   );

@@ -1,0 +1,6 @@
+{
+  "html": "<table><tbody><tr><td>Outer text</td></tr></tbody></table>",
+  "markdown": "| Outer text |\n| --- |",
+  "text": "Outer text",
+  "csv": "Outer text"
+}
