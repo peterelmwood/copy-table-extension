@@ -10,6 +10,8 @@ operation, written once to the clipboard on success, and then discarded.
 - Node.js 24 or later
 - Bun 1.3.14 or later
 - Firefox desktop for the manual temporary-install check
+- Firefox and [geckodriver](https://github.com/mozilla/geckodriver) 0.36 or
+  later for the optional end-to-end tests
 
 ## Install and verify
 
@@ -32,6 +34,27 @@ Every pull request and push to `main` runs the same locked install and complete
 unsigned Firefox ZIP as the `copy-table-firefox-unsigned` workflow artifact for
 exactly 30 days. This verification workflow has read-only repository access and
 cannot reach the Firefox publishing environment or AMO credentials.
+
+A separate `e2e` job in the same workflow packages the extension and runs the
+Firefox end-to-end tests described below. On failure it retains screenshots and
+the geckodriver log as the `copy-table-e2e-diagnostics` artifact.
+
+## End-to-end tests
+
+The end-to-end suite installs the packaged extension in headless Firefox,
+right-clicks a table in a fixture page, chooses an item from Firefox's own
+**Copy as** menu, and checks the clipboard and the in-page message. It is not
+part of `verify` because it needs a browser:
+
+```powershell
+bun run package
+bun run test:e2e
+```
+
+Firefox is taken from `FIREFOX_BIN`, or `firefox` on `PATH`. geckodriver is
+taken from `GECKODRIVER_BIN`, then `$GECKOWEBDRIVER/geckodriver`, then
+`geckodriver` on `PATH`. Failure screenshots and the geckodriver log are written
+to `.copy-table-test-output/e2e/`.
 
 ## Load temporarily in Firefox
 
