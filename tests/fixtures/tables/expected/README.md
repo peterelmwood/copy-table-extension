@@ -1,3 +1,8 @@
 # Expected table outputs
 
-Feature 002 serializer fixtures store the reviewed byte-exact HTML, Markdown, plain-text, and CSV strings for each semantic-table fixture as JSON. The suite includes `rowspan="0"`, positive row-span clipping, and distinct row-group boundaries. JSON escapes make CRLF records, tabs, and no-trailing-newline requirements reviewable without relying on checkout line-ending conversion. These expected-output files are consumed by the serializer unit suite; browser integration uses controlled representative payloads for transport and clipboard behavior.
+Feature 002 serializer fixtures store the reviewed byte-exact HTML, Markdown, plain-text, and CSV strings for the first semantic table in each fixture as JSON. The suite includes `rowspan="0"`, positive row-span clipping, distinct row-group boundaries, and a nested table whose content is excluded from the outer table. JSON escapes make CRLF records, tabs, and no-trailing-newline requirements reviewable without relying on checkout line-ending conversion.
+
+These files are consumed twice:
+
+- the serializer unit suite (`tests/unit/serializers.test.ts`) checks them against jsdom, and
+- the Firefox end-to-end suite (`tests/e2e/copy-flow.e2e.ts`) right-clicks a visible cell of the same table in real Firefox and checks the clipboard against every format. Adding a `<name>.json` here adds `<name>.html` to that matrix automatically.

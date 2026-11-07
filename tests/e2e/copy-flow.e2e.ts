@@ -1,17 +1,21 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { By } from "selenium-webdriver";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   extensionArchiveFileName,
   resolveArtifactsDirectory
 } from "../../scripts/artifact-path.mjs";
+import type { CopyFormat } from "../../src/table/model";
 import { startFixtureServer, type FixtureServer } from "./support/fixture-server";
 import {
   copyViaContextMenu,
+  enterFrame,
+  firstVisibleCellOfFirstTable,
   installExtension,
   launchFirefox,
+  readClipboard,
   waitForClipboardChange,
   waitForToast,
   writeClipboard,
@@ -40,11 +44,30 @@ async function packagedArchivePath(): Promise<string> {
   return archivePath;
 }
 
-async function expectedOutputs(fixture: string): Promise<Record<string, string>> {
-  return JSON.parse(
-    await readFile(resolve(fixturesDirectory, `tables/expected/${fixture}.json`), "utf8")
-  ) as Record<string, string>;
+const FORMATS: readonly CopyFormat[] = ["html", "markdown", "text", "csv"];
+const SUCCESS_TOAST: Record<CopyFormat, string> = {
+  html: "Copied as HTML.",
+  markdown: "Copied as Markdown.",
+  text: "Copied as Plain text.",
+  csv: "Copied as CSV."
+};
+const NO_TABLE_TOAST = "No table found at the selected location.";
+
+// Every fixture with reviewed expected output (see tests/fixtures/tables/expected/).
+const expectedDirectory = resolve(fixturesDirectory, "tables/expected");
+const fixtures = readdirSync(expectedDirectory)
+  .filter((file) => file.endsWith(".json"))
+  .map((file) => basename(file, ".json"))
+  .sort();
+
+function expectedOutputs(fixture: string): Record<CopyFormat, string> {
+  return JSON.parse(readFileSync(resolve(expectedDirectory, `${fixture}.json`), "utf8")) as Record<
+    CopyFormat,
+    string
+  >;
 }
+
+const matrix = fixtures.flatMap((fixture) => FORMATS.map((format) => ({ fixture, format })));
 
 describe("Firefox right-click copy flow", () => {
   let driver: FirefoxDriver;
@@ -62,21 +85,70 @@ describe("Firefox right-click copy flow", () => {
     await server?.close();
   });
 
-  it("copies the right-clicked table as CSV", async ({ onTestFailed, task }) => {
+  beforeEach(({ onTestFailed, task }) => {
     onTestFailed(async () => {
       const screenshot = await driver.takeScreenshot();
       const fileName = `${task.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`;
       await writeFile(resolve(diagnosticsDirectory, fileName), screenshot, "base64");
     });
+  });
 
-    await driver.get(server.url("tables/complex-table.html"));
+  /** Loads `path` in the current tab and puts a known value on the clipboard. */
+  async function openPage(path: string): Promise<void> {
+    await driver.switchTo().defaultContent();
+    await driver.get(server.url(path));
     await writeClipboard(driver, CLIPBOARD_SENTINEL);
+  }
 
-    const cell = await driver.findElement(By.css("#source thead th"));
+  it("covers at least the original fixture set", () => {
+    // Guards against the matrix silently shrinking if expected files move.
+    expect(fixtures).toEqual(expect.arrayContaining(["complex-table", "nested-table"]));
+    expect(matrix.length).toBe(fixtures.length * FORMATS.length);
+  });
+
+  it.for(matrix)("copies $fixture as $format", async ({ fixture, format }) => {
+    await openPage(`tables/${fixture}.html`);
+
+    const cell = await firstVisibleCellOfFirstTable(driver);
+    await copyViaContextMenu(driver, cell, format);
+
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe(
+      expectedOutputs(fixture)[format]
+    );
+    expect(await waitForToast(driver)).toBe(SUCCESS_TOAST[format]);
+  });
+
+  it("copies only the inner table when a nested table's cell is right-clicked", async () => {
+    await openPage("tables/nested-table.html");
+
+    await copyViaContextMenu(driver, await driver.findElement(By.css("#inner td")), "csv");
+
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe("Inner text");
+    expect(await waitForToast(driver)).toBe(SUCCESS_TOAST.csv);
+  });
+
+  it("explains a miss and leaves the clipboard unchanged outside any table", async () => {
+    await openPage("pages/frame-host.html");
+
+    await copyViaContextMenu(driver, await driver.findElement(By.css("#outside")), "csv");
+
+    // The outcome toast is only sent after the copy attempt has finished.
+    expect(await waitForToast(driver)).toBe(NO_TABLE_TOAST);
+    expect(await readClipboard(driver)).toBe(CLIPBOARD_SENTINEL);
+  });
+
+  it("copies a table inside a same-origin iframe", async () => {
+    await openPage("pages/frame-host.html");
+
+    await enterFrame(driver, "#same-origin-frame");
+    const cell = await firstVisibleCellOfFirstTable(driver);
     await copyViaContextMenu(driver, cell, "csv");
 
-    const copied = await waitForClipboardChange(driver, CLIPBOARD_SENTINEL);
-    expect(copied).toBe((await expectedOutputs("complex-table")).csv);
-    expect(await waitForToast(driver)).toBe("Copied as CSV.");
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe(
+      expectedOutputs("basic-table").csv
+    );
+    // The toast is rendered in the frame the table lives in.
+    await enterFrame(driver, "#same-origin-frame");
+    expect(await waitForToast(driver)).toBe(SUCCESS_TOAST.csv);
   });
 });

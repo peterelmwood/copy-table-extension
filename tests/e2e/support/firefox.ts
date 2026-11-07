@@ -108,6 +108,41 @@ export function readClipboard(driver: FirefoxDriver): Promise<string> {
 }
 
 /**
+ * WebDriver clicks an element's centre, which may be covered by a descendant
+ * (for example a nested table inside a cell). Returns an offset from the centre
+ * of `target` at which hit-testing lands on `target` itself or a descendant that
+ * is not inside a nested table of its own.
+ */
+async function ownHitPoint(
+  driver: FirefoxDriver,
+  target: WebElement
+): Promise<{ x: number; y: number }> {
+  const point = (await driver.executeScript(
+    `const target = arguments[0];
+     const ownTable = target.closest("table");
+     const rect = target.getBoundingClientRect();
+     const centreX = rect.left + rect.width / 2;
+     const centreY = rect.top + rect.height / 2;
+     const hits = (x, y) => {
+       const hit = document.elementFromPoint(x, y);
+       return hit !== null && target.contains(hit) && hit.closest("table") === ownTable;
+     };
+     if (hits(centreX, centreY)) return { x: 0, y: 0 };
+     for (let y = rect.top + 1; y < rect.bottom; y += 2) {
+       for (let x = rect.left + 1; x < rect.right; x += 2) {
+         if (hits(x, y)) return { x: Math.round(x - centreX), y: Math.round(y - centreY) };
+       }
+     }
+     return null;`,
+    target
+  )) as { x: number; y: number } | null;
+  if (!point) {
+    throw new Error("No point of the target element can be right-clicked directly.");
+  }
+  return point;
+}
+
+/**
  * Right-clicks `target` with a real WebDriver pointer action, then chooses
  * "Copy as" -> `format` in Firefox's own context menu. This drives the real
  * `menus.onClicked` path, including `targetElementId` and
@@ -118,7 +153,8 @@ export async function copyViaContextMenu(
   target: WebElement,
   format: CopyFormat
 ): Promise<void> {
-  await driver.actions().contextClick(target).perform();
+  const { x, y } = await ownHitPoint(driver, target);
+  await driver.actions().move({ origin: target, x, y }).contextClick().perform();
 
   await inChromeContext(driver, async () => {
     const result = (await driver.executeAsyncScript(
@@ -181,6 +217,35 @@ export async function waitForToast(driver: FirefoxDriver): Promise<string> {
     "The copy toast did not appear."
   );
   return toast.getText();
+}
+
+/**
+ * Returns the first rendered cell that belongs directly to the page's first
+ * `<table>` (the table each expected-output fixture describes). Cells hidden by
+ * the visibility fixtures can't be right-clicked, and cells of a nested table
+ * would copy the nested table instead.
+ */
+export async function firstVisibleCellOfFirstTable(driver: FirefoxDriver): Promise<WebElement> {
+  const cell = (await driver.executeScript(
+    `const table = document.querySelector("table");
+     if (!table) return null;
+     return [...table.querySelectorAll("th, td")].find(
+       (cell) =>
+         cell.closest("table") === table &&
+         cell.getClientRects().length > 0 &&
+         getComputedStyle(cell).visibility === "visible"
+     ) ?? null;`
+  )) as WebElement | null;
+  if (!cell) {
+    throw new Error("The page's first table has no visible cell to right-click.");
+  }
+  return cell;
+}
+
+/** Switches WebDriver commands into the `<iframe>` matching `selector` on the top-level page. */
+export async function enterFrame(driver: FirefoxDriver, selector: string): Promise<void> {
+  await driver.switchTo().defaultContent();
+  await driver.switchTo().frame(await driver.findElement(By.css(selector)));
 }
 
 export type { FirefoxDriver };
