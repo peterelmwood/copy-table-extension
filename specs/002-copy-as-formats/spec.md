@@ -119,7 +119,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 - Copying arbitrary selections, lists, ARIA grids, canvas content, or non-semantic visual tables.
 - Editing, previewing, or configuring conversions before copying.
 - Retaining copy history, synchronizing results, analytics, telemetry, or remote processing.
-- Rich multi-MIME clipboard writes; each action writes the selected representation as text.
+- Rich multi-MIME clipboard writes; each action writes the selected representation as text. _Amended by issue #7: the HTML action now writes one clipboard item with `text/html` and a tab-separated `text/plain` fallback; Markdown, Plain text, and CSV still write text only._
 - Inspecting tables inside cross-origin embedded documents or requesting broad/optional host permission to do so.
 
 ## Success Criteria _(mandatory)_

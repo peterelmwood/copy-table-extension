@@ -80,6 +80,8 @@ lifetime.
 - Clipboard write from the content script: rejected because ordinary HTTP pages are not secure contexts.
 - Legacy `execCommand('copy')`: rejected because it is deprecated and fragile after asynchronous work.
 
+**Amendment (issue #7)**: For the HTML action only, the content script returns the markup plus an optional `plainPayload` (the plain-text serialization of the same logical table), and the adapter performs exactly one `clipboard.write()` of a single `ClipboardItem` carrying `text/html` and `text/plain`. Where `ClipboardItem` or `clipboard.write` is unavailable, it falls back to one `writeText` of the markup. Both strings are released after the write, a rejection is still reported as `clipboard-failed` without retry, and the clipboard is still never read. The other three actions keep the single `writeText`.
+
 ## Decision 5: Normalize once, serialize four ways
 
 **Decision**: Build a rectangular logical matrix with origin-cell metadata, top-left span ownership, empty covered and padding positions, row-group/section metadata, visible text, and safe inline tokens. Normalize `rowspan="0"` to the remaining rows in its owning group, clip positive row spans at that group boundary, enforce the HTML row-span limit separately from the column-span limit, and preserve row-group boundaries for reconstructed HTML.

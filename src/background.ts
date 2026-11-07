@@ -31,7 +31,8 @@ export interface ClickedTab {
   id?: number;
 }
 
-export interface BrowserInteractionDependencies extends ClipboardWriter {
+export interface BrowserInteractionDependencies
+  extends Pick<ClipboardWriter, "writeText">, Partial<Pick<ClipboardWriter, "writeRich">> {
   inject(tabId: number, frameId: number, files: readonly string[]): Promise<void>;
   sendMessage(tabId: number, message: CopyExtractRequest, frameId: number): Promise<unknown>;
   sendOutcome?(tabId: number, message: CopyOutcomeMessage, frameId: number): Promise<void>;
@@ -44,11 +45,15 @@ function defaultRequestId(): string {
 }
 
 function releaseResponsePayload(response: unknown): undefined {
-  if (typeof response === "object" && response !== null && "payload" in response) {
-    try {
-      delete (response as { payload?: unknown }).payload;
-    } catch {
-      // The outer response reference is still released below.
+  if (typeof response === "object" && response !== null) {
+    for (const key of ["payload", "plainPayload"] as const) {
+      if (key in response) {
+        try {
+          delete (response as Record<typeof key, unknown>)[key];
+        } catch {
+          // The outer response reference is still released below.
+        }
+      }
     }
   }
   return undefined;
@@ -142,13 +147,23 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
 
       const successfulResponse = response;
       let payload = successfulResponse.payload;
+      let plainPayload = successfulResponse.plainPayload;
       let status: CopyOutcomeStatus = "copied";
       try {
-        await dependencies.writeText(payload);
+        if (
+          successfulResponse.format === "html" &&
+          plainPayload !== undefined &&
+          dependencies.writeRich
+        ) {
+          await dependencies.writeRich({ html: payload, text: plainPayload });
+        } else {
+          await dependencies.writeText(payload);
+        }
       } catch {
         status = "clipboard-failed";
       } finally {
         payload = "";
+        plainPayload = undefined;
         response = releaseResponsePayload(successfulResponse);
       }
       await sendOutcome(tabId, request, frameId, status);

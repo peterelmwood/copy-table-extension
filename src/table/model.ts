@@ -19,6 +19,11 @@ export interface CopyExtractSuccess {
   requestId: string;
   format: CopyFormat;
   payload: string;
+  /**
+   * HTML responses only: the plain-text rendering of the same table, written
+   * alongside the markup so plain-text paste targets get readable text.
+   */
+  plainPayload?: string;
 }
 
 export interface CopyExtractFailure {

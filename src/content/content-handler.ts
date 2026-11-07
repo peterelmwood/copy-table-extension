@@ -1,6 +1,6 @@
 import { isCopyExtractRequest, isCopyOutcomeMessage } from "../browser/messages";
 import { renderCopyOutcome } from "./feedback";
-import type { CopyExtractRequest, CopyExtractResponse } from "../table/model";
+import type { CopyExtractRequest, CopyExtractResponse, CopyExtractSuccess } from "../table/model";
 import { extractLogicalTable } from "../table/extract";
 import { serializeCsv } from "../table/serialize/csv";
 import { serializeHtml } from "../table/serialize/html";
@@ -8,23 +8,31 @@ import { serializeMarkdown } from "../table/serialize/markdown";
 import { serializeText } from "../table/serialize/text";
 import { resolveInteractionTarget, type TargetElementLookup } from "./target";
 
-export interface ContentHandlerDependencies {
-  getTargetElement: TargetElementLookup;
-  serialize?(table: HTMLTableElement, request: CopyExtractRequest): string;
+export interface SerializedTable {
+  payload: string;
+  plainPayload?: string;
 }
 
-function serializeTable(table: HTMLTableElement, request: CopyExtractRequest): string {
+export interface ContentHandlerDependencies {
+  getTargetElement: TargetElementLookup;
+  serialize?(table: HTMLTableElement, request: CopyExtractRequest): SerializedTable;
+}
+
+function serializeTable(table: HTMLTableElement, request: CopyExtractRequest): SerializedTable {
+  // One extraction feeds every representation, so they can never disagree.
   const logicalTable = extractLogicalTable(table);
 
   switch (request.format) {
     case "html":
-      return serializeHtml(logicalTable);
+      // Rich editors read the markup; plain-text targets get the tab-separated
+      // matrix, which also pastes cleanly into spreadsheets.
+      return { payload: serializeHtml(logicalTable), plainPayload: serializeText(logicalTable) };
     case "markdown":
-      return serializeMarkdown(logicalTable);
+      return { payload: serializeMarkdown(logicalTable) };
     case "text":
-      return serializeText(logicalTable);
+      return { payload: serializeText(logicalTable) };
     case "csv":
-      return serializeCsv(logicalTable);
+      return { payload: serializeCsv(logicalTable) };
   }
 }
 
@@ -47,12 +55,17 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
     }
 
     try {
-      return {
+      const serialized = serialize(target.table, message);
+      const response: CopyExtractSuccess = {
         ok: true,
         requestId: message.requestId,
         format: message.format,
-        payload: serialize(target.table, message)
+        payload: serialized.payload
       };
+      if (serialized.plainPayload !== undefined) {
+        response.plainPayload = serialized.plainPayload;
+      }
+      return response;
     } catch {
       return {
         ok: false,

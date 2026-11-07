@@ -49,9 +49,16 @@ export function isCopyExtractResponse(value: unknown): value is CopyExtractRespo
   }
 
   if (value.ok === true) {
+    if (
+      !hasOnlyKeys(value, ["ok", "requestId", "format", "payload", "plainPayload"]) ||
+      typeof value.payload !== "string"
+    ) {
+      return false;
+    }
+    // Only an HTML copy carries a second, plain-text representation.
     return (
-      hasOnlyKeys(value, ["ok", "requestId", "format", "payload"]) &&
-      typeof value.payload === "string"
+      !("plainPayload" in value) ||
+      (value.format === "html" && typeof value.plainPayload === "string")
     );
   }
 

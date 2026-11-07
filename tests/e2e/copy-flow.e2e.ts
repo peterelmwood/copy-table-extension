@@ -16,6 +16,7 @@ import {
   installExtension,
   launchFirefox,
   readClipboard,
+  readClipboardRepresentations,
   waitForClipboardChange,
   waitForToast,
   writeClipboard,
@@ -112,9 +113,20 @@ describe("Firefox right-click copy flow", () => {
     const cell = await firstVisibleCellOfFirstTable(driver);
     await copyViaContextMenu(driver, cell, format);
 
-    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe(
-      expectedOutputs(fixture)[format]
-    );
+    const expected = expectedOutputs(fixture);
+    const plainText = await waitForClipboardChange(driver, CLIPBOARD_SENTINEL);
+    const { types, html } = await readClipboardRepresentations(driver);
+
+    if (format === "html") {
+      // One rich item: the markup for rich editors, the tab-separated text
+      // for plain-text targets.
+      expect(types).toEqual(["text/html", "text/plain"]);
+      expect(html).toBe(expected.html);
+      expect(plainText).toBe(expected.text);
+    } else {
+      expect(types).toEqual(["text/plain"]);
+      expect(plainText).toBe(expected[format]);
+    }
     expect(await waitForToast(driver)).toBe(SUCCESS_TOAST[format]);
   });
 

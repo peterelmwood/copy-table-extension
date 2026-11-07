@@ -130,6 +130,42 @@ describe("table serializers", () => {
     }
   );
 
+  it("emits only table structure, links and line breaks for rich-text paste targets", () => {
+    // Rich editors render this markup, so the adversarial fixture must not
+    // smuggle in any other element, attribute, or link scheme.
+    const container = document.createElement("div");
+    container.innerHTML = serializeHtml(complexLogicalTable());
+    const allowedAttributes: Record<string, readonly string[]> = {
+      a: ["href", "rel"],
+      th: ["scope", "rowspan", "colspan"],
+      td: ["rowspan", "colspan"]
+    };
+
+    const elements = [...container.querySelectorAll("*")];
+    expect(elements.length).toBeGreaterThan(0);
+    for (const element of elements) {
+      const tag = element.localName;
+      expect([
+        "table",
+        "caption",
+        "thead",
+        "tbody",
+        "tfoot",
+        "tr",
+        "th",
+        "td",
+        "a",
+        "br"
+      ]).toContain(tag);
+      for (const attribute of element.getAttributeNames()) {
+        expect(allowedAttributes[tag] ?? []).toContain(attribute);
+      }
+      if (tag === "a") {
+        expect(element.getAttribute("href")).toMatch(/^(https?:|mailto:)/);
+      }
+    }
+  });
+
   it("uses the first logical row as the Markdown header when no explicit header exists", () => {
     document.body.innerHTML = "<table><tr><td>A</td><td>B</td></tr><tr><td>1</td></tr></table>";
     const table = document.querySelector("table");

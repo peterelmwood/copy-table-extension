@@ -45,19 +45,27 @@ describe("content handler registration", () => {
       ok: true,
       requestId: "request-1",
       format: "html",
-      payload: "<table><tbody><tr><td>selected</td></tr></tbody></table>"
+      payload: "<table><tbody><tr><td>selected</td></tr></tbody></table>",
+      plainPayload: "selected"
     });
     expect(getTargetElement).toHaveBeenCalledWith(12);
   });
 
   it.each([
-    ["html", "<table><tbody><tr><th>Header</th></tr><tr><td>Value</td></tr></tbody></table>"],
-    ["markdown", "| Header |\n| --- |\n| Value |"],
-    ["text", "Header\nValue"],
-    ["csv", "Header\r\nValue"]
+    [
+      "html",
+      {
+        payload: "<table><tbody><tr><th>Header</th></tr><tr><td>Value</td></tr></tbody></table>",
+        // HTML also carries the tab-separated text for plain-text paste targets.
+        plainPayload: "Header\nValue"
+      }
+    ],
+    ["markdown", { payload: "| Header |\n| --- |\n| Value |" }],
+    ["text", { payload: "Header\nValue" }],
+    ["csv", { payload: "Header\r\nValue" }]
   ] as const)(
     "uses the requested %s serializer through the default content boundary",
-    async (format, payload) => {
+    async (format, serialized) => {
       document.body.innerHTML =
         "<table><tr><th id=cell>Header</th></tr><tr><td>Value</td></tr></table>";
       const handler = registerableHandler(() => document.querySelector("#cell"));
@@ -73,7 +81,7 @@ describe("content handler registration", () => {
         ok: true,
         requestId: "request-format",
         format,
-        payload
+        ...serialized
       });
     }
   );
