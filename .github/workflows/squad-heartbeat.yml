@@ -23,6 +23,18 @@ permissions:
 
 jobs:
   heartbeat:
+    # The triage script only acts on issues labeled `squad`, and the Copilot
+    # step only on `squad:copilot` issues, so skip events that can't involve
+    # squad work instead of starting a runner for every issue and PR.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.action == 'labeled' &&
+        (github.event.label.name == 'squad' || startsWith(github.event.label.name, 'squad:'))) ||
+      (github.event.action == 'closed' &&
+        (contains(github.event.issue.labels.*.name, 'squad') ||
+          contains(join(github.event.issue.labels.*.name, ' '), 'squad:') ||
+          contains(github.event.pull_request.labels.*.name, 'squad') ||
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'squad:')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4

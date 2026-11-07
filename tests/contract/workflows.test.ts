@@ -246,3 +246,38 @@ describe("Firefox publishing workflow contract", () => {
     });
   });
 });
+
+describe("Squad heartbeat workflow contract", () => {
+  it("only starts the heartbeat job for squad-related events", () => {
+    const workflow = loadWorkflow("squad-heartbeat.yml");
+    const job = workflow.jobs.heartbeat;
+
+    expect(job).toBeDefined();
+    if (!job) {
+      throw new Error("The squad heartbeat workflow must define a heartbeat job.");
+    }
+
+    // The triggers stay broad; the job-level filter is what keeps unrelated
+    // issue and pull request events from starting a runner.
+    expect(workflow.on).toHaveProperty("issues");
+    expect(workflow.on).toHaveProperty("pull_request");
+    const condition = job.if ?? "";
+    expect(condition).toContain("github.event_name == 'workflow_dispatch'");
+    expect(condition).toContain("github.event.label.name == 'squad'");
+    expect(condition).toContain("startsWith(github.event.label.name, 'squad:')");
+    expect(condition).toContain("contains(github.event.issue.labels.*.name, 'squad')");
+    expect(condition).toContain("contains(github.event.pull_request.labels.*.name, 'squad')");
+  });
+
+  it("keeps the installed Squad template in sync with the active workflow", () => {
+    const active = readFileSync(
+      resolve(projectRoot, ".github/workflows/squad-heartbeat.yml"),
+      "utf8"
+    );
+    const template = readFileSync(
+      resolve(projectRoot, ".squad/templates/workflows/squad-heartbeat.yml"),
+      "utf8"
+    );
+    expect(template).toBe(active);
+  });
+});
