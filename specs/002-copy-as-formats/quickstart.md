@@ -44,4 +44,4 @@ notification; it is sent only after payload references are released.
 
 ## Manual release evidence
 
-Record Firefox version, page fixture, chosen format, frame origin relationship, elapsed time, pasted output, feedback, and any console error in `validation-record.md`. Do not mark GUI scenarios complete from automated DOM tests alone.
+Record Firefox version, page fixture, chosen format, frame origin relationship, elapsed time, pasted output, feedback, and any console error in `validation-record.md`. Do not mark GUI scenarios complete from automated DOM tests alone. Scenarios the Firefox end-to-end suite (`bun run test:e2e`, which drives the real context menu and clipboard) covers may cite its CI run instead.
