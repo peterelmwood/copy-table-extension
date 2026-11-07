@@ -78,8 +78,11 @@ outcome cannot be delivered, a different fixed payload-free notification
 reports that delivery failed after any payload reference is released. In every
 failure case, the existing clipboard is left unchanged.
 
-Automated verification does not claim Firefox GUI coverage. Record interactive
-results, including nested and no-table cases, in
+The [end-to-end tests](#end-to-end-tests) cover this flow in real Firefox on
+every pull request: all four formats on every reviewed fixture, nested tables,
+right-clicks outside any table, and tables in same-origin frames. Cases that
+need a protected page, a cross-origin frame, a frame removed mid-copy, or
+keyboard-only menu navigation are still checked by hand; record them in
 [`specs/002-copy-as-formats/validation-record.md`](specs/002-copy-as-formats/validation-record.md)
 before release.
 
