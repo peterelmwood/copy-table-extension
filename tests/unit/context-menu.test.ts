@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { COPY_AS_MENU_ITEMS, createCopyAsMenus } from "../../src/browser/context-menu";
+import {
+  COPY_AS_MENU_ITEMS,
+  createCopyAsMenus,
+  formatFromMenuItemId
+} from "../../src/browser/context-menu";
 
 describe("Copy table as context menu", () => {
   it("creates the exact idempotent parent and child hierarchy", async () => {
@@ -17,6 +21,11 @@ describe("Copy table as context menu", () => {
       { id: "copy-table:copy-as", title: "Copy table as", contexts: ["all"] },
       { id: "copy-table:copy-as:html", parentId: "copy-table:copy-as", title: "HTML" },
       {
+        id: "copy-table:copy-as:html-source",
+        parentId: "copy-table:copy-as",
+        title: "HTML source"
+      },
+      {
         id: "copy-table:copy-as:markdown",
         parentId: "copy-table:copy-as",
         title: "Markdown"
@@ -28,5 +37,15 @@ describe("Copy table as context menu", () => {
       },
       { id: "copy-table:copy-as:csv", parentId: "copy-table:copy-as", title: "CSV" }
     ]);
+  });
+
+  it("maps every menu item ID back to its format and rejects unknown ones", () => {
+    expect(formatFromMenuItemId("copy-table:copy-as:html")).toBe("html");
+    expect(formatFromMenuItemId("copy-table:copy-as:html-source")).toBe("html-source");
+    expect(formatFromMenuItemId("copy-table:copy-as:csv")).toBe("csv");
+    expect(formatFromMenuItemId("copy-table:copy-as")).toBeNull();
+    expect(formatFromMenuItemId("copy-table:copy-as:json")).toBeNull();
+    expect(formatFromMenuItemId("copy-table:copy-as:html-sourcex")).toBeNull();
+    expect(formatFromMenuItemId(42)).toBeNull();
   });
 });

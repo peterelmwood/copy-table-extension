@@ -27,6 +27,10 @@ function serializeTable(table: HTMLTableElement, request: CopyExtractRequest): S
       // Rich editors read the markup; plain-text targets get the tab-separated
       // matrix, which also pastes cleanly into spreadsheets.
       return { payload: serializeHtml(logicalTable), plainPayload: serializeText(logicalTable) };
+    case "html-source":
+      // The same markup as "html", copied as plain text so code editors and
+      // other plain-text targets receive the HTML itself.
+      return { payload: serializeHtml(logicalTable) };
     case "markdown":
       return { payload: serializeMarkdown(logicalTable) };
     case "text":

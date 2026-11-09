@@ -7,6 +7,7 @@ import type { CopyFormat } from "../../../src/table/model";
 /** Labels of the "Copy table as" submenu items, as created by `src/browser/context-menu.ts`. */
 const MENU_LABELS: Record<CopyFormat, string> = {
   html: "HTML",
+  "html-source": "HTML source",
   markdown: "Markdown",
   text: "Plain text",
   csv: "CSV"
