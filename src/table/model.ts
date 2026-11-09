@@ -1,4 +1,6 @@
-export const COPY_FORMATS = ["html", "markdown", "text", "csv"] as const;
+// "html" writes rich text (text/html + a plain-text fallback); "html-source"
+// writes the same markup as plain text, for code editors and other text targets.
+export const COPY_FORMATS = ["html", "html-source", "markdown", "text", "csv"] as const;
 
 export type CopyFormat = (typeof COPY_FORMATS)[number];
 
