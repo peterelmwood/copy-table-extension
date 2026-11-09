@@ -257,6 +257,45 @@ describe("browser interaction", () => {
     expect(writeRich).not.toHaveBeenCalled();
   });
 
+  it("writes an HTML source copy as plain text only, never as rich text", async () => {
+    const writeText = vi.fn(async () => undefined);
+    const writeRich = vi.fn(async () => undefined);
+    const sendOutcome = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => ({
+        ok: true as const,
+        requestId: "request-source",
+        format: "html-source" as const,
+        payload: "<table><tbody><tr><td>A</td></tr></tbody></table>"
+      }),
+      sendOutcome,
+      writeText,
+      writeRich,
+      nextRequestId: () => "request-source"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html-source", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(writeText).toHaveBeenCalledExactlyOnceWith(
+      "<table><tbody><tr><td>A</td></tr></tbody></table>"
+    );
+    expect(writeRich).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      {
+        type: "copy-table:outcome",
+        requestId: "request-source",
+        format: "html-source",
+        status: "copied"
+      },
+      0
+    );
+  });
+
   it("reports one rejected rich write as clipboard-failed without retrying as text", async () => {
     const writeText = vi.fn(async () => undefined);
     const writeRich = vi.fn(async () => Promise.reject(new Error("clipboard denied")));

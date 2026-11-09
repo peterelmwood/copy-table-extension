@@ -14,6 +14,7 @@ const FEEDBACK_ALERT = "#e8a87c";
 
 const FORMAT_LABELS: Record<CopyFormat, string> = {
   html: "HTML",
+  "html-source": "HTML source",
   markdown: "Markdown",
   text: "Plain text",
   csv: "CSV"

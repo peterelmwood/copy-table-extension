@@ -58,6 +58,10 @@ describe("browser message guards", () => {
     expect(isCopyExtractResponse({ ...success, format: "html", plainPayload: "A\tB" })).toBe(true);
     expect(isCopyExtractResponse({ ...success, format: "html" })).toBe(true);
     expect(isCopyExtractResponse({ ...success, format: "csv", plainPayload: "A,B" })).toBe(false);
+    expect(isCopyExtractResponse({ ...success, format: "html-source", plainPayload: "A\tB" })).toBe(
+      false
+    );
+    expect(isCopyExtractResponse({ ...success, format: "html-source" })).toBe(true);
     expect(isCopyExtractResponse({ ...success, format: "html", plainPayload: 42 })).toBe(false);
     expect(isCopyExtractResponse({ ...success, format: "html", plainPayload: undefined })).toBe(
       false

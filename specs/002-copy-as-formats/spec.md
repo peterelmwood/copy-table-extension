@@ -72,7 +72,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 
 ### Functional Requirements
 
-- **FR-001**: Copy Table MUST add a top-level **Copy as** context-menu item with exactly four child actions labelled **HTML**, **Markdown**, **Plain text**, and **CSV**. _Amended by issue #9: the top-level item is titled **Copy table as**; its menu IDs are unchanged._
+- **FR-001**: Copy Table MUST add a top-level **Copy as** context-menu item with exactly four child actions labelled **HTML**, **Markdown**, **Plain text**, and **CSV**. _Amended by issue #9: the top-level item is titled **Copy table as**; its menu IDs are unchanged._ _Amended after issue #7: a fifth child, **HTML source**, follows **HTML** and copies the HTML markup as plain text._
 - **FR-002**: A copy action MUST begin only after the user explicitly selects one of the four format actions.
 - **FR-003**: Within a supported top-level or same-origin document, the system MUST resolve the nearest semantic table containing the element that was directly right-clicked; it MUST NOT substitute another table elsewhere on the page.
 - **FR-004**: The system MUST process only the active interaction target and MUST NOT continuously scan pages or collect tables before a user action.

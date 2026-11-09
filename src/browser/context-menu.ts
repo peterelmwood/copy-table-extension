@@ -1,10 +1,15 @@
-import type { CopyFormat } from "../table/model";
+import { COPY_FORMATS, type CopyFormat } from "../table/model";
 
 const COPY_AS_PARENT_ID = "copy-table:copy-as";
 
 export const COPY_AS_MENU_ITEMS = [
   { id: COPY_AS_PARENT_ID, title: "Copy table as", contexts: ["all"] },
   { id: "copy-table:copy-as:html", parentId: COPY_AS_PARENT_ID, title: "HTML" },
+  {
+    id: "copy-table:copy-as:html-source",
+    parentId: COPY_AS_PARENT_ID,
+    title: "HTML source"
+  },
   { id: "copy-table:copy-as:markdown", parentId: COPY_AS_PARENT_ID, title: "Markdown" },
   { id: "copy-table:copy-as:text", parentId: COPY_AS_PARENT_ID, title: "Plain text" },
   { id: "copy-table:copy-as:csv", parentId: COPY_AS_PARENT_ID, title: "CSV" }
@@ -27,7 +32,7 @@ export function formatFromMenuItemId(menuItemId: unknown): CopyFormat | null {
 
   const format = menuItemId.slice("copy-table:copy-as:".length);
   return menuItemId.startsWith("copy-table:copy-as:") &&
-    ["html", "markdown", "text", "csv"].includes(format)
+    (COPY_FORMATS as readonly string[]).includes(format)
     ? (format as CopyFormat)
     : null;
 }
