@@ -1,7 +1,7 @@
 # Copy Table
 
 Copy Table is a Firefox-first WebExtension that copies the semantic table a
-user directly right-clicks as HTML, Markdown, plain text, or CSV. Each copy is
+user directly right-clicks as HTML, Markdown, plain text, CSV, or JSON. Each copy is
 an explicit context-menu action; table data is processed locally for that one
 operation, written once to the clipboard on success, and then discarded.
 
@@ -71,7 +71,7 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 `bun run build`.
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
-**Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, or **CSV**.
+**Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, **CSV**, or **JSON**.
 The closest table containing the clicked element is copied. A short in-page
 message confirms success and reports the copied table's size, for example
 "Copied 42 rows × 5 columns as CSV." (every row counts, header and footer rows
@@ -81,7 +81,7 @@ paste as a real table into spreadsheets, documents and email; plain-text paste
 targets such as terminals receive the tab-separated plain-text rendering
 instead. (Firefox releases without the async `ClipboardItem` API fall back to
 copying the HTML markup as text.) **HTML source** copies the same markup as
-plain text instead, for pasting into code editors such as VS Code. Outside a table or after a clipboard rejection, an
+plain text instead, for pasting into code editors such as VS Code. **JSON** copies an array of objects keyed by the header row (or an array of arrays when the table has no header row), with every value kept as the displayed text. Outside a table or after a clipboard rejection, an
 in-page message explains the failure. If Firefox blocks page injection, a fixed
 extension notification explains that the protected page cannot be accessed. If
 the page or frame disappears after injection and the extraction response or
@@ -90,7 +90,7 @@ reports that delivery failed after any payload reference is released. In every
 failure case, the existing clipboard is left unchanged.
 
 The [end-to-end tests](#end-to-end-tests) cover this flow in real Firefox on
-every pull request: all four formats on every reviewed fixture, nested tables,
+every pull request: every format on every reviewed fixture, nested tables,
 right-clicks outside any table, tables in same-origin frames, and a page whose
 CSS tries to hide the in-page message. Cases that
 need a protected page, a cross-origin frame, a frame removed mid-copy, or

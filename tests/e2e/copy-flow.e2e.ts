@@ -46,13 +46,14 @@ async function packagedArchivePath(): Promise<string> {
   return archivePath;
 }
 
-const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv"];
+const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv", "json"];
 const FORMAT_LABELS: Record<CopyFormat, string> = {
   html: "HTML",
   "html-source": "HTML source",
   markdown: "Markdown",
   text: "Plain text",
-  csv: "CSV"
+  csv: "CSV",
+  json: "JSON"
 };
 
 interface TableSize {

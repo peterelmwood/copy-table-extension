@@ -10,6 +10,7 @@ import type {
 import { extractLogicalTable } from "../table/extract";
 import { serializeCsv } from "../table/serialize/csv";
 import { serializeHtml } from "../table/serialize/html";
+import { serializeJson } from "../table/serialize/json";
 import { serializeMarkdown } from "../table/serialize/markdown";
 import { serializeText } from "../table/serialize/text";
 import { resolveInteractionTarget, type TargetElementLookup } from "./target";
@@ -54,6 +55,8 @@ function serializeLogicalTable(
       return { payload: serializeText(logicalTable) };
     case "csv":
       return { payload: serializeCsv(logicalTable) };
+    case "json":
+      return { payload: serializeJson(logicalTable) };
   }
 }
 

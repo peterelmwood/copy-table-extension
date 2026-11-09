@@ -12,6 +12,8 @@
 ```
 
 > Amended after issue #7: `format` may also be `"html-source"`, which returns the HTML serialization as a plain-text payload (no `plainPayload`). Only `"html"` responses may carry `plainPayload`.
+>
+> Amended by issue #14: `format` may also be `"json"`, a plain-text payload (no `plainPayload`).
 
 The message is sent only to the menu event's `tab.id` and `frameId`, after one-off injection of the reviewed content bundle. Supported targets are the top-level document and same-origin embedded documents. Cross-origin embedded documents are deliberately excluded without host permission and never fall back to another frame or table.
 
