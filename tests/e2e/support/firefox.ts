@@ -4,7 +4,7 @@ import { By, until, type WebElement } from "selenium-webdriver";
 import firefox from "selenium-webdriver/firefox";
 import type { CopyFormat } from "../../../src/table/model";
 
-/** Labels of the "Copy as" submenu items, as created by `src/browser/context-menu.ts`. */
+/** Labels of the "Copy table as" submenu items, as created by `src/browser/context-menu.ts`. */
 const MENU_LABELS: Record<CopyFormat, string> = {
   html: "HTML",
   markdown: "Markdown",
@@ -12,7 +12,7 @@ const MENU_LABELS: Record<CopyFormat, string> = {
   csv: "CSV"
 };
 
-const COPY_AS_LABEL = "Copy as";
+const COPY_AS_LABEL = "Copy table as";
 const FEEDBACK_SELECTOR = "[data-copy-table-feedback]";
 const WAIT_TIMEOUT_MS = 10_000;
 
@@ -184,7 +184,7 @@ async function ownHitPoint(
 
 /**
  * Right-clicks `target` with a real WebDriver pointer action, then chooses
- * "Copy as" -> `format` in Firefox's own context menu. This drives the real
+ * "Copy table as" -> `format` in Firefox's own context menu. This drives the real
  * `menus.onClicked` path, including `targetElementId` and
  * `menus.getTargetElement`, rather than calling the extension directly.
  */

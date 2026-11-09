@@ -43,7 +43,7 @@ the geckodriver log as the `copy-table-e2e-diagnostics` artifact.
 
 The end-to-end suite installs the packaged extension in headless Firefox,
 right-clicks a table in a fixture page, chooses an item from Firefox's own
-**Copy as** menu, and checks the clipboard and the in-page message. It is not
+**Copy table as** menu, and checks the clipboard and the in-page message. It is not
 part of `verify` because it needs a browser:
 
 ```powershell
@@ -68,7 +68,7 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 `bun run build`.
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
-**Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
+**Copy table as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
 The closest table containing the clicked element is copied. A short in-page
 message confirms success. **HTML** copies are written as rich text, so they
 paste as a real table into spreadsheets, documents and email; plain-text paste
