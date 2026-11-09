@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { COPY_AS_MENU_ITEMS } from "../../src/browser/context-menu";
+import { COPY_FORMATS } from "../../src/table/model";
 
 const popupPath = resolve(import.meta.dirname, "../../src/popup/index.html");
 const popupStylePath = resolve(import.meta.dirname, "../../src/popup/popup.css");
@@ -65,8 +66,14 @@ describe("popup readiness surface", () => {
     expect(parentItem).toBeDefined();
     expect(usageText).toContain("Right-click a table cell");
     expect(usageText).toContain(parentItem?.title);
-    expect(formatItems).toHaveLength(4);
+    expect(formatItems).toHaveLength(COPY_FORMATS.length);
     expect(listedFormats).toEqual(formatItems.map((item) => item.title));
+
+    // The subtitle states the number of formats in words; keep it in step.
+    const countWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+    expect(normalizedText(document.querySelector(".product-context"))).toContain(
+      `${countWords[formatItems.length]} formats`
+    );
 
     for (const item of formatItems) {
       expect(usageText).toContain(item.title);
