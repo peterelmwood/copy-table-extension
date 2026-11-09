@@ -1,0 +1,6 @@
+{
+  "html": "<table><caption>Sales [draft] *2024*</caption><thead><tr><th scope=\"col\" rowspan=\"2\">Region</th><th scope=\"colgroup\" colspan=\"2\">Sales</th></tr><tr><th scope=\"col\">Q1</th><th scope=\"col\">Q2</th></tr></thead><tbody><tr><th scope=\"row\">North</th><td>10</td><td><a href=\"https://example.com/a b(c)|d\" rel=\"noopener noreferrer\">report [v2]</a></td></tr><tr><th scope=\"row\">South</th><td><a href=\"mailto:sales@example.com\" rel=\"noopener noreferrer\">Mail us</a></td><td>unsafe</td></tr></tbody></table>",
+  "markdown": "**Sales \\[draft\\] \\*2024\\***\n\n| Region | Sales / Q1 | Q2 |\n| --- | --- | --- |\n| North | 10 | [report \\[v2\\]](https://example.com/a%20b%28c%29%7Cd) |\n| South | [Mail us](mailto:sales@example.com) | unsafe |",
+  "text": "Region\tSales\t\n\tQ1\tQ2\nNorth\t10\treport [v2]\nSouth\tMail us\tunsafe",
+  "csv": "Region,Sales,\r\n,Q1,Q2\r\nNorth,10,report [v2]\r\nSouth,Mail us,unsafe"
+}
