@@ -47,13 +47,30 @@ async function packagedArchivePath(): Promise<string> {
 }
 
 const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv"];
-const SUCCESS_TOAST: Record<CopyFormat, string> = {
-  html: "Copied as HTML.",
-  "html-source": "Copied as HTML source.",
-  markdown: "Copied as Markdown.",
-  text: "Copied as Plain text.",
-  csv: "Copied as CSV."
+const FORMAT_LABELS: Record<CopyFormat, string> = {
+  html: "HTML",
+  "html-source": "HTML source",
+  markdown: "Markdown",
+  text: "Plain text",
+  csv: "CSV"
 };
+
+interface TableSize {
+  rows: number;
+  columns: number;
+}
+
+function count(value: number, singular: string, plural: string): string {
+  return `${value} ${value === 1 ? singular : plural}`;
+}
+
+/** The exact success toast for a copy of a table of `size` (issue #13). */
+function successToast(format: CopyFormat, size: TableSize): string {
+  return (
+    `Copied ${count(size.rows, "row", "rows")} × ` +
+    `${count(size.columns, "column", "columns")} as ${FORMAT_LABELS[format]}.`
+  );
+}
 const NO_TABLE_TOAST = "No table found at the selected location.";
 
 // Every fixture with reviewed expected output (see tests/fixtures/tables/expected/).
@@ -68,6 +85,20 @@ function expectedOutputs(fixture: string): Record<CopyFormat, string> {
     CopyFormat,
     string
   >;
+}
+
+/**
+ * The copied table's size, read from its reviewed plain-text output: one line
+ * per logical row (header and footer rows included), one tab-separated field
+ * per column. Cell text never contains a newline or tab in that format.
+ */
+function fixtureSize(fixture: string): TableSize {
+  const lines = expectedOutputs(fixture).text.split("\n");
+  const widths = new Set(lines.map((line) => line.split("\t").length));
+  if (widths.size !== 1) {
+    throw new Error(`${fixture}: ragged plain-text output, can't derive its size`);
+  }
+  return { rows: lines.length, columns: [...widths][0] ?? 0 };
 }
 
 const matrix = fixtures.flatMap((fixture) => FORMATS.map((format) => ({ fixture, format })));
@@ -109,6 +140,16 @@ describe("Firefox right-click copy flow", () => {
     expect(matrix.length).toBe(fixtures.length * FORMATS.length);
   });
 
+  it("derives the reviewed table sizes the toasts report", () => {
+    // Spot-checks fixtureSize against sizes counted by hand from the fixtures.
+    expect(fixtureSize("basic-table")).toEqual({ rows: 2, columns: 1 });
+    expect(fixtureSize("nested-table")).toEqual({ rows: 1, columns: 1 });
+    // One header row, three body rows and one footer row.
+    expect(fixtureSize("complex-table")).toEqual({ rows: 5, columns: 3 });
+    expect(fixtureSize("multi-row-header-table")).toEqual({ rows: 4, columns: 3 });
+    expect(fixtureSize("rowspan-row-groups-table")).toEqual({ rows: 5, columns: 2 });
+  });
+
   it.for(matrix)("copies $fixture as $format", async ({ fixture, format }) => {
     await openPage(`tables/${fixture}.html`);
 
@@ -134,7 +175,7 @@ describe("Firefox right-click copy flow", () => {
       expect(types).toEqual(["text/plain"]);
       expect(plainText).toBe(expected[format]);
     }
-    expect(await waitForToast(driver)).toBe(SUCCESS_TOAST[format]);
+    expect(await waitForToast(driver)).toBe(successToast(format, fixtureSize(fixture)));
   });
 
   it("copies only the inner table when a nested table's cell is right-clicked", async () => {
@@ -143,7 +184,8 @@ describe("Firefox right-click copy flow", () => {
     await copyViaContextMenu(driver, await driver.findElement(By.css("#inner td")), "csv");
 
     expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe("Inner text");
-    expect(await waitForToast(driver)).toBe(SUCCESS_TOAST.csv);
+    // The inner table's own size, not the outer table's.
+    expect(await waitForToast(driver)).toBe("Copied 1 row × 1 column as CSV.");
   });
 
   it("explains a miss and leaves the clipboard unchanged outside any table", async () => {
@@ -168,7 +210,7 @@ describe("Firefox right-click copy flow", () => {
     );
     // The toast is rendered in the frame the table lives in.
     await enterFrame(driver, "#same-origin-frame");
-    expect(await waitForToast(driver)).toBe(SUCCESS_TOAST.csv);
+    expect(await waitForToast(driver)).toBe(successToast("csv", fixtureSize("basic-table")));
   });
 
   it("shows the toast on a page whose CSS tries to hide or restyle it", async () => {
@@ -181,7 +223,8 @@ describe("Firefox right-click copy flow", () => {
       expectedOutputs("basic-table").markdown
     );
     const toast = await waitForToastElement(driver);
-    expect(await toast.getText()).toBe(SUCCESS_TOAST.markdown);
+    // The page's table has basic-table's shape: one header row, one value row.
+    expect(await toast.getText()).toBe("Copied 2 rows × 1 column as Markdown.");
     expect(await toast.isDisplayed()).toBe(true);
 
     // Rendered at its own size, in the viewport's bottom-right corner, with

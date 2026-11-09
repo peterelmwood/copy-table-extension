@@ -34,6 +34,8 @@ Failure:
 }
 ```
 
+_Amended by issue #13: a success may also carry an optional `dimensions: { rows: number, columns: number }`, the size of the copied logical table. `rows` counts every logical row, header and footer rows included; `columns` is the logical column count. Both are non-negative safe integers and the object has exactly those two keys. Failures never carry `dimensions`. The counts are metadata, not table data, so background keeps them when it releases `payload` and `plainPayload` after the clipboard write._
+
 Failures never contain table text or page metadata. Background maps injection failures to `restricted-page` and clipboard exceptions to `clipboard-failed`.
 
 The injected `runtime.onMessage` listener returns an extraction response through a real `Promise`. It returns no response for unrelated messages or payload-free outcome messages; those branches do not reserve Firefox's response channel.
@@ -52,6 +54,8 @@ The injected `runtime.onMessage` listener returns an extraction response through
 Content displays one fixed, non-blocking toast and removes it automatically. Outcome messages contain no serialized payload.
 
 _Amended by issue #10: the toast is a `role="status"` `aria-live="polite"` `aria-atomic="true"` element inside a **closed** shadow root. Its host is a single `<copy-table-feedback data-copy-table-feedback>` element appended to `document.body` (or `document.documentElement` when there is no body), styled inline with `all: initial` plus fixed positioning, every declaration `!important`, so page CSS can neither hide nor restyle it. Rendering never throws; where no toast can be attached (no root element, or a non-HTML document such as SVG) it is skipped._
+
+_Amended by issue #13: an outcome may also carry the optional `dimensions: { rows: number, columns: number }` from the content response, with the same validation. Background forwards it only when `status` is `"copied"`; outcomes with any other status never carry it, and validators reject one that does. The success toast then reads `Copied {rows} row(s) × {columns} column(s) as {format label}.`, singular or plural per count (for example `Copied 1 row × 3 columns as CSV.`). A `copied` outcome without `dimensions` keeps the earlier `Copied as {format label}.` text. Failure messages are unchanged, and outcomes still carry no serialized payload._
 
 If extraction-response delivery rejects after injection, or delivery of this outcome rejects, background shows one `basic` extension notification with fixed title `Copy Table` and fixed message `Copy Table could not deliver the result because the page became unavailable. Try again.` It is attempted once only after response/payload references are released and contains no URL, target, format, payload, or page metadata. Background does not retry extraction, clipboard access, or outcome delivery.
 

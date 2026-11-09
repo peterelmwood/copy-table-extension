@@ -16,6 +16,15 @@ export interface CopyExtractRequest {
   format: CopyFormat;
 }
 
+/**
+ * The copied table's size: every logical row (header and footer rows
+ * included) by the column count. Metadata only, never table content.
+ */
+export interface CopyTableDimensions {
+  rows: number;
+  columns: number;
+}
+
 export interface CopyExtractSuccess {
   ok: true;
   requestId: string;
@@ -26,6 +35,7 @@ export interface CopyExtractSuccess {
    * alongside the markup so plain-text paste targets get readable text.
    */
   plainPayload?: string;
+  dimensions?: CopyTableDimensions;
 }
 
 export interface CopyExtractFailure {
@@ -42,6 +52,8 @@ export interface CopyOutcomeMessage {
   requestId: string;
   format: CopyFormat;
   status: CopyOutcomeStatus;
+  /** `copied` outcomes only. */
+  dimensions?: CopyTableDimensions;
 }
 
 export type LogicalTableSection = "head" | "body" | "foot";
