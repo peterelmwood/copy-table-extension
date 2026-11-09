@@ -2,13 +2,18 @@
 
 The extension MUST create exactly this hierarchy:
 
-| ID                            | Parent | Label        | Contexts                       |
-| ----------------------------- | ------ | ------------ | ------------------------------ |
-| `copy-table:copy-as`          | none   | `Copy as`    | ordinary page element contexts |
-| `copy-table:copy-as:html`     | parent | `HTML`       | inherited                      |
-| `copy-table:copy-as:markdown` | parent | `Markdown`   | inherited                      |
-| `copy-table:copy-as:text`     | parent | `Plain text` | inherited                      |
-| `copy-table:copy-as:csv`      | parent | `CSV`        | inherited                      |
+> Amended by issue #9: the parent item is titled **Copy table as** (originally **Copy as**) so users know it only works on tables. Menu IDs are unchanged.
+>
+> Amended after issue #7: an **HTML source** child (`copy-table:copy-as:html-source`) follows **HTML**. **HTML** writes rich text; **HTML source** writes the same markup as plain text for code editors.
+
+| ID                               | Parent | Label           | Contexts                       |
+| -------------------------------- | ------ | --------------- | ------------------------------ |
+| `copy-table:copy-as`             | none   | `Copy table as` | ordinary page element contexts |
+| `copy-table:copy-as:html`        | parent | `HTML`          | inherited                      |
+| `copy-table:copy-as:html-source` | parent | `HTML source`   | inherited                      |
+| `copy-table:copy-as:markdown`    | parent | `Markdown`      | inherited                      |
+| `copy-table:copy-as:text`        | parent | `Plain text`    | inherited                      |
+| `copy-table:copy-as:csv`         | parent | `CSV`           | inherited                      |
 
 Creation is idempotent across background restarts. Only child selections start work. Unknown menu IDs are ignored without page or clipboard access.
 

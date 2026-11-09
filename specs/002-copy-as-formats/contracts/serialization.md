@@ -19,6 +19,7 @@
 - Allowed cell attributes: valid `rowspan`, `colspan`, and header `scope`.
 - Scripts, styles, event attributes, IDs/classes, controls, embedded content, unsafe URLs, and remote resources are forbidden.
 - Clipboard (issue #7): written as `text/html` together with the Plain text serialization of the same table as `text/plain`, so rich editors render a table and plain-text targets get the tab-separated matrix. A unit test pins the allowed elements and attributes above, since rich targets render this markup.
+- **HTML source** writes this same serialization as `text/plain` only, so code editors such as VS Code receive the markup itself.
 
 ## Markdown
 

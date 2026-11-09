@@ -23,8 +23,8 @@ npm run start:firefox
 On a normal top-level HTTPS page or same-origin embedded document containing a semantic table:
 
 1. Right-click a cell.
-2. Expand **Copy as**.
-3. Choose **HTML**, **Markdown**, **Plain text**, or **CSV**.
+2. Expand **Copy table as** (amended by issue #9; originally titled **Copy as**).
+3. Choose **HTML**, **Markdown**, **Plain text**, or **CSV** (amended after issue #7: **HTML source** follows **HTML** and copies the markup as plain text).
 4. Paste into a plain-text editor and compare with the source table.
 5. Repeat inside a nested table and outside any table.
 
