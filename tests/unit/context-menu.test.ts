@@ -35,7 +35,8 @@ describe("Copy table as context menu", () => {
         parentId: "copy-table:copy-as",
         title: "Plain text"
       },
-      { id: "copy-table:copy-as:csv", parentId: "copy-table:copy-as", title: "CSV" }
+      { id: "copy-table:copy-as:csv", parentId: "copy-table:copy-as", title: "CSV" },
+      { id: "copy-table:copy-as:json", parentId: "copy-table:copy-as", title: "JSON" }
     ]);
   });
 
@@ -44,7 +45,8 @@ describe("Copy table as context menu", () => {
     expect(formatFromMenuItemId("copy-table:copy-as:html-source")).toBe("html-source");
     expect(formatFromMenuItemId("copy-table:copy-as:csv")).toBe("csv");
     expect(formatFromMenuItemId("copy-table:copy-as")).toBeNull();
-    expect(formatFromMenuItemId("copy-table:copy-as:json")).toBeNull();
+    expect(formatFromMenuItemId("copy-table:copy-as:json")).toBe("json");
+    expect(formatFromMenuItemId("copy-table:copy-as:xml")).toBeNull();
     expect(formatFromMenuItemId("copy-table:copy-as:html-sourcex")).toBeNull();
     expect(formatFromMenuItemId(42)).toBeNull();
   });

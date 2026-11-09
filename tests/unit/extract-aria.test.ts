@@ -6,6 +6,7 @@ import { ariaRole, extractAriaLogicalTable, isAriaTableRoot } from "../../src/ta
 import type { CopyFormat, LogicalTable } from "../../src/table/model";
 import { serializeCsv } from "../../src/table/serialize/csv";
 import { serializeHtml } from "../../src/table/serialize/html";
+import { serializeJson } from "../../src/table/serialize/json";
 import { serializeMarkdown } from "../../src/table/serialize/markdown";
 import { serializeText } from "../../src/table/serialize/text";
 
@@ -32,7 +33,8 @@ const serializers = {
   html: serializeHtml,
   markdown: serializeMarkdown,
   text: serializeText,
-  csv: serializeCsv
+  csv: serializeCsv,
+  json: serializeJson
 } as const;
 
 describe("ARIA roles", () => {
@@ -271,7 +273,7 @@ describe("ARIA logical table extraction", () => {
         readFileSync(resolve(fixtureDirectory, `expected/${fixture}.json`), "utf8")
       ) as Record<Exclude<CopyFormat, "html-source">, string>;
       const logical = extract(readFileSync(resolve(fixtureDirectory, `${fixture}.html`), "utf8"));
-      for (const format of ["html", "markdown", "text", "csv"] as const) {
+      for (const format of ["html", "markdown", "text", "csv", "json"] as const) {
         expect(serializers[format](logical)).toBe(expected[format]);
       }
     }

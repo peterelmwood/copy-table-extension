@@ -10,7 +10,8 @@ const MENU_LABELS: Record<CopyFormat, string> = {
   "html-source": "HTML source",
   markdown: "Markdown",
   text: "Plain text",
-  csv: "CSV"
+  csv: "CSV",
+  json: "JSON"
 };
 
 const COPY_AS_LABEL = "Copy table as";

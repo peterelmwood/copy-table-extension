@@ -49,4 +49,15 @@
 - Quote a field containing comma, double quote, CR, or LF.
 - Preserve meaningful in-cell line breaks inside quoted fields.
 
+## JSON
+
+> **Amended by issue #14** (JSON format). A sixth format, written as plain text like CSV:
+>
+> - **Header rows.** The table has a header when its first logical row is a `<thead>` row or a row made only of `<th>` cells. The header rows are then the same range Markdown merges (that row plus the `<thead>`/all-`<th>` rows directly after it in the same row group), and each column's name joins the non-empty header texts over it, top to bottom, with `/`. Unlike Markdown, a header cell spanning several columns names **every** column it covers (counted once per column even when it also spans rows), so `<th colspan=2>Sales</th>` names two columns.
+> - **Names.** An empty name becomes `Column N` (1-based column index). A repeated name gets the first free suffix `_2`, `_3`, … in column order, so naming is deterministic.
+> - **With a header:** an array of objects, one per remaining row (body and footer rows alike; the merged header rows are not repeated), with members in column order.
+> - **Without a header:** an array of arrays, one per logical row.
+> - **Values** are always strings: the same displayed cell text the Plain text and CSV formats use, never retyped as numbers or booleans. In-cell line breaks stay as `\n` (escaped by JSON), as in CSV. Covered (spanned) and empty positions are `""`.
+> - **Encoding.** Two-space indentation, identical to `JSON.stringify(value, null, 2)`, with no trailing newline. All escaping is done by `JSON.stringify`. Objects are assembled member by member (each key and value still passed through `JSON.stringify`) so integer-like header names such as `2024` keep their column position instead of being moved first by JavaScript key ordering. A table with no data rows is `[]`.
+
 Fixture outputs, including the row-group-bounded `rowspan="0"` case, are reviewed byte-for-byte and consumed by the serializer unit suite for all four formats. Browser integration tests separately exercise the request, clipboard, payload-release, outcome, and notification boundaries with controlled representative payloads.

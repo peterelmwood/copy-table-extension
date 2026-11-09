@@ -2,5 +2,6 @@
   "html": "<table><tbody><tr><th>Header</th></tr><tr><td>Value</td></tr></tbody></table>",
   "markdown": "| Header |\n| --- |\n| Value |",
   "text": "Header\nValue",
-  "csv": "Header\r\nValue"
+  "csv": "Header\r\nValue",
+  "json": "[\n  {\n    \"Header\": \"Value\"\n  }\n]"
 }

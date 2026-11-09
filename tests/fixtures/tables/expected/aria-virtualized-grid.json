@@ -2,5 +2,6 @@
   "html": "<table><thead><tr><th scope=\"col\">ID</th><th scope=\"col\">Name</th></tr></thead><tbody><tr><td>40</td><td>Row forty</td></tr><tr><td>41</td><td>Row forty-one</td></tr></tbody></table>",
   "markdown": "| ID | Name |\n| --- | --- |\n| 40 | Row forty |\n| 41 | Row forty-one |",
   "text": "ID\tName\n40\tRow forty\n41\tRow forty-one",
-  "csv": "ID,Name\r\n40,Row forty\r\n41,Row forty-one"
+  "csv": "ID,Name\r\n40,Row forty\r\n41,Row forty-one",
+  "json": "[\n  {\n    \"ID\": \"40\",\n    \"Name\": \"Row forty\"\n  },\n  {\n    \"ID\": \"41\",\n    \"Name\": \"Row forty-one\"\n  }\n]"
 }
