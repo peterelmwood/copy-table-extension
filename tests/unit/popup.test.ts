@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { COPY_AS_MENU_ITEMS } from "../../src/browser/context-menu";
+import { COPY_FORMATS } from "../../src/table/model";
 
 const popupPath = resolve(import.meta.dirname, "../../src/popup/index.html");
 const popupStylePath = resolve(import.meta.dirname, "../../src/popup/popup.css");
@@ -23,26 +25,69 @@ function loadPopupStyles(): void {
   document.head.append(styles);
 }
 
+function normalizedText(element: Element | null | undefined): string {
+  return (element?.textContent ?? "").replace(/\s+/g, " ").trim();
+}
+
 afterEach(() => {
   document.documentElement.innerHTML = originalDocument;
 });
 
 describe("popup readiness surface", () => {
-  it("identifies Copy Table with a semantic ready state and deferred action copy", () => {
+  it("identifies Copy Table with a semantic ready state and no placeholder copy", () => {
     loadPopupMarkup();
 
     const main = document.querySelector("main[aria-labelledby='popup-title']");
     const title = document.querySelector("h1#popup-title");
     const readiness = document.querySelector("[role='status']");
-    const deferredMessage = document.querySelector("#deferred-actions");
+    const popupText = normalizedText(main);
 
     expect(main).not.toBeNull();
     expect(title?.textContent).toBe("Copy Table");
     expect(readiness?.textContent).toBe("Ready");
     expect(readiness?.getAttribute("aria-live")).toBe("polite");
-    expect(deferredMessage?.textContent).toBe(
-      "Structured-data copy actions are coming in a later feature."
+    expect(popupText).not.toContain("coming in a later feature");
+    expect(popupText).not.toContain("Firefox foundation");
+  });
+
+  it("explains how to copy using the context menu's own labels", () => {
+    loadPopupMarkup();
+
+    const usageRegion = document.querySelector("section[aria-labelledby='usage-title']");
+    const usageText = normalizedText(usageRegion);
+    const parentItem = COPY_AS_MENU_ITEMS.find((item) => !("parentId" in item));
+    const formatItems = COPY_AS_MENU_ITEMS.filter((item) => "parentId" in item);
+    const formatList = usageRegion?.querySelector("ul");
+    const listedFormats = Array.from(
+      formatList?.querySelectorAll(":scope > li > strong") ?? []
+    ).map((element) => element.textContent);
+
+    expect(usageRegion).not.toBeNull();
+    expect(parentItem).toBeDefined();
+    expect(usageText).toContain("Right-click a table cell");
+    expect(usageText).toContain(parentItem?.title);
+    expect(formatItems).toHaveLength(COPY_FORMATS.length);
+    expect(listedFormats).toEqual(formatItems.map((item) => item.title));
+
+    // The subtitle states the number of formats in words; keep it in step.
+    const countWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+    expect(normalizedText(document.querySelector(".product-context"))).toContain(
+      `${countWords[formatItems.length]} formats`
     );
+
+    for (const item of formatItems) {
+      expect(usageText).toContain(item.title);
+    }
+  });
+
+  it("states the key limits and the rich HTML paste behaviour", () => {
+    loadPopupMarkup();
+
+    const usageText = normalizedText(document.querySelector("#usage-region"));
+
+    expect(usageText).toContain("semantic <table> elements only");
+    expect(usageText).toContain("cross-origin frames");
+    expect(usageText).toContain("pastes as a formatted table in spreadsheets, documents and email");
   });
 
   it("renders the installed version through an injected runtime metadata adapter", async () => {

@@ -10,16 +10,40 @@
     <main class="popup" aria-labelledby="popup-title">
       <header>
         <h1 id="popup-title">Copy Table</h1>
-        <p class="product-context">Firefox foundation</p>
+        <p class="product-context">Copy web tables in five formats</p>
       </header>
       <section
         id="readiness-region"
         aria-labelledby="readiness-title"
-        aria-describedby="readiness-status deferred-actions"
+        aria-describedby="readiness-status"
       >
         <h2 id="readiness-title">Status</h2>
         <p id="readiness-status" role="status" aria-live="polite">Ready</p>
-        <p id="deferred-actions">Structured-data copy actions are coming in a later feature.</p>
+      </section>
+      <section id="usage-region" aria-labelledby="usage-title">
+        <h2 id="usage-title">How to copy</h2>
+        <p id="usage-steps">
+          Right-click a table cell, open <strong>Copy table as</strong>, then pick a format:
+        </p>
+        <ul id="copy-formats">
+          <li>
+            <strong>HTML</strong>
+            <span class="format-note"
+              >pastes as a formatted table in spreadsheets, documents and email</span
+            >
+          </li>
+          <li>
+            <strong>HTML source</strong>
+            <span class="format-note">the same markup as plain text, for code editors</span>
+          </li>
+          <li><strong>Markdown</strong></li>
+          <li><strong>Plain text</strong></li>
+          <li><strong>CSV</strong></li>
+        </ul>
+        <p id="usage-limits" class="usage-note">
+          Works on semantic <code>&lt;table&gt;</code> elements only, not on tables inside
+          cross-origin frames.
+        </p>
       </section>
       <p class="version">Version <span id="extension-version">Loading version</span></p>
       <button id="close-popup" type="button">Close</button>
