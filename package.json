@@ -1,7 +1,7 @@
 {
   "name": "copy-table-extension",
   "version": "1.0.0",
-  "description": "Firefox-first Copy Table extension scaffold",
+  "description": "Firefox extension that copies web tables as HTML, Markdown, plain text, or CSV from the context menu",
   "scripts": {
     "clean": "node scripts/build.mjs clean",
     "build": "node scripts/build.mjs build",
