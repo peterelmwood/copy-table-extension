@@ -67,7 +67,8 @@ describe("content handler registration", () => {
     ],
     ["markdown", { payload: "| Header |\n| --- |\n| Value |" }],
     ["text", { payload: "Header\nValue" }],
-    ["csv", { payload: "Header\r\nValue" }]
+    ["csv", { payload: "Header\r\nValue" }],
+    ["json", { payload: '[\n  {\n    "Header": "Value"\n  }\n]' }]
   ] as const)(
     "uses the requested %s serializer through the default content boundary",
     async (format, serialized) => {
