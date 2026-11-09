@@ -29,6 +29,13 @@
 - Escape backslashes before pipes and render cell line breaks as `<br>`.
 - Covered and empty positions render as empty cells.
 
+> **Amended by issue #12** (Markdown fidelity). The rules above still hold, with these additions:
+>
+> - **Links.** Safe links (http, https, mailto and relative hrefs already allowed by `sanitizeLinkHref`) render as `[text](href)`. Link text escapes `\`, `|`, `[`, `]`, `*`, `_`, `` ` ``, `<` and `>` with a backslash; the destination percent-encodes whitespace, `(`, `)`, `<`, `>`, `|`, `\` and `` ` `` (existing `%` escapes are kept). Links removed as unsafe during extraction stay plain text. Plain cell text keeps the original escaping.
+> - **Header rows.** The header is the first explicit header row plus the header rows directly after it in the same row group: further `<thead>` rows, or rows made only of `<th>` cells. They are merged into the one GFM header row by joining each column's non-empty values, top to bottom, with a slash between single spaces (`Sales / Q1`). Covered (spanned) positions contribute nothing, so a spanned header value appears once, in its origin column. Row-header rows such as `<th scope="row">` plus `<td>` in the body stay body rows. Without any explicit header row, the first logical row is still the header.
+> - **Caption.** A non-empty caption is emitted first as `**Caption**`, escaped like link text (links inside it keep their text only), followed by a blank line and then the table.
+> - Line breaks in cells, link text and the caption render as `<br>`.
+
 ## Plain text
 
 - Tab between fields; LF between rows; no trailing row separator.
