@@ -19,6 +19,7 @@ import {
   readClipboardRepresentations,
   waitForClipboardChange,
   waitForToast,
+  waitForToastElement,
   writeClipboard,
   type FirefoxDriver
 } from "./support/firefox";
@@ -168,5 +169,36 @@ describe("Firefox right-click copy flow", () => {
     // The toast is rendered in the frame the table lives in.
     await enterFrame(driver, "#same-origin-frame");
     expect(await waitForToast(driver)).toBe(SUCCESS_TOAST.csv);
+  });
+
+  it("shows the toast on a page whose CSS tries to hide or restyle it", async () => {
+    await openPage("pages/hostile-css.html");
+
+    const cell = await firstVisibleCellOfFirstTable(driver);
+    await copyViaContextMenu(driver, cell, "markdown");
+
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe(
+      expectedOutputs("basic-table").markdown
+    );
+    const toast = await waitForToastElement(driver);
+    expect(await toast.getText()).toBe(SUCCESS_TOAST.markdown);
+    expect(await toast.isDisplayed()).toBe(true);
+
+    // Rendered at its own size, in the viewport's bottom-right corner, with
+    // its own typography rather than the page's.
+    const rect = await toast.getRect();
+    const viewport = (await driver.executeScript(
+      "return { width: innerWidth, height: innerHeight };"
+    )) as { width: number; height: number };
+    expect(rect.width).toBeGreaterThan(50);
+    expect(rect.height).toBeGreaterThan(10);
+    expect(rect.x + rect.width).toBeLessThanOrEqual(viewport.width);
+    expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height);
+    expect(rect.x).toBeGreaterThan(viewport.width / 2);
+    expect(rect.y).toBeGreaterThan(viewport.height / 2);
+    expect(await toast.getCssValue("font-size")).toBe("13px");
+    expect(await toast.getCssValue("letter-spacing")).toBe("normal");
+    expect(await toast.getCssValue("color")).toBe("rgb(255, 255, 255)");
+    expect(await toast.getCssValue("visibility")).toBe("visible");
   });
 });

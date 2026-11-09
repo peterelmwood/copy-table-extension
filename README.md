@@ -43,8 +43,11 @@ the geckodriver log as the `copy-table-e2e-diagnostics` artifact.
 
 The end-to-end suite installs the packaged extension in headless Firefox,
 right-clicks a table in a fixture page, chooses an item from Firefox's own
-**Copy table as** menu, and checks the clipboard and the in-page message. It is not
-part of `verify` because it needs a browser:
+**Copy table as** menu, and checks the clipboard and the in-page message. The
+message lives in a closed shadow root that page scripts can't reach; the tests
+read it through WebDriver's Get Element Shadow Root command, which geckodriver
+answers for closed roots too. It is not part of `verify` because it needs a
+browser:
 
 ```powershell
 bun run package
@@ -70,7 +73,8 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, or **CSV**.
 The closest table containing the clicked element is copied. A short in-page
-message confirms success. **HTML** copies are written as rich text, so they
+message confirms success. The message is drawn inside a closed shadow root, so
+the page's own CSS can't hide or restyle it. **HTML** copies are written as rich text, so they
 paste as a real table into spreadsheets, documents and email; plain-text paste
 targets such as terminals receive the tab-separated plain-text rendering
 instead. (Firefox releases without the async `ClipboardItem` API fall back to
@@ -85,7 +89,8 @@ failure case, the existing clipboard is left unchanged.
 
 The [end-to-end tests](#end-to-end-tests) cover this flow in real Firefox on
 every pull request: all four formats on every reviewed fixture, nested tables,
-right-clicks outside any table, and tables in same-origin frames. Cases that
+right-clicks outside any table, tables in same-origin frames, and a page whose
+CSS tries to hide the in-page message. Cases that
 need a protected page, a cross-origin frame, a frame removed mid-copy, or
 keyboard-only menu navigation are still checked by hand; record them in
 [`specs/002-copy-as-formats/validation-record.md`](specs/002-copy-as-formats/validation-record.md)

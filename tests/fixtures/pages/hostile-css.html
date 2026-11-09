@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Copy Table end-to-end hostile CSS page</title>
+    <!--
+      Global rules a real page might ship (resets, "hide every status region",
+      odd typography), plus rules aimed at the toast host by name. The table
+      itself is left alone so it can still be right-clicked.
+    -->
+    <style>
+      :root {
+        color-scheme: dark;
+        font-size: 2px;
+      }
+      body {
+        font: 40px/0 monospace;
+        letter-spacing: 12px;
+        word-spacing: 30px;
+        text-transform: uppercase;
+        color: transparent;
+        visibility: hidden;
+      }
+      table,
+      table * {
+        visibility: visible;
+        color: black;
+        font: 16px/1.4 serif;
+        letter-spacing: normal;
+        word-spacing: normal;
+        text-transform: none;
+      }
+      body *:not(table, table *) {
+        all: unset !important;
+      }
+      div,
+      div[role="status"],
+      [role="status"],
+      [aria-live],
+      body > div,
+      body > :not(table),
+      body > :last-child:not(table),
+      copy-table-feedback,
+      [data-copy-table-feedback] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        clip-path: inset(50%) !important;
+        transform: scale(0) !important;
+        z-index: -1 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>Header</th>
+      </tr>
+      <tr>
+        <td>Value</td>
+      </tr>
+    </table>
+  </body>
+</html>

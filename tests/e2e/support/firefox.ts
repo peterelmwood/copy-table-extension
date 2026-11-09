@@ -14,7 +14,9 @@ const MENU_LABELS: Record<CopyFormat, string> = {
 };
 
 const COPY_AS_LABEL = "Copy table as";
+/** The toast's host element; the toast itself is in the host's closed shadow root. */
 const FEEDBACK_SELECTOR = "[data-copy-table-feedback]";
+const TOAST_LIVE_REGION_SELECTOR = '[role="status"][aria-live="polite"][aria-atomic="true"]';
 const WAIT_TIMEOUT_MS = 10_000;
 
 // `installWebExtension` exists at runtime (selenium-webdriver >= 4.4x) but is
@@ -250,14 +252,33 @@ export async function waitForClipboardChange(
   return current;
 }
 
-/** Waits for the extension's in-page toast and returns its text. */
-export async function waitForToast(driver: FirefoxDriver): Promise<string> {
-  const toast = await driver.wait(
+/**
+ * Waits for the extension's in-page toast and returns its live region: the
+ * element holding the text, inside the host's closed shadow root.
+ *
+ * Page scripts can't reach a closed root, and the host's own `getText()` is
+ * empty because its rendered text lives in the shadow tree. WebDriver's Get
+ * Element Shadow Root command can: geckodriver (Marionette) resolves it with
+ * the privileged `openOrClosedShadowRoot`, so closed roots are returned too.
+ */
+export async function waitForToastElement(driver: FirefoxDriver): Promise<WebElement> {
+  const host = await driver.wait(
     until.elementLocated(By.css(FEEDBACK_SELECTOR)),
     WAIT_TIMEOUT_MS,
     "The copy toast did not appear."
   );
-  return toast.getText();
+  let root;
+  try {
+    root = await host.getShadowRoot();
+  } catch (error) {
+    throw new Error(`WebDriver did not expose the toast's closed shadow root: ${String(error)}`);
+  }
+  return root.findElement(By.css(TOAST_LIVE_REGION_SELECTOR));
+}
+
+/** Waits for the extension's in-page toast and returns its rendered text. */
+export async function waitForToast(driver: FirefoxDriver): Promise<string> {
+  return (await waitForToastElement(driver)).getText();
 }
 
 /**
