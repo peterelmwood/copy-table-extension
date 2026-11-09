@@ -97,11 +97,48 @@ section {
   background: currentColor;
 }
 
-#deferred-actions {
-  color: var(--ct-muted);
+#usage-steps {
   font-size: 0.8125rem;
   line-height: 1.5;
   text-wrap: pretty;
+}
+
+#copy-formats {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+#copy-formats li {
+  border-left: 2px solid var(--ct-accent);
+  padding-left: 0.5rem;
+}
+
+#copy-formats strong {
+  font-weight: 600;
+}
+
+.format-note {
+  display: block;
+  color: var(--ct-muted);
+  font-size: 0.75rem;
+  text-wrap: pretty;
+}
+
+.usage-note {
+  color: var(--ct-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+code {
+  font-family: var(--ct-mono);
+  font-size: 0.9em;
 }
 
 .version {
