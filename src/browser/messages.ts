@@ -30,16 +30,30 @@ export function isCopyFormat(value: unknown): value is CopyFormat {
 }
 
 export function isCopyExtractRequest(value: unknown): value is CopyExtractRequest {
+  if (
+    !isRecord(value) ||
+    value.type !== "copy-table:extract" ||
+    typeof value.requestId !== "string" ||
+    value.requestId.length === 0 ||
+    !isCopyFormat(value.format)
+  ) {
+    return false;
+  }
+
+  // Exactly one of two targeting shapes: the context menu's element ID, or the
+  // keyboard shortcut's selection source. Never both, never neither.
+  if ("targetElementId" in value) {
+    return (
+      hasOnlyKeys(value, ["type", "requestId", "targetElementId", "format"]) &&
+      typeof value.targetElementId === "number" &&
+      Number.isInteger(value.targetElementId) &&
+      value.targetElementId >= 0
+    );
+  }
+
   return (
-    isRecord(value) &&
-    hasOnlyKeys(value, ["type", "requestId", "targetElementId", "format"]) &&
-    value.type === "copy-table:extract" &&
-    typeof value.requestId === "string" &&
-    value.requestId.length > 0 &&
-    typeof value.targetElementId === "number" &&
-    Number.isInteger(value.targetElementId) &&
-    value.targetElementId >= 0 &&
-    isCopyFormat(value.format)
+    hasOnlyKeys(value, ["type", "requestId", "targetSource", "format"]) &&
+    value.targetSource === "selection"
   );
 }
 

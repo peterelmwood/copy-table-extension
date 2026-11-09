@@ -1,4 +1,5 @@
 import { createClipboardWriter, type ClipboardWriter } from "./browser/clipboard";
+import { formatFromCommand, TOP_FRAME_ID } from "./browser/commands";
 import {
   createCopyAsMenus,
   formatFromMenuItemId,
@@ -90,7 +91,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
     }
   }
 
-  return {
+  const controller = {
     async handleMenuClick(info: MenuClickData, tab: ClickedTab): Promise<void> {
       const format = formatFromMenuItemId(info.menuItemId);
       const frameId = info.frameId ?? 0;
@@ -105,14 +106,39 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         return;
       }
 
-      const request: CopyExtractRequest = {
+      await controller.copyFromFrame(tab.id, frameId, {
         type: "copy-table:extract",
         requestId: (dependencies.nextRequestId ?? defaultRequestId)(),
         targetElementId: info.targetElementId,
         format
-      };
-      const tabId = tab.id;
+      });
+    },
 
+    /**
+     * The keyboard shortcut: copies the table holding the selection or focus
+     * of the active tab as CSV. It always starts in the top frame; the content
+     * side descends into a focused same-origin frame itself.
+     */
+    async handleCommand(command: string, tab: ClickedTab | undefined): Promise<void> {
+      const format = formatFromCommand(command);
+      if (format === null || typeof tab?.id !== "number" || !Number.isInteger(tab.id)) {
+        return;
+      }
+
+      await controller.copyFromFrame(tab.id, TOP_FRAME_ID, {
+        type: "copy-table:extract",
+        requestId: (dependencies.nextRequestId ?? defaultRequestId)(),
+        targetSource: "selection",
+        format
+      });
+    },
+
+    /** The shared pipeline: inject, extract, write once, report the outcome. */
+    async copyFromFrame(
+      tabId: number,
+      frameId: number,
+      request: CopyExtractRequest
+    ): Promise<void> {
       try {
         await dependencies.inject(tabId, frameId, ["content/content-handler.js"]);
       } catch {
@@ -169,6 +195,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
       await sendOutcome(tabId, request, frameId, status);
     }
   };
+  return controller;
 }
 
 interface BackgroundBrowserApi {
@@ -190,6 +217,9 @@ interface BackgroundBrowserApi {
   };
   notifications: {
     create(id: string, options: FailureNotification): Promise<string>;
+  };
+  commands: {
+    onCommand: { addListener(listener: (command: string, tab?: ClickedTab) => void): void };
   };
 }
 
@@ -218,6 +248,11 @@ export function initializeBrowserCommandBoundary(
 
   browserApi.menus.onClicked.addListener((info, tab) => {
     void controller.handleMenuClick(info, tab);
+  });
+  // Firefox passes the active tab to the listener and grants activeTab for it,
+  // so the shortcut needs neither the "tabs" permission nor a tabs.query.
+  browserApi.commands.onCommand.addListener((command, tab) => {
+    void controller.handleCommand(command, tab);
   });
 }
 

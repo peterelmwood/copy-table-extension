@@ -20,6 +20,15 @@
     "scripts": ["background.js"],
     "service_worker": "background.js"
   },
+  "commands": {
+    "copy-table-csv": {
+      "suggested_key": {
+        "default": "Alt+Shift+C",
+        "mac": "MacCtrl+Shift+C"
+      },
+      "description": "Copy the table at the selection or focus as CSV"
+    }
+  },
   "permissions": ["activeTab", "clipboardWrite", "menus", "notifications", "scripting"],
   "browser_specific_settings": {
     "gecko": {

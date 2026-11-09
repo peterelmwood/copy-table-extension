@@ -13,6 +13,19 @@
 
 > Amended after issue #7: `format` may also be `"html-source"`, which returns the HTML serialization as a plain-text payload (no `plainPayload`). Only `"html"` responses may carry `plainPayload`.
 
+_Amended by issue #18: a keyboard shortcut (manifest `commands` entry `copy-table-csv`, default `Alt+Shift+C`, `MacCtrl+Shift+C` on macOS) sends a second request shape. It has no `targetElementId`; the strict validator accepts exactly one of the two shapes and rejects a request carrying both, neither, or any other key:_
+
+```text
+{
+  type: "copy-table:extract",
+  requestId: string,
+  targetSource: "selection",
+  format: "csv"   // any CopyFormat is valid; the only shortcut today sends "csv"
+}
+```
+
+_The `commands.onCommand` listener uses the `tab` Firefox passes it (no `tabs` permission; `activeTab` is granted by the command) and always targets frame `0`. Injection, response validation, the single clipboard write, outcome routing and the fixed notifications are the same as for the menu, so outcomes are shown in the top frame. The content handler takes the element from, in order: a focused same-origin `<iframe>`/`<frame>` (descending into its document and repeating these steps; a focused frame whose document is unreachable, i.e. cross-origin, resolves to nothing and is not read), a non-collapsed selection's anchor node (its parent element for a text node), a focused element other than `<body>`/`<html>`, and a collapsed selection's anchor. The nearest containing semantic table is then resolved as for the menu; no element or no containing table yields `no-table` (never `target-expired`). Because a framed table's nodes belong to another window, table checks use namespace and local name rather than `instanceof`._
+
 The message is sent only to the menu event's `tab.id` and `frameId`, after one-off injection of the reviewed content bundle. Supported targets are the top-level document and same-origin embedded documents. Cross-origin embedded documents are deliberately excluded without host permission and never fall back to another frame or table.
 
 ## Content to background response

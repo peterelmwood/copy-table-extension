@@ -310,4 +310,43 @@ export async function enterFrame(driver: FirefoxDriver, selector: string): Promi
   await driver.switchTo().frame(await driver.findElement(By.css(selector)));
 }
 
+/**
+ * Presses the extension's default copy shortcut, Alt+Shift+C, as real key
+ * events in the browser window.
+ *
+ * WebDriver key actions are dispatched inside the page, where Firefox's
+ * extension shortcuts never see them. Instead, the privileged context drives
+ * the window's own keyboard input through `nsITextInputProcessor`, the same
+ * path a physical keypress takes: the events go to the focused page first and
+ * then to the window's key bindings, which include the extension's `commands`.
+ * This checks that the manifest's suggested key is actually bound.
+ */
+export async function pressCopyTableShortcut(driver: FirefoxDriver): Promise<void> {
+  await inChromeContext(driver, async () => {
+    const error = (await driver.executeScript(
+      `try {
+         const tip = Cc["@mozilla.org/text-input-processor;1"]
+           .createInstance(Ci.nsITextInputProcessor);
+         if (!tip.beginInputTransactionForTests(window)) return "no input transaction";
+         const key = (key, code, keyCode) => new KeyboardEvent("", { key, code, keyCode });
+         const alt = key("Alt", "AltLeft", KeyboardEvent.DOM_VK_ALT);
+         const shift = key("Shift", "ShiftLeft", KeyboardEvent.DOM_VK_SHIFT);
+         const c = key("C", "KeyC", KeyboardEvent.DOM_VK_C);
+         tip.keydown(alt);
+         tip.keydown(shift);
+         tip.keydown(c);
+         tip.keyup(c);
+         tip.keyup(shift);
+         tip.keyup(alt);
+         return null;
+       } catch (error) {
+         return String(error);
+       }`
+    )) as string | null;
+    if (error) {
+      throw new Error(`Could not press the copy shortcut: ${error}`);
+    }
+  });
+}
+
 export type { FirefoxDriver };

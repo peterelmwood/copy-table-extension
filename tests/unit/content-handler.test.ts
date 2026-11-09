@@ -155,6 +155,94 @@ describe("content handler registration", () => {
     );
     expect(getTargetElement).not.toHaveBeenCalled();
   });
+
+  it("copies the selection's table for a keyboard-shortcut request without a menu lookup", async () => {
+    document.body.innerHTML = `
+      <table><tr><td>first</td></tr></table>
+      <table><tr><th>Name</th></tr><tr><td id=cell>Ada</td></tr></table>
+    `;
+    const range = document.createRange();
+    range.selectNodeContents(document.querySelector("#cell")!);
+    document.getSelection()?.removeAllRanges();
+    document.getSelection()?.addRange(range);
+    const getTargetElement = vi.fn(() => null);
+
+    try {
+      expect(
+        await deliverThroughFirefoxRuntime(registerableHandler(getTargetElement), {
+          type: "copy-table:extract",
+          requestId: "request-shortcut",
+          targetSource: "selection",
+          format: "csv"
+        })
+      ).toEqual({
+        ok: true,
+        requestId: "request-shortcut",
+        format: "csv",
+        payload: "Name\r\nAda"
+      });
+      expect(getTargetElement).not.toHaveBeenCalled();
+    } finally {
+      document.getSelection()?.removeAllRanges();
+    }
+  });
+
+  it("copies a table in a focused same-origin frame, whose nodes belong to another window", async () => {
+    document.body.innerHTML = "<table><tr><td>host</td></tr></table><iframe></iframe>";
+    const frame = document.querySelector("iframe")!;
+    const frameDocument = frame.contentDocument!;
+    frameDocument.body.innerHTML =
+      "<table><caption>Framed</caption><tr><th>Name</th></tr><tr><td id=cell>Ada</td></tr></table>";
+    // The frame's elements are not instances of this window's interfaces.
+    expect(frameDocument.querySelector("tr") instanceof HTMLTableRowElement).toBe(false);
+    const range = frameDocument.createRange();
+    range.selectNodeContents(frameDocument.querySelector("#cell")!);
+    frameDocument.getSelection()?.addRange(range);
+    const activeElement = vi.spyOn(document, "activeElement", "get").mockReturnValue(frame);
+
+    try {
+      expect(
+        await deliverThroughFirefoxRuntime(
+          registerableHandler(() => null),
+          {
+            type: "copy-table:extract",
+            requestId: "request-shortcut-frame",
+            targetSource: "selection",
+            format: "markdown"
+          }
+        )
+      ).toEqual({
+        ok: true,
+        requestId: "request-shortcut-frame",
+        format: "markdown",
+        payload: "**Framed**\n\n| Name |\n| --- |\n| Ada |"
+      });
+    } finally {
+      activeElement.mockRestore();
+    }
+  });
+
+  it("answers no-table for a keyboard-shortcut request with nothing selected or focused", async () => {
+    document.body.innerHTML = "<table><tr><td>unrelated</td></tr></table>";
+    document.getSelection()?.removeAllRanges();
+
+    expect(
+      await deliverThroughFirefoxRuntime(
+        registerableHandler(() => null),
+        {
+          type: "copy-table:extract",
+          requestId: "request-shortcut-miss",
+          targetSource: "selection",
+          format: "csv"
+        }
+      )
+    ).toEqual({
+      ok: false,
+      requestId: "request-shortcut-miss",
+      format: "csv",
+      reason: "no-table"
+    });
+  });
 });
 
 function registerableHandler(getTargetElement: (targetElementId: number) => Element | null) {
