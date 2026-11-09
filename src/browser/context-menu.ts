@@ -12,7 +12,8 @@ export const COPY_AS_MENU_ITEMS = [
   },
   { id: "copy-table:copy-as:markdown", parentId: COPY_AS_PARENT_ID, title: "Markdown" },
   { id: "copy-table:copy-as:text", parentId: COPY_AS_PARENT_ID, title: "Plain text" },
-  { id: "copy-table:copy-as:csv", parentId: COPY_AS_PARENT_ID, title: "CSV" }
+  { id: "copy-table:copy-as:csv", parentId: COPY_AS_PARENT_ID, title: "CSV" },
+  { id: "copy-table:copy-as:json", parentId: COPY_AS_PARENT_ID, title: "JSON" }
 ] as const;
 
 export interface ContextMenuApi {

@@ -59,7 +59,8 @@ const FORMAT_LABELS: Record<CopyFormat, string> = {
   "html-source": "HTML source",
   markdown: "Markdown",
   text: "Plain text",
-  csv: "CSV"
+  csv: "CSV",
+  json: "JSON"
 };
 
 const FAILURE_MESSAGES: Record<Exclude<CopyOutcomeStatus, "copied">, string> = {
