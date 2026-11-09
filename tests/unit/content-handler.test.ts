@@ -116,17 +116,26 @@ describe("content handler registration", () => {
       {}
     );
     const listener = addListener.mock.calls[0]?.[0] as FirefoxRuntimeMessageListener;
+    // The toast lives in a closed shadow root; observe the root as it's made.
+    const attachShadow = vi.spyOn(HTMLElement.prototype, "attachShadow");
 
-    expect(
-      await deliverThroughFirefoxRuntime(listener, {
-        type: "copy-table:outcome",
-        requestId: "request-outcome",
-        format: "markdown",
-        status: "clipboard-failed"
-      })
-    ).toBeUndefined();
-    expect(getTargetElement).not.toHaveBeenCalled();
-    expect(document.body.textContent).toContain("Clipboard access failed. Try again.");
+    try {
+      expect(
+        await deliverThroughFirefoxRuntime(listener, {
+          type: "copy-table:outcome",
+          requestId: "request-outcome",
+          format: "markdown",
+          status: "clipboard-failed"
+        })
+      ).toBeUndefined();
+      expect(getTargetElement).not.toHaveBeenCalled();
+      expect(document.querySelectorAll("[data-copy-table-feedback]")).toHaveLength(1);
+      expect(attachShadow.mock.results[0]?.value.textContent).toBe(
+        "Clipboard access failed. Try again."
+      );
+    } finally {
+      attachShadow.mockRestore();
+    }
   });
 
   it("does not reserve a response for unrelated messages", async () => {

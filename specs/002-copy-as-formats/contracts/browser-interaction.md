@@ -51,6 +51,8 @@ The injected `runtime.onMessage` listener returns an extraction response through
 
 Content displays one fixed, non-blocking toast and removes it automatically. Outcome messages contain no serialized payload.
 
+_Amended by issue #10: the toast is a `role="status"` `aria-live="polite"` `aria-atomic="true"` element inside a **closed** shadow root. Its host is a single `<copy-table-feedback data-copy-table-feedback>` element appended to `document.body` (or `document.documentElement` when there is no body), styled inline with `all: initial` plus fixed positioning, every declaration `!important`, so page CSS can neither hide nor restyle it. Rendering never throws; where no toast can be attached (no root element, or a non-HTML document such as SVG) it is skipped._
+
 If extraction-response delivery rejects after injection, or delivery of this outcome rejects, background shows one `basic` extension notification with fixed title `Copy Table` and fixed message `Copy Table could not deliver the result because the page became unavailable. Try again.` It is attempted once only after response/payload references are released and contains no URL, target, format, payload, or page metadata. Background does not retry extraction, clipboard access, or outcome delivery.
 
 ## Protected-page fallback
