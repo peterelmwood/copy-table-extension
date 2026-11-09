@@ -14,6 +14,8 @@
 | Nested target                 | 159.0 (CI e2e)  | nested tables                         | nearest nested table only                                                         | e2e: inner cell copies inner table only; outer cell excludes inner table | ≈0.4 s  | [x]  |
 | No table                      | 159.0 (CI e2e)  | ordinary paragraph                    | feedback; clipboard unchanged                                                     | e2e: no-table toast; sentinel clipboard unchanged                        | ≈0.4 s  | [x]  |
 | Same-origin embedded table    | 159.0 (CI e2e)  | semantic table in same-origin iframe  | frame table copied; feedback in that frame                                        | e2e: frame table copied; toast rendered in the frame                     | ≈0.4 s  | [x]  |
+| Hostile page CSS (#10)        | 159.0.1 (e2e)   | `pages/hostile-css.html`              | toast visible with its own styling despite page rules                             | e2e: toast displayed, bottom-right, 13px white text, exact message       | ≈0.5 s  | [x]  |
+| Toast screen-reader announce  | Pending         | semantic table                        | NVDA (Windows) and Orca (Linux) announce the toast text once (closed shadow root) | Pending                                                                  | Pending | [ ]  |
 | Protected page                | Pending         | browser-protected URL                 | fixed extension restriction notification; clipboard unchanged                     | Pending                                                                  | Pending | [ ]  |
 | Cross-origin embedded table   | Pending         | semantic table in cross-origin iframe | fixed extension restriction notification; no fallback target; clipboard unchanged | Pending                                                                  | Pending | [ ]  |
 | Frame removed after injection | Pending         | semantic table in removable frame     | fixed payload-free delivery notification after payload release; no retry          | Pending                                                                  | Pending | [ ]  |
@@ -61,6 +63,12 @@ Record 20 attempts against the reviewed 100×50 fixture. At least 19 must finish
   Firefox's own **Copy as** menu, and reads the system clipboard. It covers all
   four formats on every fixture with reviewed expected output, nested tables,
   the no-table miss with an unchanged clipboard, and a same-origin iframe.
+- 2026-11-09, amended by issue #10: the toast moved into a closed shadow root.
+  The suite reads it through WebDriver's Get Element Shadow Root command and
+  adds a hostile-CSS page (`tests/fixtures/pages/hostile-css.html`); 33 of 33
+  tests passed locally on Firefox 159.0.1 with geckodriver 0.37.1 (five
+  consecutive runs). Screen-reader announcement from inside the closed root
+  was not checked with NVDA or Orca; see the pending row above.
 - Elapsed times are per end-to-end test (navigation, menu, copy, and clipboard
   read), not a user-perceived timing.
 
