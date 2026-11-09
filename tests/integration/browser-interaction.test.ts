@@ -194,6 +194,130 @@ describe("browser interaction", () => {
     expect(outcomes[0]).not.toHaveProperty("payload");
   });
 
+  it("writes an HTML copy as one rich item and never as plain text", async () => {
+    const sendMessage = vi.fn(async () => ({
+      ok: true as const,
+      requestId: "request-rich",
+      format: "html" as const,
+      payload: "<table><tbody><tr><td>A</td></tr></tbody></table>",
+      plainPayload: "A"
+    }));
+    const writeText = vi.fn(async () => undefined);
+    const writeRich = vi.fn(async () => undefined);
+    const sendOutcome = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage,
+      sendOutcome,
+      writeText,
+      writeRich,
+      nextRequestId: () => "request-rich"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(writeRich).toHaveBeenCalledTimes(1);
+    expect(writeRich).toHaveBeenCalledWith({
+      html: "<table><tbody><tr><td>A</td></tr></tbody></table>",
+      text: "A"
+    });
+    expect(writeText).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      { type: "copy-table:outcome", requestId: "request-rich", format: "html", status: "copied" },
+      0
+    );
+  });
+
+  it("keeps a single plain-text write for non-HTML formats even when rich writes exist", async () => {
+    const writeText = vi.fn(async () => undefined);
+    const writeRich = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => ({
+        ok: true as const,
+        requestId: "request-csv",
+        format: "csv" as const,
+        payload: "A,B"
+      }),
+      writeText,
+      writeRich,
+      nextRequestId: () => "request-csv"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:csv", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(writeText).toHaveBeenCalledExactlyOnceWith("A,B");
+    expect(writeRich).not.toHaveBeenCalled();
+  });
+
+  it("reports one rejected rich write as clipboard-failed without retrying as text", async () => {
+    const writeText = vi.fn(async () => undefined);
+    const writeRich = vi.fn(async () => Promise.reject(new Error("clipboard denied")));
+    const sendOutcome = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => ({
+        ok: true as const,
+        requestId: "request-rich-denied",
+        format: "html" as const,
+        payload: "<table></table>",
+        plainPayload: ""
+      }),
+      sendOutcome,
+      writeText,
+      writeRich,
+      nextRequestId: () => "request-rich-denied"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(writeRich).toHaveBeenCalledTimes(1);
+    expect(writeText).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      {
+        type: "copy-table:outcome",
+        requestId: "request-rich-denied",
+        format: "html",
+        status: "clipboard-failed"
+      },
+      0
+    );
+  });
+
+  it("writes the HTML markup as text when no rich writer is available", async () => {
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => ({
+        ok: true as const,
+        requestId: "request-no-rich",
+        format: "html" as const,
+        payload: "<table></table>",
+        plainPayload: ""
+      }),
+      writeText,
+      nextRequestId: () => "request-no-rich"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:html", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(writeText).toHaveBeenCalledExactlyOnceWith("<table></table>");
+  });
+
   it("does not notify for an injectable-page extraction failure", async () => {
     const inject = vi.fn(async () => undefined);
     const sendMessage = vi.fn(async () => ({
@@ -237,7 +361,8 @@ describe("browser interaction", () => {
       ok: true as const,
       requestId: "request-lifetime",
       format: "html" as const,
-      payload: "private table text"
+      payload: "private table text",
+      plainPayload: "private table text"
     };
     let releaseOutcome: (() => void) | undefined;
     const outcomePending = new Promise<void>((resolve) => {
@@ -259,6 +384,7 @@ describe("browser interaction", () => {
     await vi.waitFor(() => expect(sendOutcome).toHaveBeenCalledOnce());
 
     expect(response).not.toHaveProperty("payload");
+    expect(response).not.toHaveProperty("plainPayload");
     releaseOutcome?.();
     await operation;
   });

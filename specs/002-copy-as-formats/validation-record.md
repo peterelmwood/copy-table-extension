@@ -18,6 +18,9 @@
 | Cross-origin embedded table   | Pending         | semantic table in cross-origin iframe | fixed extension restriction notification; no fallback target; clipboard unchanged | Pending                                                                  | Pending | [ ]  |
 | Frame removed after injection | Pending         | semantic table in removable frame     | fixed payload-free delivery notification after payload release; no retry          | Pending                                                                  | Pending | [ ]  |
 | Keyboard menu                 | Pending         | semantic table                        | discover and complete without popup                                               | Pending                                                                  | Pending | [ ]  |
+| HTML rich paste: spreadsheet  | Pending         | Sheets or Excel target                | pastes as cells, not markup                                                       | Pending                                                                  | Pending | [ ]  |
+| HTML rich paste: document     | Pending         | Docs, Word, or Gmail target           | pastes as a formatted table                                                       | Pending                                                                  | Pending | [ ]  |
+| HTML plain-text paste         | Pending         | textarea or terminal                  | tab-separated text, not markup                                                    | Pending                                                                  | Pending | [ ]  |
 
 ## Performance record
 

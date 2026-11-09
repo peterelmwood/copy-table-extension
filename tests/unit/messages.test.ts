@@ -52,6 +52,27 @@ describe("browser message guards", () => {
     ).toBe(false);
   });
 
+  it("accepts a plain-text companion payload only on HTML successes", () => {
+    const success = { ok: true, requestId: "request-1", payload: "<table></table>" };
+
+    expect(isCopyExtractResponse({ ...success, format: "html", plainPayload: "A\tB" })).toBe(true);
+    expect(isCopyExtractResponse({ ...success, format: "html" })).toBe(true);
+    expect(isCopyExtractResponse({ ...success, format: "csv", plainPayload: "A,B" })).toBe(false);
+    expect(isCopyExtractResponse({ ...success, format: "html", plainPayload: 42 })).toBe(false);
+    expect(isCopyExtractResponse({ ...success, format: "html", plainPayload: undefined })).toBe(
+      false
+    );
+    expect(
+      isCopyExtractResponse({
+        ok: false,
+        requestId: "request-1",
+        format: "html",
+        reason: "no-table",
+        plainPayload: "private table text"
+      })
+    ).toBe(false);
+  });
+
   it("accepts payload-free outcomes only", () => {
     expect(
       isCopyOutcomeMessage({

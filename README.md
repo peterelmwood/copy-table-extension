@@ -70,7 +70,11 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy as**, then select **HTML**, **Markdown**, **Plain text**, or **CSV**.
 The closest table containing the clicked element is copied. A short in-page
-message confirms success. Outside a table or after a clipboard rejection, an
+message confirms success. **HTML** copies are written as rich text, so they
+paste as a real table into spreadsheets, documents and email; plain-text paste
+targets such as terminals receive the tab-separated plain-text rendering
+instead. (Firefox releases without the async `ClipboardItem` API fall back to
+copying the HTML markup as text.) Outside a table or after a clipboard rejection, an
 in-page message explains the failure. If Firefox blocks page injection, a fixed
 extension notification explains that the protected page cannot be accessed. If
 the page or frame disappears after injection and the extraction response or

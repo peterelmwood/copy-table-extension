@@ -107,6 +107,46 @@ export function readClipboard(driver: FirefoxDriver): Promise<string> {
   });
 }
 
+export interface ClipboardRepresentations {
+  /** MIME types on the clipboard's single item, sorted. */
+  types: string[];
+  /** The `text/html` representation, if any, with Firefox's read wrapper removed. */
+  html: string | null;
+}
+
+/**
+ * Reads every representation on the clipboard. Firefox hands `text/html` back
+ * wrapped in `<html><head></head><body>…</body></html>`; that wrapper is
+ * stripped so the result can be compared with the serializer output.
+ */
+export function readClipboardRepresentations(
+  driver: FirefoxDriver
+): Promise<ClipboardRepresentations> {
+  return inChromeContext(driver, async () => {
+    const result = (await driver.executeAsyncScript(
+      `const done = arguments[0];
+       (async () => {
+         const items = await navigator.clipboard.read();
+         if (items.length !== 1) throw new Error("Expected one clipboard item, found " + items.length);
+         const [item] = items;
+         const types = [...item.types].sort();
+         const html = types.includes("text/html")
+           ? await (await item.getType("text/html")).text()
+           : null;
+         return { types, html };
+       })().then(done, (error) => done({ error: String(error) }));`
+    )) as { types?: string[]; html?: string | null; error?: string };
+    if (!Array.isArray(result.types)) {
+      throw new Error(`Could not read the clipboard item: ${result.error ?? "no types"}`);
+    }
+    const html =
+      typeof result.html === "string"
+        ? result.html.replace(/^<html><head><\/head><body>([\s\S]*)<\/body><\/html>$/, "$1")
+        : null;
+    return { types: result.types, html };
+  });
+}
+
 /**
  * WebDriver clicks an element's centre, which may be covered by a descendant
  * (for example a nested table inside a cell). Returns an offset from the centre
