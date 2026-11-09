@@ -46,9 +46,10 @@ async function packagedArchivePath(): Promise<string> {
   return archivePath;
 }
 
-const FORMATS: readonly CopyFormat[] = ["html", "markdown", "text", "csv"];
+const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv"];
 const SUCCESS_TOAST: Record<CopyFormat, string> = {
   html: "Copied as HTML.",
+  "html-source": "Copied as HTML source.",
   markdown: "Copied as Markdown.",
   text: "Copied as Plain text.",
   csv: "Copied as CSV."
@@ -124,6 +125,11 @@ describe("Firefox right-click copy flow", () => {
       expect(types).toEqual(["text/html", "text/plain"]);
       expect(html).toBe(expected.html);
       expect(plainText).toBe(expected.text);
+    } else if (format === "html-source") {
+      // The same reviewed markup as "html", but as plain text only, so code
+      // editors and other plain-text targets receive the HTML itself.
+      expect(types).toEqual(["text/plain"]);
+      expect(plainText).toBe(expected.html);
     } else {
       expect(types).toEqual(["text/plain"]);
       expect(plainText).toBe(expected[format]);

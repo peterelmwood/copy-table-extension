@@ -56,6 +56,7 @@ function toastStyle(rule: string): string {
 
 const FORMAT_LABELS: Record<CopyFormat, string> = {
   html: "HTML",
+  "html-source": "HTML source",
   markdown: "Markdown",
   text: "Plain text",
   csv: "CSV"

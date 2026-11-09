@@ -60,6 +60,11 @@ describe("content handler registration", () => {
         plainPayload: "Header\nValue"
       }
     ],
+    [
+      "html-source",
+      // The same markup as HTML, but text only: no plain-text companion.
+      { payload: "<table><tbody><tr><th>Header</th></tr><tr><td>Value</td></tr></tbody></table>" }
+    ],
     ["markdown", { payload: "| Header |\n| --- |\n| Value |" }],
     ["text", { payload: "Header\nValue" }],
     ["csv", { payload: "Header\r\nValue" }]
