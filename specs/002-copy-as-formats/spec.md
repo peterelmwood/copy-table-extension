@@ -107,7 +107,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 
 ### Assumptions
 
-- Version one targets semantic HTML `<table>` elements; ARIA grids and visually table-like `<div>` layouts are out of scope.
+- Version one targets semantic HTML `<table>` elements; ARIA grids and visually table-like `<div>` layouts are out of scope. _Amended by issue #19: ARIA tables and grids (`role="table"`, `"grid"` or `"treegrid"` with `role="row"` rows) are supported; the closest `<table>` or ARIA root to the clicked element is copied, and virtualized grids are copied as rendered. Visually table-like layouts without these roles remain out of scope._
 - The context menu may be visible outside a table because eligibility is resolved from the exact clicked target after the user selects a format; safe no-table feedback is required in that case.
 - The accepted `activeTab` design supports the top-level document and same-origin embedded documents. Direct inspection of cross-origin embedded documents is intentionally unsupported without broader host permission; a visible menu action there fails with fixed restriction feedback and no target substitution.
 - Formatting is deterministic and locale-independent; values are copied as displayed text and are not retyped as numbers, dates, or formulas.
@@ -116,7 +116,7 @@ A user may invoke a format where no eligible table exists, on a protected browse
 ### Out of Scope
 
 - Chrome/Chromium packaging or store submission.
-- Copying arbitrary selections, lists, ARIA grids, canvas content, or non-semantic visual tables.
+- Copying arbitrary selections, lists, ARIA grids, canvas content, or non-semantic visual tables. _Amended by issue #19: ARIA tables, grids and treegrids are now in scope (rendered rows only for virtualized grids); visual tables without ARIA roles remain out of scope._
 - Editing, previewing, or configuring conversions before copying.
 - Retaining copy history, synchronizing results, analytics, telemetry, or remote processing.
 - Rich multi-MIME clipboard writes; each action writes the selected representation as text. _Amended by issue #7: the HTML action now writes one clipboard item with `text/html` and a tab-separated `text/plain` fallback; Markdown, Plain text, and CSV still write text only._

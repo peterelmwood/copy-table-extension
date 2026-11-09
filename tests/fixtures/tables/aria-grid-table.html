@@ -1,0 +1,52 @@
+<style>
+  [role="grid"] {
+    display: grid;
+    grid-template-columns: repeat(3, 10em);
+  }
+
+  [role="rowgroup"],
+  [role="row"] {
+    display: contents;
+  }
+
+  .collapsed {
+    display: none;
+  }
+</style>
+<div role="grid" aria-label="Regional sales">
+  <div role="rowgroup">
+    <div role="row">
+      <div role="columnheader" aria-rowspan="2">Region</div>
+      <div role="columnheader" aria-colspan="2" style="grid-column: span 2">Sales</div>
+    </div>
+    <div role="row">
+      <span role="columnheader">Q1</span>
+      <span role="columnheader">Q2</span>
+    </div>
+  </div>
+  <div role="rowgroup">
+    <div role="row">
+      <div role="rowheader" aria-rowspan="0" style="grid-row: span 2">North</div>
+      <div role="gridcell"><a href="https://example.com/north?q=1&amp;r=2">10</a></div>
+      <div role="gridcell">12 <button type="button">Edit</button></div>
+    </div>
+    <div role="row" class="collapsed">
+      <div role="gridcell">hidden row</div>
+      <div role="gridcell">secret</div>
+    </div>
+    <div role="row">
+      <div role="gridcell">
+        <input type="checkbox" aria-label="Select" />
+        11
+      </div>
+      <div role="gridcell" hidden>hidden cell</div>
+      <div role="gridcell">Line one<br />line, "two"</div>
+    </div>
+  </div>
+  <div role="rowgroup">
+    <div role="row">
+      <div role="rowheader">South</div>
+      <div role="gridcell" aria-colspan="2" style="grid-column: span 2">n/a</div>
+    </div>
+  </div>
+</div>

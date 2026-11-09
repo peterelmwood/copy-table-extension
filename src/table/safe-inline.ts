@@ -58,7 +58,7 @@ const BLOCK_ELEMENTS = new Set([
   "UL"
 ]);
 
-function isRenderedSubtree(element: Element): boolean {
+export function isRenderedSubtree(element: Element): boolean {
   const view = element.ownerDocument.defaultView;
   if (view === null) {
     return true;
@@ -215,7 +215,15 @@ export function sanitizeLinkHref(href: string): string | null {
   }
 }
 
-function collectNode(node: Node, tokens: SafeInline[], parentVisibilityIsVisible: boolean): void {
+/** Further elements to skip, with their subtrees, on top of the fixed exclusions. */
+export type ExcludedElementPredicate = (element: Element) => boolean;
+
+function collectNode(
+  node: Node,
+  tokens: SafeInline[],
+  parentVisibilityIsVisible: boolean,
+  isExcluded?: ExcludedElementPredicate
+): void {
   if (node.nodeType === Node.TEXT_NODE) {
     if (parentVisibilityIsVisible) {
       appendText(tokens, node.nodeValue ?? "");
@@ -225,7 +233,8 @@ function collectNode(node: Node, tokens: SafeInline[], parentVisibilityIsVisible
   if (
     !(node instanceof Element) ||
     !isRenderedSubtree(node) ||
-    EXCLUDED_ELEMENTS.has(node.tagName)
+    EXCLUDED_ELEMENTS.has(node.tagName) ||
+    isExcluded?.(node) === true
   ) {
     return;
   }
@@ -248,7 +257,7 @@ function collectNode(node: Node, tokens: SafeInline[], parentVisibilityIsVisible
 
   const children: SafeInline[] = [];
   for (const child of node.childNodes) {
-    collectNode(child, children, visibilityIsVisible);
+    collectNode(child, children, visibilityIsVisible, isExcluded);
   }
   const normalizedChildren = mergeTokens(children);
 
@@ -270,7 +279,10 @@ function collectNode(node: Node, tokens: SafeInline[], parentVisibilityIsVisible
   appendTokens(tokens, normalizedChildren);
 }
 
-export function extractSafeInline(root: Element): readonly SafeInline[] {
+export function extractSafeInline(
+  root: Element,
+  isExcluded?: ExcludedElementPredicate
+): readonly SafeInline[] {
   if (!isRenderedSubtree(root)) {
     return [];
   }
@@ -278,7 +290,7 @@ export function extractSafeInline(root: Element): readonly SafeInline[] {
   const tokens: SafeInline[] = [];
   const rootVisibilityIsVisible = hasVisibleComputedVisibility(root);
   for (const child of root.childNodes) {
-    collectNode(child, tokens, rootVisibilityIsVisible);
+    collectNode(child, tokens, rootVisibilityIsVisible, isExcluded);
   }
   return normalizeTokens(tokens);
 }

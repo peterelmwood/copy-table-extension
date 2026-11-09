@@ -2,11 +2,12 @@ import { isCopyExtractRequest, isCopyOutcomeMessage } from "../browser/messages"
 import { renderCopyOutcome } from "./feedback";
 import type { CopyExtractRequest, CopyExtractResponse, CopyExtractSuccess } from "../table/model";
 import { extractLogicalTable } from "../table/extract";
+import { extractAriaLogicalTable } from "../table/extract-aria";
 import { serializeCsv } from "../table/serialize/csv";
 import { serializeHtml } from "../table/serialize/html";
 import { serializeMarkdown } from "../table/serialize/markdown";
 import { serializeText } from "../table/serialize/text";
-import { resolveInteractionTarget, type TargetElementLookup } from "./target";
+import { resolveInteractionTarget, type TableRoot, type TargetElementLookup } from "./target";
 
 export interface SerializedTable {
   payload: string;
@@ -15,12 +16,13 @@ export interface SerializedTable {
 
 export interface ContentHandlerDependencies {
   getTargetElement: TargetElementLookup;
-  serialize?(table: HTMLTableElement, request: CopyExtractRequest): SerializedTable;
+  serialize?(root: TableRoot, request: CopyExtractRequest): SerializedTable;
 }
 
-function serializeTable(table: HTMLTableElement, request: CopyExtractRequest): SerializedTable {
+function serializeTable(root: TableRoot, request: CopyExtractRequest): SerializedTable {
   // One extraction feeds every representation, so they can never disagree.
-  const logicalTable = extractLogicalTable(table);
+  const logicalTable =
+    root.kind === "aria" ? extractAriaLogicalTable(root.table) : extractLogicalTable(root.table);
 
   switch (request.format) {
     case "html":
@@ -59,7 +61,7 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
     }
 
     try {
-      const serialized = serialize(target.table, message);
+      const serialized = serialize(target, message);
       const response: CopyExtractSuccess = {
         ok: true,
         requestId: message.requestId,

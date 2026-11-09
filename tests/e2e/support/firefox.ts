@@ -285,15 +285,34 @@ export async function waitForToast(driver: FirefoxDriver): Promise<string> {
  * Returns the first rendered cell that belongs directly to the page's first
  * `<table>` (the table each expected-output fixture describes). Cells hidden by
  * the visibility fixtures can't be right-clicked, and cells of a nested table
- * would copy the nested table instead.
+ * would copy the nested table instead. ARIA `table`, `grid` and `treegrid`
+ * roots count as tables too, so the first root in document order is used,
+ * whichever kind it is (no table fixture contains an ARIA root).
  */
 export async function firstVisibleCellOfFirstTable(driver: FirefoxDriver): Promise<WebElement> {
   const cell = (await driver.executeScript(
-    `const table = document.querySelector("table");
+    `const ariaRole = (element) =>
+       (element.getAttribute("role") ?? "").trim().split(/\\s+/u)[0].toLowerCase();
+     const isAriaRoot = (element) => ["table", "grid", "treegrid"].includes(ariaRole(element));
+     const closestRoot = (element) => {
+       for (let current = element; current !== null; current = current.parentElement) {
+         if (current.localName === "table" || isAriaRoot(current)) return current;
+       }
+       return null;
+     };
+     const table = [...document.querySelectorAll("table, [role]")].find(
+       (element) => element.localName === "table" || isAriaRoot(element)
+     );
      if (!table) return null;
-     return [...table.querySelectorAll("th, td")].find(
+     const cells =
+       table.localName === "table"
+         ? table.querySelectorAll("th, td")
+         : [...table.querySelectorAll("[role]")].filter((element) =>
+             ["cell", "gridcell", "columnheader", "rowheader"].includes(ariaRole(element))
+           );
+     return [...cells].find(
        (cell) =>
-         cell.closest("table") === table &&
+         closestRoot(cell) === table &&
          cell.getClientRects().length > 0 &&
          getComputedStyle(cell).visibility === "visible"
      ) ?? null;`

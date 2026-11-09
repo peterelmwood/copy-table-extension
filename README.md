@@ -72,7 +72,12 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, or **CSV**.
-The closest table containing the clicked element is copied. A short in-page
+The closest table containing the clicked element is copied. ARIA tables and
+grids built from other elements (`role="table"`, `"grid"` or `"treegrid"`) are
+copied the same way: whichever `<table>` or ARIA root is closest to the clicked
+element wins. Virtualized grids, which keep only the visible rows in the page,
+are copied as rendered: rows that have scrolled out of the page are not
+included, and Copy Table does not scroll to load them. A short in-page
 message confirms success. The message is drawn inside a closed shadow root, so
 the page's own CSS can't hide or restyle it. **HTML** copies are written as rich text, so they
 paste as a real table into spreadsheets, documents and email; plain-text paste
@@ -153,8 +158,13 @@ before rerunning the same version to avoid a duplicate submission.
   `about:debugging#/runtime/this-firefox`, select Copy Table, and inspect its
   error details. Rebuild with `bun run clean` followed by `bun run build` before
   loading `dist/manifest.json` again.
-- **Copy reports no table:** Right-click a cell inside a semantic `<table>`;
-  visually table-like `<div>` layouts are not supported.
+- **Copy reports no table:** Right-click a cell inside a semantic `<table>` or
+  an ARIA table or grid (an element with `role="table"`, `"grid"` or
+  `"treegrid"` whose rows have `role="row"`); visually table-like `<div>`
+  layouts without these roles are not supported.
+- **A copied grid is missing rows:** Virtualized grids only keep the rows on
+  screen in the page, so only those rows are copied. Scroll to the rows you
+  need, or use the site's own export, then copy again.
 - **Copy reports that the page cannot be accessed:** Browser-protected pages
   and tables inside cross-origin embedded documents cannot be inspected under
   the approved permission set. Try the same action on a normal top-level HTTPS

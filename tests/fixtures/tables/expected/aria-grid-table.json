@@ -1,0 +1,6 @@
+{
+  "html": "<table><thead><tr><th scope=\"col\" rowspan=\"2\">Region</th><th scope=\"col\" colspan=\"2\">Sales</th></tr><tr><th scope=\"col\">Q1</th><th scope=\"col\">Q2</th></tr></thead><tbody><tr><th scope=\"row\" rowspan=\"2\">North</th><td><a href=\"https://example.com/north?q=1&amp;r=2\" rel=\"noopener noreferrer\">10</a></td><td>12</td></tr><tr><td>11</td><td>Line one<br>line, \"two\"</td></tr></tbody><tbody><tr><th scope=\"row\">South</th><td colspan=\"2\">n/a</td></tr></tbody></table>",
+  "markdown": "| Region | Sales / Q1 | Q2 |\n| --- | --- | --- |\n| North | [10](https://example.com/north?q=1&r=2) | 12 |\n|  | 11 | Line one<br>line, \"two\" |\n| South | n/a |  |",
+  "text": "Region\tSales\t\n\tQ1\tQ2\nNorth\t10\t12\n\t11\tLine one line, \"two\"\nSouth\tn/a\t",
+  "csv": "Region,Sales,\r\n,Q1,Q2\r\nNorth,10,12\r\n,11,\"Line one\nline, \"\"two\"\"\"\r\nSouth,n/a,"
+}

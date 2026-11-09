@@ -1,0 +1,15 @@
+<!-- A virtualized grid: 1,000 rows exist, but only the rows in the DOM are copied. -->
+<div role="grid" aria-rowcount="1001" aria-colcount="2">
+  <div role="row" aria-rowindex="1">
+    <div role="columnheader" aria-colindex="1">ID</div>
+    <div role="columnheader" aria-colindex="2">Name</div>
+  </div>
+  <div role="row" aria-rowindex="41">
+    <div role="gridcell" aria-colindex="1">40</div>
+    <div role="gridcell" aria-colindex="2">Row forty</div>
+  </div>
+  <div role="row" aria-rowindex="42">
+    <div role="gridcell" aria-colindex="1">41</div>
+    <div role="gridcell" aria-colindex="2">Row forty-one</div>
+  </div>
+</div>
