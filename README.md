@@ -1,7 +1,7 @@
 # Copy Table
 
 Copy Table is a Firefox-first WebExtension that copies the semantic table a
-user directly right-clicks as HTML, Markdown, plain text, or CSV. Each copy is
+user directly right-clicks as HTML, Markdown, plain text, CSV, or JSON. Each copy is
 an explicit context-menu action; table data is processed locally for that one
 operation, written once to the clipboard on success, and then discarded.
 
@@ -71,7 +71,7 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 `bun run build`.
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
-**Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, or **CSV**.
+**Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, **CSV**, or **JSON**.
 The closest table containing the clicked element is copied. A short in-page
 message confirms success. The message is drawn inside a closed shadow root, so
 the page's own CSS can't hide or restyle it. **HTML** copies are written as rich text, so they
@@ -79,7 +79,7 @@ paste as a real table into spreadsheets, documents and email; plain-text paste
 targets such as terminals receive the tab-separated plain-text rendering
 instead. (Firefox releases without the async `ClipboardItem` API fall back to
 copying the HTML markup as text.) **HTML source** copies the same markup as
-plain text instead, for pasting into code editors such as VS Code. Outside a table or after a clipboard rejection, an
+plain text instead, for pasting into code editors such as VS Code. **JSON** copies an array of objects keyed by the header row (or an array of arrays when the table has no header row), with every value kept as the displayed text. Outside a table or after a clipboard rejection, an
 in-page message explains the failure. If Firefox blocks page injection, a fixed
 extension notification explains that the protected page cannot be accessed. If
 the page or frame disappears after injection and the extraction response or
@@ -111,7 +111,7 @@ click the gear (⚙) menu, choose **Manage Extension Shortcuts**, and edit
 **Copy the table at the selection or focus as CSV** under Copy Table.
 
 The [end-to-end tests](#end-to-end-tests) cover this flow in real Firefox on
-every pull request: all four formats on every reviewed fixture, nested tables,
+every pull request: every format on every reviewed fixture, nested tables,
 right-clicks outside any table, tables in same-origin frames, and a page whose
 CSS tries to hide the in-page message. A separate suite presses the keyboard
 shortcut through Firefox's own key handling and checks a selected cell, a

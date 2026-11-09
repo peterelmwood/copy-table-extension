@@ -5,6 +5,8 @@ The extension MUST create exactly this hierarchy:
 > Amended by issue #9: the parent item is titled **Copy table as** (originally **Copy as**) so users know it only works on tables. Menu IDs are unchanged.
 >
 > Amended after issue #7: an **HTML source** child (`copy-table:copy-as:html-source`) follows **HTML**. **HTML** writes rich text; **HTML source** writes the same markup as plain text for code editors.
+>
+> Amended by issue #14: a **JSON** child (`copy-table:copy-as:json`) follows **CSV** as the last item. It writes plain text, and its success toast reads "Copied as JSON.".
 
 | ID                               | Parent | Label           | Contexts                       |
 | -------------------------------- | ------ | --------------- | ------------------------------ |
@@ -14,6 +16,7 @@ The extension MUST create exactly this hierarchy:
 | `copy-table:copy-as:markdown`    | parent | `Markdown`      | inherited                      |
 | `copy-table:copy-as:text`        | parent | `Plain text`    | inherited                      |
 | `copy-table:copy-as:csv`         | parent | `CSV`           | inherited                      |
+| `copy-table:copy-as:json`        | parent | `JSON`          | inherited                      |
 
 Creation is idempotent across background restarts. Only child selections start work. Unknown menu IDs are ignored without page or clipboard access.
 

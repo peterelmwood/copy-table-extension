@@ -12,6 +12,8 @@
 ```
 
 > Amended after issue #7: `format` may also be `"html-source"`, which returns the HTML serialization as a plain-text payload (no `plainPayload`). Only `"html"` responses may carry `plainPayload`.
+>
+> Amended by issue #14: `format` may also be `"json"`, a plain-text payload (no `plainPayload`).
 
 _Amended by issue #18: a keyboard shortcut (manifest `commands` entry `copy-table-csv`, default `Alt+Shift+C`, `MacCtrl+Shift+C` on macOS) sends a second request shape. It has no `targetElementId`; the strict validator accepts exactly one of the two shapes and rejects a request carrying both, neither, or any other key:_
 

@@ -46,13 +46,14 @@ async function packagedArchivePath(): Promise<string> {
   return archivePath;
 }
 
-const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv"];
+const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv", "json"];
 const SUCCESS_TOAST: Record<CopyFormat, string> = {
   html: "Copied as HTML.",
   "html-source": "Copied as HTML source.",
   markdown: "Copied as Markdown.",
   text: "Copied as Plain text.",
-  csv: "Copied as CSV."
+  csv: "Copied as CSV.",
+  json: "Copied as JSON."
 };
 const NO_TABLE_TOAST = "No table found at the selected location.";
 
