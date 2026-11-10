@@ -17,9 +17,7 @@
     }
   },
   "background": {
-    "scripts": [
-      "background.js"
-    ],
+    "scripts": ["background.js"],
     "service_worker": "background.js"
   },
   "commands": {
@@ -31,20 +29,12 @@
       "description": "Copy the table at the selection or focus as CSV"
     }
   },
-  "permissions": [
-    "activeTab",
-    "clipboardWrite",
-    "menus",
-    "notifications",
-    "scripting"
-  ],
+  "permissions": ["activeTab", "clipboardWrite", "menus", "notifications", "scripting"],
   "browser_specific_settings": {
     "gecko": {
       "id": "copy-table@peterelmwood.com",
       "data_collection_permissions": {
-        "required": [
-          "none"
-        ]
+        "required": ["none"]
       }
     }
   }
