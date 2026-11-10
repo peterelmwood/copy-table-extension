@@ -1,3 +1,4 @@
+import { isHtmlElement } from "../table/dom";
 import { isAriaTableRoot } from "../table/extract-aria";
 import type { CopyFailureReason } from "../table/model";
 
@@ -11,6 +12,26 @@ export type TargetResolution =
 
 export type TargetElementLookup = (targetElementId: number) => Element | null;
 
+/**
+ * Resolves the table root closest to a live page element: a semantic `<table>`
+ * or an ARIA table, grid or treegrid, whichever is nearer.
+ */
+export function resolveTableTarget(target: Element): TargetResolution {
+  for (let element: Element | null = target; element !== null; element = element.parentElement) {
+    if (element.matches("table")) {
+      // Not `instanceof`: the element may belong to a same-origin frame's window.
+      return isHtmlElement(element, "table")
+        ? { ok: true, kind: "table", table: element }
+        : { ok: false, reason: "no-table" };
+    }
+    if (isAriaTableRoot(element)) {
+      return { ok: true, kind: "aria", table: element };
+    }
+  }
+
+  return { ok: false, reason: "no-table" };
+}
+
 export function resolveInteractionTarget(
   targetElementId: number,
   getTargetElement: TargetElementLookup
@@ -21,17 +42,5 @@ export function resolveInteractionTarget(
     return { ok: false, reason: "target-expired" };
   }
 
-  // The closest root wins, whether it is a <table> or an ARIA root.
-  for (let element: Element | null = target; element !== null; element = element.parentElement) {
-    if (element.matches("table")) {
-      return element instanceof HTMLTableElement
-        ? { ok: true, kind: "table", table: element }
-        : { ok: false, reason: "no-table" };
-    }
-    if (isAriaTableRoot(element)) {
-      return { ok: true, kind: "aria", table: element };
-    }
-  }
-
-  return { ok: false, reason: "no-table" };
+  return resolveTableTarget(target);
 }

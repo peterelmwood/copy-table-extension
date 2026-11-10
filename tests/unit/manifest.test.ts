@@ -70,6 +70,28 @@ describe("Firefox manifest contract", () => {
     expect(dataCollectionPermissions.required).toEqual(["none"]);
   });
 
+  it("declares one CSV keyboard shortcut that needs no extra permission", () => {
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
+
+    expect(manifest.commands).toEqual({
+      "copy-table-csv": {
+        // Ctrl+Shift+Y is Firefox's Downloads shortcut; Alt+Shift+C (and
+        // Control+Shift+C on macOS) is not bound by Firefox.
+        suggested_key: { default: "Alt+Shift+C", mac: "MacCtrl+Shift+C" },
+        description: "Copy the table at the selection or focus as CSV"
+      }
+    });
+    // Firefox grants activeTab when a command runs, so the shortcut adds no
+    // permission: the list is the same five the context menu needs.
+    expect(manifest.permissions).toEqual([
+      "activeTab",
+      "clipboardWrite",
+      "menus",
+      "notifications",
+      "scripting"
+    ]);
+  });
+
   it("references only emitted extension files", () => {
     expect(existsSync(resolve(distDirectory, "background.js"))).toBe(true);
     expect(existsSync(resolve(distDirectory, "content/content-handler.js"))).toBe(true);

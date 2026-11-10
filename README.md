@@ -94,10 +94,36 @@ outcome cannot be delivered, a different fixed payload-free notification
 reports that delivery failed after any payload reference is released. In every
 failure case, the existing clipboard is left unchanged.
 
+### Keyboard shortcut
+
+Press **Alt+Shift+C** (**Control+Shift+C** on macOS) to copy the table you are
+working in as **CSV** without opening a menu. Copy Table uses, in order:
+
+1. the selected text, if you have selected some;
+2. otherwise the focused element, such as a link or form control reached with
+   Tab;
+3. otherwise the caret a click leaves behind, so clicking a cell and pressing
+   the shortcut copies that cell's table.
+
+If focus is inside a same-origin embedded frame, the frame's selection or focus
+is used; cross-origin frames are never read. The closest containing table is
+copied, as with the context menu, and the same in-page message reports the
+result, including "No table found at the selected location." when the
+selection or focus is not in a table. The shortcut uses the same permissions as
+the menu: Firefox grants `activeTab` for the current tab when you press it.
+
+Firefox reserves Ctrl+Shift+Y and many other combinations for itself, so the
+default avoids them. To change or remove the shortcut, open `about:addons`,
+click the gear (⚙) menu, choose **Manage Extension Shortcuts**, and edit
+**Copy the table at the selection or focus as CSV** under Copy Table.
+
 The [end-to-end tests](#end-to-end-tests) cover this flow in real Firefox on
 every pull request: every format on every reviewed fixture, nested tables,
 right-clicks outside any table, tables in same-origin frames, and a page whose
-CSS tries to hide the in-page message. Cases that
+CSS tries to hide the in-page message. A separate suite presses the keyboard
+shortcut through Firefox's own key handling and checks a selected cell, a
+clicked cell, a focused link, a selection outside any table, and a focused
+same-origin frame. Cases that
 need a protected page, a cross-origin frame, a frame removed mid-copy, or
 keyboard-only menu navigation are still checked by hand; record them in
 [`specs/002-copy-as-formats/validation-record.md`](specs/002-copy-as-formats/validation-record.md)
@@ -163,10 +189,14 @@ before rerunning the same version to avoid a duplicate submission.
 - **Copy reports no table:** Right-click a cell inside a semantic `<table>` or
   an ARIA table or grid (an element with `role="table"`, `"grid"` or
   `"treegrid"` whose rows have `role="row"`); visually table-like `<div>`
-  layouts without these roles are not supported.
+  layouts without these roles are not supported. With the keyboard shortcut,
+  first select some text in the table or click one of its cells.
 - **A copied grid is missing rows:** Virtualized grids only keep the rows on
   screen in the page, so only those rows are copied. Scroll to the rows you
   need, or use the site's own export, then copy again.
+- **The keyboard shortcut does nothing:** Another extension or your desktop
+  environment may own Alt+Shift+C. Pick another combination under
+  `about:addons` → ⚙ → **Manage Extension Shortcuts**.
 - **Copy reports that the page cannot be accessed:** Browser-protected pages
   and tables inside cross-origin embedded documents cannot be inspected under
   the approved permission set. Try the same action on a normal top-level HTTPS
@@ -197,7 +227,9 @@ fixed protected-page feedback after injection rejection and one fixed
 payload-free fallback if a started extraction/outcome message cannot be
 delivered; it receives no page data. The manifest declares no host permissions, optional permissions,
 content scripts, clipboard-read authority, storage, telemetry, or network
-destinations. Access is scoped to the user-selected menu action and supported
+destinations. The keyboard shortcut is a manifest `commands` entry, which needs
+no permission of its own. Access is scoped to the user-selected menu action or
+shortcut and supported
 top-level or same-origin document in its active tab. Cross-origin embedded
 documents are explicitly out of scope rather than covered by broader host
 authority. Firefox Manifest V3 is the only supported runtime; Chromium

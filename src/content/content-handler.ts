@@ -14,6 +14,7 @@ import { serializeHtml } from "../table/serialize/html";
 import { serializeJson } from "../table/serialize/json";
 import { serializeMarkdown } from "../table/serialize/markdown";
 import { serializeText } from "../table/serialize/text";
+import { resolveSelectionTarget } from "./selection-target";
 import { resolveInteractionTarget, type TableRoot, type TargetElementLookup } from "./target";
 
 export interface SerializedTable {
@@ -70,7 +71,10 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
       return undefined;
     }
 
-    const target = resolveInteractionTarget(message.targetElementId, dependencies.getTargetElement);
+    const target =
+      "targetElementId" in message
+        ? resolveInteractionTarget(message.targetElementId, dependencies.getTargetElement)
+        : resolveSelectionTarget(document);
     if (!target.ok) {
       return {
         ok: false,

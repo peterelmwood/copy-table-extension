@@ -9,12 +9,23 @@ export type CopyFailureReason = "no-table" | "target-expired" | "invalid-table" 
 export type CopyOutcomeStatus =
   "copied" | CopyFailureReason | "restricted-page" | "clipboard-failed";
 
-export interface CopyExtractRequest {
+/** Context-menu request: the element Firefox reports as right-clicked. */
+export interface CopyExtractMenuRequest {
   type: "copy-table:extract";
   requestId: string;
   targetElementId: number;
   format: CopyFormat;
 }
+
+/** Keyboard-shortcut request: the table holding the page's selection or focus. */
+export interface CopyExtractSelectionRequest {
+  type: "copy-table:extract";
+  requestId: string;
+  targetSource: "selection";
+  format: CopyFormat;
+}
+
+export type CopyExtractRequest = CopyExtractMenuRequest | CopyExtractSelectionRequest;
 
 /**
  * The copied table's size: every logical row (header and footer rows

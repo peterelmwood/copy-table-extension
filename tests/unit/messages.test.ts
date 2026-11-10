@@ -32,6 +32,41 @@ describe("browser message guards", () => {
     ).toBe(false);
   });
 
+  it("accepts a keyboard-shortcut request that targets the selection", () => {
+    expect(
+      isCopyExtractRequest({
+        type: "copy-table:extract",
+        requestId: "request-1",
+        targetSource: "selection",
+        format: "csv"
+      })
+    ).toBe(true);
+  });
+
+  it("accepts exactly the two request shapes and rejects mixed or partial ones", () => {
+    const base = { type: "copy-table:extract", requestId: "request-1", format: "csv" };
+
+    // Both targets at once.
+    expect(isCopyExtractRequest({ ...base, targetElementId: 4, targetSource: "selection" })).toBe(
+      false
+    );
+    // Neither target.
+    expect(isCopyExtractRequest(base)).toBe(false);
+    // Unknown selection sources.
+    expect(isCopyExtractRequest({ ...base, targetSource: "focus" })).toBe(false);
+    expect(isCopyExtractRequest({ ...base, targetSource: undefined })).toBe(false);
+    // A menu request whose element ID is missing or malformed.
+    expect(isCopyExtractRequest({ ...base, targetElementId: undefined })).toBe(false);
+    expect(isCopyExtractRequest({ ...base, targetElementId: "4" })).toBe(false);
+    expect(isCopyExtractRequest({ ...base, targetElementId: 1.5 })).toBe(false);
+    // Extra keys on either shape.
+    expect(isCopyExtractRequest({ ...base, targetElementId: 4, frameId: 0 })).toBe(false);
+    expect(isCopyExtractRequest({ ...base, targetSource: "selection", frameId: 0 })).toBe(false);
+    // The shared fields are still checked on the selection shape.
+    expect(isCopyExtractRequest({ ...base, targetSource: "selection", format: "pdf" })).toBe(false);
+    expect(isCopyExtractRequest({ ...base, targetSource: "selection", requestId: "" })).toBe(false);
+  });
+
   it("rejects failure responses that leak a payload", () => {
     expect(
       isCopyExtractResponse({
