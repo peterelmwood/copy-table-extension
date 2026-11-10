@@ -19,11 +19,11 @@ describe("Copy table as context menu", () => {
   it("does not expose extra actions or contexts", () => {
     expect(COPY_AS_MENU_ITEMS).toEqual([
       { id: "copy-table:copy-as", title: "Copy table as", contexts: ["all"] },
-      { id: "copy-table:copy-as:html", parentId: "copy-table:copy-as", title: "HTML" },
+      { id: "copy-table:copy-as:html", parentId: "copy-table:copy-as", title: "Rich text" },
       {
         id: "copy-table:copy-as:html-source",
         parentId: "copy-table:copy-as",
-        title: "HTML source"
+        title: "HTML code"
       },
       {
         id: "copy-table:copy-as:markdown",

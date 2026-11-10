@@ -32,11 +32,11 @@ describe("copy outcome feedback", () => {
 
   it.each([
     [{ rows: 42, columns: 5 }, "csv", "Copied 42 rows × 5 columns as CSV."],
-    [{ rows: 1, columns: 1 }, "html", "Copied 1 row × 1 column as HTML."],
+    [{ rows: 1, columns: 1 }, "html", "Copied 1 row × 1 column as Rich text."],
     [{ rows: 3, columns: 1 }, "csv", "Copied 3 rows × 1 column as CSV."],
     [{ rows: 1, columns: 4 }, "markdown", "Copied 1 row × 4 columns as Markdown."],
     [{ rows: 0, columns: 0 }, "text", "Copied 0 rows × 0 columns as Plain text."],
-    [{ rows: 2, columns: 2 }, "html-source", "Copied 2 rows × 2 columns as HTML source."]
+    [{ rows: 2, columns: 2 }, "html-source", "Copied 2 rows × 2 columns as HTML code."]
   ] as const)("announces the copied size %j as %s", (dimensions, format, expectedText) => {
     const toast = renderCopyOutcome(document, { ...copied(format), dimensions });
 

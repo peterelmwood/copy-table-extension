@@ -4,11 +4,11 @@ const COPY_AS_PARENT_ID = "copy-table:copy-as";
 
 export const COPY_AS_MENU_ITEMS = [
   { id: COPY_AS_PARENT_ID, title: "Copy table as", contexts: ["all"] },
-  { id: "copy-table:copy-as:html", parentId: COPY_AS_PARENT_ID, title: "HTML" },
+  { id: "copy-table:copy-as:html", parentId: COPY_AS_PARENT_ID, title: "Rich text" },
   {
     id: "copy-table:copy-as:html-source",
     parentId: COPY_AS_PARENT_ID,
-    title: "HTML source"
+    title: "HTML code"
   },
   { id: "copy-table:copy-as:markdown", parentId: COPY_AS_PARENT_ID, title: "Markdown" },
   { id: "copy-table:copy-as:text", parentId: COPY_AS_PARENT_ID, title: "Plain text" },
