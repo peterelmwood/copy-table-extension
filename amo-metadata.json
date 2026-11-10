@@ -1,6 +1,6 @@
 {
   "summary": {
-    "en-US": "Copy HTML tables as HTML, Markdown, plain text, or CSV from the context menu."
+    "en-US": "Copy web tables as rich text, HTML code, Markdown, plain text, CSV, or JSON from the context menu or a keyboard shortcut."
   },
   "categories": ["web-development"],
   "version": {
