@@ -6,7 +6,7 @@ either local artifact.
 
 ```powershell
 bun install --frozen-lockfile
-bun run release:dry-run v1.0.0
+bun run release:dry-run v1.1.0
 ```
 
 The dry run validates the tag against both version declarations, runs type
@@ -14,15 +14,15 @@ checking, linting, formatting, all automated tests, the clean extension build,
 Mozilla manifest lint, and deterministic packaging. It does not require AMO
 credentials or submit anything to Mozilla.
 
-The extension archive is written to `web-ext-artifacts/copy_table-1.0.0.zip`.
+The extension archive is written to `web-ext-artifacts/copy_table-1.1.0.zip`.
 The reviewer-source archive is written to
-`web-ext-artifacts/copy-table-source-1.0.0.zip`. Generated output is not an
+`web-ext-artifacts/copy-table-source-1.1.0.zip`. Generated output is not an
 input to either archive and should not be edited.
 
 For a source-only rebuild after `bun install --frozen-lockfile`, run:
 
 ```powershell
-bun run release:source v1.0.0
+bun run release:source v1.1.0
 ```
 
 If a submitted version has an unclear outcome, the repository owner checks the

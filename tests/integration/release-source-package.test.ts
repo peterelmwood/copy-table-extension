@@ -6,8 +6,10 @@ import { resolve } from "node:path";
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
 import { collectRegularFiles, createReviewerSourceArchive } from "../../scripts/release.mjs";
+import packageManifest from "../../package.json" with { type: "json" };
 
 const projectRoot = resolve(import.meta.dirname, "../..");
+const currentVersion = packageManifest.version;
 const testRoot = resolve(projectRoot, ".copy-table-test-output/release-source-tests");
 const artifactsDirectory = resolve(testRoot, "basic");
 const forbiddenDirectory = resolve(projectRoot, ".reviewer-source-forbidden");
@@ -218,17 +220,23 @@ describe("Firefox reviewer source package", () => {
     delete env.WEB_EXT_API_KEY;
     delete env.WEB_EXT_API_SECRET;
 
-    const result = spawnSync(process.execPath, ["scripts/release.mjs", "dry-run", "v1.0.0"], {
-      cwd: projectRoot,
-      encoding: "utf8",
-      env
-    });
+    const result = spawnSync(
+      process.execPath,
+      ["scripts/release.mjs", "dry-run", `v${currentVersion}`],
+      {
+        cwd: projectRoot,
+        encoding: "utf8",
+        env
+      }
+    );
 
     expect(result.status, result.stderr).toBe(0);
     expect(result.stdout).toContain("Dry run complete");
     const generatedEntries = await readdir(resolve(testRoot, "dry-run"));
-    expect(generatedEntries).toContain("copy_table-1.0.0.zip");
-    expect(generatedEntries).toContain("copy-table-source-1.0.0.zip");
-    expect(existsSync(resolve(testRoot, "dry-run", "copy-table-source-1.0.0.zip"))).toBe(true);
+    expect(generatedEntries).toContain(`copy_table-${currentVersion}.zip`);
+    expect(generatedEntries).toContain(`copy-table-source-${currentVersion}.zip`);
+    expect(
+      existsSync(resolve(testRoot, "dry-run", `copy-table-source-${currentVersion}.zip`))
+    ).toBe(true);
   }, 300_000);
 });
