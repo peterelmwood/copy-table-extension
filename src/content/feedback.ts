@@ -72,9 +72,21 @@ const FAILURE_MESSAGES: Record<Exclude<CopyOutcomeStatus, "copied">, string> = {
   "clipboard-failed": "Clipboard access failed. Try again."
 };
 
+function countLabel(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
 function feedbackText(outcome: CopyOutcomeMessage): string {
   if (outcome.status === "copied") {
-    return `Copied as ${FORMAT_LABELS[outcome.format]}.`;
+    const label = FORMAT_LABELS[outcome.format];
+    if (outcome.dimensions === undefined) {
+      return `Copied as ${label}.`;
+    }
+    const { rows, columns } = outcome.dimensions;
+    return (
+      `Copied ${countLabel(rows, "row", "rows")} × ` +
+      `${countLabel(columns, "column", "columns")} as ${label}.`
+    );
   }
 
   return FAILURE_MESSAGES[outcome.status];

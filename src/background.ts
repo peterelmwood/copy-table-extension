@@ -6,7 +6,12 @@ import {
   type ContextMenuApi
 } from "./browser/context-menu";
 import { isCopyExtractResponse } from "./browser/messages";
-import type { CopyExtractRequest, CopyOutcomeMessage, CopyOutcomeStatus } from "./table/model";
+import type {
+  CopyExtractRequest,
+  CopyOutcomeMessage,
+  CopyOutcomeStatus,
+  CopyTableDimensions
+} from "./table/model";
 
 const RESTRICTED_PAGE_NOTIFICATION = {
   type: "basic" as const,
@@ -73,19 +78,21 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
     tabId: number,
     request: CopyExtractRequest,
     frameId: number,
-    status: CopyOutcomeStatus
+    status: CopyOutcomeStatus,
+    dimensions?: CopyTableDimensions
   ): Promise<void> {
+    const outcome: CopyOutcomeMessage = {
+      type: "copy-table:outcome",
+      requestId: request.requestId,
+      format: request.format,
+      status
+    };
+    // Only a successful copy reports the table's size.
+    if (status === "copied" && dimensions !== undefined) {
+      outcome.dimensions = { rows: dimensions.rows, columns: dimensions.columns };
+    }
     try {
-      await dependencies.sendOutcome?.(
-        tabId,
-        {
-          type: "copy-table:outcome",
-          requestId: request.requestId,
-          format: request.format,
-          status
-        },
-        frameId
-      );
+      await dependencies.sendOutcome?.(tabId, outcome, frameId);
     } catch {
       await notify(DELIVERY_FAILURE_NOTIFICATION);
     }
@@ -174,6 +181,8 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
       const successfulResponse = response;
       let payload = successfulResponse.payload;
       let plainPayload = successfulResponse.plainPayload;
+      // Row and column counts are metadata, not table data: they outlive the payload.
+      const dimensions = successfulResponse.dimensions;
       let status: CopyOutcomeStatus = "copied";
       try {
         if (
@@ -192,7 +201,7 @@ export function createBrowserInteractionController(dependencies: BrowserInteract
         plainPayload = undefined;
         response = releaseResponsePayload(successfulResponse);
       }
-      await sendOutcome(tabId, request, frameId, status);
+      await sendOutcome(tabId, request, frameId, status, dimensions);
     }
   };
   return controller;

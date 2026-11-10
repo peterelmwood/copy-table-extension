@@ -25,7 +25,6 @@ const projectRoot = resolve(import.meta.dirname, "../..");
 const fixturesDirectory = resolve(projectRoot, "tests/fixtures");
 const diagnosticsDirectory = resolve(projectRoot, ".copy-table-test-output/e2e");
 const CLIPBOARD_SENTINEL = "copy-table e2e: clipboard not yet written";
-const CSV_TOAST = "Copied as CSV.";
 const NO_TABLE_TOAST = "No table found at the selected location.";
 
 async function packagedArchivePath(): Promise<string> {
@@ -45,11 +44,33 @@ async function packagedArchivePath(): Promise<string> {
   return archivePath;
 }
 
-function expectedCsv(fixture: string): string {
-  const expected = JSON.parse(
+function expectedOutputs(fixture: string): { csv: string; text: string } {
+  return JSON.parse(
     readFileSync(resolve(fixturesDirectory, `tables/expected/${fixture}.json`), "utf8")
-  ) as { csv: string };
-  return expected.csv;
+  ) as { csv: string; text: string };
+}
+
+function expectedCsv(fixture: string): string {
+  return expectedOutputs(fixture).csv;
+}
+
+function count(value: number, singular: string, plural: string): string {
+  return `${value} ${value === 1 ? singular : plural}`;
+}
+
+/** The exact CSV success toast for a table of `rows` by `columns` (issue #13). */
+function csvToast(rows: number, columns: number): string {
+  return `Copied ${count(rows, "row", "rows")} × ${count(columns, "column", "columns")} as CSV.`;
+}
+
+/** The CSV success toast for a fixture, sized from its reviewed plain-text output. */
+function fixtureCsvToast(fixture: string): string {
+  const lines = expectedOutputs(fixture).text.split("\n");
+  const widths = new Set(lines.map((line) => line.split("\t").length));
+  if (widths.size !== 1) {
+    throw new Error(`${fixture}: ragged plain-text output, can't derive its size`);
+  }
+  return csvToast(lines.length, [...widths][0] ?? 0);
 }
 
 describe("Firefox keyboard shortcut copy flow", () => {
@@ -104,7 +125,7 @@ describe("Firefox keyboard shortcut copy flow", () => {
       expectedCsv("complex-table")
     );
     expect((await readClipboardRepresentations(driver)).types).toEqual(["text/plain"]);
-    expect(await waitForToast(driver)).toBe(CSV_TOAST);
+    expect(await waitForToast(driver)).toBe(fixtureCsvToast("complex-table"));
   });
 
   it("copies the nested table under the caret a click leaves", async () => {
@@ -114,7 +135,7 @@ describe("Firefox keyboard shortcut copy flow", () => {
     await pressCopyTableShortcut(driver);
 
     expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe("Inner text");
-    expect(await waitForToast(driver)).toBe(CSV_TOAST);
+    expect(await waitForToast(driver)).toBe(csvToast(1, 1));
   });
 
   it("copies the table holding a focused link", async () => {
@@ -126,7 +147,7 @@ describe("Firefox keyboard shortcut copy flow", () => {
     expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe(
       expectedCsv("multi-row-header-table")
     );
-    expect(await waitForToast(driver)).toBe(CSV_TOAST);
+    expect(await waitForToast(driver)).toBe(fixtureCsvToast("multi-row-header-table"));
   });
 
   it("explains a miss and leaves the clipboard unchanged for a selection outside any table", async () => {
@@ -153,6 +174,6 @@ describe("Firefox keyboard shortcut copy flow", () => {
       expectedCsv("basic-table")
     );
     // The shortcut runs in the top frame, so its toast is shown there.
-    expect(await waitForToast(driver)).toBe(CSV_TOAST);
+    expect(await waitForToast(driver)).toBe(fixtureCsvToast("basic-table"));
   });
 });
