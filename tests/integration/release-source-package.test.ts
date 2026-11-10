@@ -1,18 +1,16 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, symlink, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
 import { collectRegularFiles, createReviewerSourceArchive } from "../../scripts/release.mjs";
+import packageManifest from "../../package.json" with { type: "json" };
 
 const projectRoot = resolve(import.meta.dirname, "../..");
+const currentVersion = packageManifest.version;
 const testRoot = resolve(projectRoot, ".copy-table-test-output/release-source-tests");
-// The dry run validates the tag against the real package and manifest versions.
-const packageVersion = (
-  JSON.parse(readFileSync(resolve(projectRoot, "package.json"), "utf8")) as { version: string }
-).version;
 const artifactsDirectory = resolve(testRoot, "basic");
 const forbiddenDirectory = resolve(projectRoot, ".reviewer-source-forbidden");
 const environmentFixturePath = resolve(projectRoot, "src/.env.reviewer-fixture");
@@ -224,7 +222,7 @@ describe("Firefox reviewer source package", () => {
 
     const result = spawnSync(
       process.execPath,
-      ["scripts/release.mjs", "dry-run", `v${packageVersion}`],
+      ["scripts/release.mjs", "dry-run", `v${currentVersion}`],
       {
         cwd: projectRoot,
         encoding: "utf8",
@@ -235,10 +233,10 @@ describe("Firefox reviewer source package", () => {
     expect(result.status, result.stderr).toBe(0);
     expect(result.stdout).toContain("Dry run complete");
     const generatedEntries = await readdir(resolve(testRoot, "dry-run"));
-    expect(generatedEntries).toContain(`copy_table-${packageVersion}.zip`);
-    expect(generatedEntries).toContain(`copy-table-source-${packageVersion}.zip`);
+    expect(generatedEntries).toContain(`copy_table-${currentVersion}.zip`);
+    expect(generatedEntries).toContain(`copy-table-source-${currentVersion}.zip`);
     expect(
-      existsSync(resolve(testRoot, "dry-run", `copy-table-source-${packageVersion}.zip`))
+      existsSync(resolve(testRoot, "dry-run", `copy-table-source-${currentVersion}.zip`))
     ).toBe(true);
   }, 300_000);
 });
