@@ -31,6 +31,36 @@ describe("copy outcome feedback", () => {
   });
 
   it.each([
+    [{ rows: 42, columns: 5 }, "csv", "Copied 42 rows × 5 columns as CSV."],
+    [{ rows: 1, columns: 1 }, "html", "Copied 1 row × 1 column as HTML."],
+    [{ rows: 3, columns: 1 }, "csv", "Copied 3 rows × 1 column as CSV."],
+    [{ rows: 1, columns: 4 }, "markdown", "Copied 1 row × 4 columns as Markdown."],
+    [{ rows: 0, columns: 0 }, "text", "Copied 0 rows × 0 columns as Plain text."],
+    [{ rows: 2, columns: 2 }, "html-source", "Copied 2 rows × 2 columns as HTML source."]
+  ] as const)("announces the copied size %j as %s", (dimensions, format, expectedText) => {
+    const toast = renderCopyOutcome(document, { ...copied(format), dimensions });
+
+    expect(toast?.textContent).toBe(expectedText);
+    expect(toast?.getAttribute("role")).toBe("status");
+  });
+
+  it("keeps the size-free wording when an outcome carries no dimensions", () => {
+    expect(renderCopyOutcome(document, copied("csv"))?.textContent).toBe("Copied as CSV.");
+  });
+
+  it("never mentions a size on failures, even if one slips through", () => {
+    const toast = renderCopyOutcome(document, {
+      type: "copy-table:outcome",
+      requestId: "request-3",
+      format: "csv",
+      status: "clipboard-failed",
+      dimensions: { rows: 2, columns: 2 }
+    });
+
+    expect(toast?.textContent).toBe("Clipboard access failed. Try again.");
+  });
+
+  it.each([
     ["no-table", "No table found at the selected location."],
     ["target-expired", "The selected table is no longer available. Try again."],
     ["invalid-table", "This table could not be copied. Try again."],

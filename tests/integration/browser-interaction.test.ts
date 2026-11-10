@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { createBrowserInteractionController } from "../../src/background";
+import { isCopyOutcomeMessage } from "../../src/browser/messages";
+import { createContentMessageHandler } from "../../src/content/content-handler";
+import { renderCopyOutcome } from "../../src/content/feedback";
 
 describe("browser interaction", () => {
   it("injects and routes only to the clicked tab and frame before one clipboard write", async () => {
@@ -157,7 +160,8 @@ describe("browser interaction", () => {
       ok: true as const,
       requestId: "request-clipboard",
       format: "text" as const,
-      payload: "private table text"
+      payload: "private table text",
+      dimensions: { rows: 4, columns: 2 }
     }));
     const outcomes: unknown[] = [];
     const sendOutcome = vi.fn(async (_tabId: number, message: unknown) => {
@@ -192,6 +196,8 @@ describe("browser interaction", () => {
       7
     );
     expect(outcomes[0]).not.toHaveProperty("payload");
+    // A failed copy doesn't report a size.
+    expect(outcomes[0]).not.toHaveProperty("dimensions");
   });
 
   it("writes an HTML copy as one rich item and never as plain text", async () => {
@@ -200,7 +206,8 @@ describe("browser interaction", () => {
       requestId: "request-rich",
       format: "html" as const,
       payload: "<table><tbody><tr><td>A</td></tr></tbody></table>",
-      plainPayload: "A"
+      plainPayload: "A",
+      dimensions: { rows: 1, columns: 1 }
     }));
     const writeText = vi.fn(async () => undefined);
     const writeRich = vi.fn(async () => undefined);
@@ -227,9 +234,82 @@ describe("browser interaction", () => {
     expect(writeText).not.toHaveBeenCalled();
     expect(sendOutcome).toHaveBeenCalledWith(
       31,
-      { type: "copy-table:outcome", requestId: "request-rich", format: "html", status: "copied" },
+      {
+        type: "copy-table:outcome",
+        requestId: "request-rich",
+        format: "html",
+        status: "copied",
+        dimensions: { rows: 1, columns: 1 }
+      },
       0
     );
+  });
+
+  it("forwards the table size only into a copied outcome, which still carries no payload", async () => {
+    document.body.innerHTML =
+      "<table><thead><tr><th>A</th><th>B</th></tr></thead>" +
+      "<tbody><tr><td id=cell>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></tbody>" +
+      "<tfoot><tr><td>Sum</td><td>6</td></tr></tfoot></table>";
+    const handler = createContentMessageHandler({
+      getTargetElement: () => document.querySelector("#cell")
+    });
+    const outcomes: unknown[] = [];
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async (_tabId, request) => handler(request),
+      sendOutcome: async (_tabId, message) => {
+        outcomes.push(message);
+      },
+      writeText: async () => undefined,
+      nextRequestId: () => "request-size"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:csv", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(outcomes).toEqual([
+      {
+        type: "copy-table:outcome",
+        requestId: "request-size",
+        format: "csv",
+        status: "copied",
+        dimensions: { rows: 4, columns: 2 }
+      }
+    ]);
+    expect(outcomes[0]).not.toHaveProperty("payload");
+    expect(outcomes[0]).not.toHaveProperty("plainPayload");
+    expect(isCopyOutcomeMessage(outcomes[0])).toBe(true);
+    expect(
+      renderCopyOutcome(document, outcomes[0] as Parameters<typeof renderCopyOutcome>[1])
+        ?.textContent
+    ).toBe("Copied 4 rows × 2 columns as CSV.");
+    document.body.replaceChildren();
+  });
+
+  it("keeps the size-free outcome for a response without dimensions", async () => {
+    const sendOutcome = vi.fn(async (_tabId: number, _message: unknown) => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => ({
+        ok: true as const,
+        requestId: "request-legacy",
+        format: "csv" as const,
+        payload: "A"
+      }),
+      sendOutcome,
+      writeText: async () => undefined,
+      nextRequestId: () => "request-legacy"
+    });
+
+    await controller.handleMenuClick(
+      { menuItemId: "copy-table:copy-as:csv", targetElementId: 9, frameId: 0 },
+      { id: 31 }
+    );
+
+    expect(sendOutcome).toHaveBeenCalledOnce();
+    expect(sendOutcome.mock.calls[0]?.[1]).not.toHaveProperty("dimensions");
   });
 
   it("keeps a single plain-text write for non-HTML formats even when rich writes exist", async () => {
@@ -401,7 +481,8 @@ describe("browser interaction", () => {
       requestId: "request-lifetime",
       format: "html" as const,
       payload: "private table text",
-      plainPayload: "private table text"
+      plainPayload: "private table text",
+      dimensions: { rows: 3, columns: 2 }
     };
     let releaseOutcome: (() => void) | undefined;
     const outcomePending = new Promise<void>((resolve) => {
@@ -424,6 +505,8 @@ describe("browser interaction", () => {
 
     expect(response).not.toHaveProperty("payload");
     expect(response).not.toHaveProperty("plainPayload");
+    // Counts are metadata, not table data, so they are not released.
+    expect(response.dimensions).toEqual({ rows: 3, columns: 2 });
     releaseOutcome?.();
     await operation;
   });

@@ -73,7 +73,9 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
 **Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, **CSV**, or **JSON**.
 The closest table containing the clicked element is copied. A short in-page
-message confirms success. The message is drawn inside a closed shadow root, so
+message confirms success and reports the copied table's size, for example
+"Copied 42 rows × 5 columns as CSV." (every row counts, header and footer rows
+included). The message is drawn inside a closed shadow root, so
 the page's own CSS can't hide or restyle it. **HTML** copies are written as rich text, so they
 paste as a real table into spreadsheets, documents and email; plain-text paste
 targets such as terminals receive the tab-separated plain-text rendering
