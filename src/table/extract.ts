@@ -7,6 +7,7 @@ import type {
   LogicalTableSection
 } from "./model";
 import { extractSafeInline, safeInlineText } from "./safe-inline";
+import { isHtmlElement } from "./dom";
 
 const MAXIMUM_ROW_SPAN = 65_534;
 const MAXIMUM_COLUMN_SPAN = 1_000;
@@ -37,7 +38,7 @@ function sourceRows(table: HTMLTableElement): readonly SourceRow[] {
   }
 
   for (const child of table.children) {
-    if (child instanceof HTMLTableRowElement) {
+    if (isHtmlElement(child, "tr")) {
       directRows.push(child);
       continue;
     }
@@ -47,7 +48,7 @@ function sourceRows(table: HTMLTableElement): readonly SourceRow[] {
     }
     const groupRows: HTMLTableRowElement[] = [];
     for (const sectionChild of child.children) {
-      if (sectionChild instanceof HTMLTableRowElement) {
+      if (isHtmlElement(sectionChild, "tr")) {
         groupRows.push(sectionChild);
       }
     }
@@ -210,7 +211,7 @@ export function extractLogicalTable(table: HTMLTableElement): LogicalTable {
   });
 
   const captionElement = Array.from(table.children).find(
-    (child): child is HTMLTableCaptionElement => child instanceof HTMLTableCaptionElement
+    (child): child is HTMLTableCaptionElement => isHtmlElement(child, "caption")
   );
   const caption = captionElement === undefined ? null : extractSafeInline(captionElement);
 

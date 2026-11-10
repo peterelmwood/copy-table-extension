@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { createBrowserInteractionController } from "../../src/background";
+import {
+  createBrowserInteractionController,
+  initializeBrowserCommandBoundary
+} from "../../src/background";
 import { isCopyOutcomeMessage } from "../../src/browser/messages";
 import { createContentMessageHandler } from "../../src/content/content-handler";
 import { renderCopyOutcome } from "../../src/content/feedback";
@@ -573,5 +576,197 @@ describe("browser interaction", () => {
       message:
         "Copy Table could not deliver the result because the page became unavailable. Try again."
     });
+  });
+});
+
+describe("keyboard shortcut interaction", () => {
+  it("copies the selection's table from the top frame of the command's tab as CSV", async () => {
+    const inject = vi.fn(async () => undefined);
+    const sendMessage = vi.fn(async () => ({
+      ok: true as const,
+      requestId: "request-command",
+      format: "csv" as const,
+      payload: "A,B"
+    }));
+    const sendOutcome = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const writeRich = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject,
+      sendMessage,
+      sendOutcome,
+      writeText,
+      writeRich,
+      nextRequestId: () => "request-command"
+    });
+
+    await controller.handleCommand("copy-table-csv", { id: 31 });
+
+    expect(inject).toHaveBeenCalledExactlyOnceWith(31, 0, ["content/content-handler.js"]);
+    expect(sendMessage).toHaveBeenCalledExactlyOnceWith(
+      31,
+      {
+        type: "copy-table:extract",
+        requestId: "request-command",
+        targetSource: "selection",
+        format: "csv"
+      },
+      0
+    );
+    expect(writeText).toHaveBeenCalledExactlyOnceWith("A,B");
+    expect(writeRich).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      { type: "copy-table:outcome", requestId: "request-command", format: "csv", status: "copied" },
+      0
+    );
+  });
+
+  it.each([
+    ["an unknown command", "copy-table-html", { id: 31 }],
+    ["a missing tab", "copy-table-csv", undefined],
+    ["a tab without an ID", "copy-table-csv", {}],
+    ["a non-integer tab ID", "copy-table-csv", { id: 1.5 }]
+  ] as const)(
+    "ignores %s without injection, messaging, or clipboard access",
+    async (_case, command, tab) => {
+      const inject = vi.fn(async () => undefined);
+      const sendMessage = vi.fn(async () => undefined);
+      const writeText = vi.fn(async () => undefined);
+      const controller = createBrowserInteractionController({ inject, sendMessage, writeText });
+
+      await controller.handleCommand(command, tab);
+
+      expect(inject).not.toHaveBeenCalled();
+      expect(sendMessage).not.toHaveBeenCalled();
+      expect(writeText).not.toHaveBeenCalled();
+    }
+  );
+
+  it("shows the no-table outcome in the top frame without clipboard access", async () => {
+    const sendOutcome = vi.fn(async () => undefined);
+    const notify = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => ({
+        ok: false as const,
+        requestId: "request-command-miss",
+        format: "csv" as const,
+        reason: "no-table" as const
+      }),
+      sendOutcome,
+      notify,
+      writeText,
+      nextRequestId: () => "request-command-miss"
+    });
+
+    await controller.handleCommand("copy-table-csv", { id: 31 });
+
+    expect(writeText).not.toHaveBeenCalled();
+    expect(notify).not.toHaveBeenCalled();
+    expect(sendOutcome).toHaveBeenCalledExactlyOnceWith(
+      31,
+      {
+        type: "copy-table:outcome",
+        requestId: "request-command-miss",
+        format: "csv",
+        status: "no-table"
+      },
+      0
+    );
+  });
+
+  it("uses the protected-page notification when the shortcut's injection is rejected", async () => {
+    const sendMessage = vi.fn(async () => undefined);
+    const notify = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => Promise.reject(new Error("about: page")),
+      sendMessage,
+      notify,
+      writeText
+    });
+
+    await controller.handleCommand("copy-table-csv", { id: 31 });
+
+    expect(sendMessage).not.toHaveBeenCalled();
+    expect(writeText).not.toHaveBeenCalled();
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      type: "basic",
+      title: "Copy Table",
+      message: "Copy Table cannot access this protected page. Open a normal web page and try again."
+    });
+  });
+
+  it("rejects a response for another request and releases its payload", async () => {
+    const response = {
+      ok: true as const,
+      requestId: "someone-else",
+      format: "csv" as const,
+      payload: "private table text"
+    };
+    const sendOutcome = vi.fn(async () => undefined);
+    const writeText = vi.fn(async () => undefined);
+    const controller = createBrowserInteractionController({
+      inject: async () => undefined,
+      sendMessage: async () => response,
+      sendOutcome,
+      writeText,
+      nextRequestId: () => "request-command-mismatch"
+    });
+
+    await controller.handleCommand("copy-table-csv", { id: 31 });
+
+    expect(writeText).not.toHaveBeenCalled();
+    expect(response).not.toHaveProperty("payload");
+    expect(sendOutcome).toHaveBeenCalledWith(
+      31,
+      expect.objectContaining({ status: "unexpected", requestId: "request-command-mismatch" }),
+      0
+    );
+  });
+
+  it("registers a command listener that runs the shared pipeline at the browser boundary", async () => {
+    type CommandListener = (command: string, tab?: { id?: number }) => void;
+    const commandListeners: CommandListener[] = [];
+    const executeScript = vi.fn(async () => undefined);
+    const sendMessage = vi.fn(async (_tabId: number, message: unknown) => {
+      const { requestId } = message as { requestId: string };
+      return { ok: true as const, requestId, format: "csv" as const, payload: "A,B" };
+    });
+    const writeText = vi.fn(async () => undefined);
+    const browserApi = {
+      menus: {
+        create: vi.fn(),
+        removeAll: vi.fn(async () => undefined),
+        onClicked: { addListener: vi.fn() }
+      },
+      scripting: { executeScript },
+      tabs: { sendMessage },
+      notifications: { create: vi.fn(async () => "") },
+      commands: {
+        onCommand: {
+          addListener: (listener: CommandListener) => {
+            commandListeners.push(listener);
+          }
+        }
+      }
+    };
+
+    initializeBrowserCommandBoundary(browserApi, { writeText } as unknown as Clipboard);
+    expect(commandListeners).toHaveLength(1);
+    commandListeners[0]?.("copy-table-csv", { id: 31 });
+
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledExactlyOnceWith("A,B"));
+    expect(executeScript).toHaveBeenCalledWith({
+      target: { tabId: 31, frameIds: [0] },
+      files: ["content/content-handler.js"]
+    });
+    expect(sendMessage).toHaveBeenCalledWith(
+      31,
+      expect.objectContaining({ targetSource: "selection", format: "csv" }),
+      { frameId: 0 }
+    );
   });
 });

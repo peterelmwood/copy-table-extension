@@ -1,4 +1,5 @@
 import type { SafeInline } from "./model";
+import { isElement } from "./dom";
 
 const EXCLUDED_ELEMENTS = new Set([
   "AUDIO",
@@ -222,11 +223,7 @@ function collectNode(node: Node, tokens: SafeInline[], parentVisibilityIsVisible
     }
     return;
   }
-  if (
-    !(node instanceof Element) ||
-    !isRenderedSubtree(node) ||
-    EXCLUDED_ELEMENTS.has(node.tagName)
-  ) {
+  if (!isElement(node) || !isRenderedSubtree(node) || EXCLUDED_ELEMENTS.has(node.tagName)) {
     return;
   }
 
