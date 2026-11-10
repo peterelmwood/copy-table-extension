@@ -291,13 +291,20 @@ describe("ARIA copies through the content handler", () => {
     const handler = createContentMessageHandler({
       getTargetElement: () => document.querySelector("#cell")
     });
-    expect(handler(request())).toEqual({ ok: true, requestId: "r", format: "csv", payload: "a,b" });
+    expect(handler(request())).toEqual({
+      ok: true,
+      requestId: "r",
+      format: "csv",
+      payload: "a,b",
+      dimensions: { rows: 1, columns: 2 }
+    });
     expect(handler(request("html"))).toEqual({
       ok: true,
       requestId: "r",
       format: "html",
       payload: "<table><tbody><tr><td>a</td><td>b</td></tr></tbody></table>",
-      plainPayload: "a\tb"
+      plainPayload: "a\tb",
+      dimensions: { rows: 1, columns: 2 }
     });
   });
 

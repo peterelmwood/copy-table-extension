@@ -1,6 +1,12 @@
 import { isCopyExtractRequest, isCopyOutcomeMessage } from "../browser/messages";
 import { renderCopyOutcome } from "./feedback";
-import type { CopyExtractRequest, CopyExtractResponse, CopyExtractSuccess } from "../table/model";
+import type {
+  CopyExtractRequest,
+  CopyExtractResponse,
+  CopyExtractSuccess,
+  CopyTableDimensions,
+  LogicalTable
+} from "../table/model";
 import { extractLogicalTable } from "../table/extract";
 import { extractAriaLogicalTable } from "../table/extract-aria";
 import { serializeCsv } from "../table/serialize/csv";
@@ -13,6 +19,7 @@ import { resolveInteractionTarget, type TableRoot, type TargetElementLookup } fr
 export interface SerializedTable {
   payload: string;
   plainPayload?: string;
+  dimensions?: CopyTableDimensions;
 }
 
 export interface ContentHandlerDependencies {
@@ -24,7 +31,17 @@ function serializeTable(root: TableRoot, request: CopyExtractRequest): Serialize
   // One extraction feeds every representation, so they can never disagree.
   const logicalTable =
     root.kind === "aria" ? extractAriaLogicalTable(root.table) : extractLogicalTable(root.table);
+  return {
+    ...serializeLogicalTable(logicalTable, request),
+    // Header and footer rows count too: this is the size of what was copied.
+    dimensions: { rows: logicalTable.rows.length, columns: logicalTable.columnCount }
+  };
+}
 
+function serializeLogicalTable(
+  logicalTable: LogicalTable,
+  request: CopyExtractRequest
+): Omit<SerializedTable, "dimensions"> {
   switch (request.format) {
     case "html":
       // Rich editors read the markup; plain-text targets get the tab-separated
@@ -73,6 +90,12 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
       };
       if (serialized.plainPayload !== undefined) {
         response.plainPayload = serialized.plainPayload;
+      }
+      if (serialized.dimensions !== undefined) {
+        response.dimensions = {
+          rows: serialized.dimensions.rows,
+          columns: serialized.dimensions.columns
+        };
       }
       return response;
     } catch {

@@ -25,6 +25,19 @@ function hasOnlyKeys(value: Record<string, unknown>, expectedKeys: readonly stri
   return Object.keys(value).every((key) => expectedKeys.includes(key));
 }
 
+function isCount(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+
+function isCopyTableDimensions(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    hasOnlyKeys(value, ["rows", "columns"]) &&
+    isCount(value.rows) &&
+    isCount(value.columns)
+  );
+}
+
 export function isCopyFormat(value: unknown): value is CopyFormat {
   return typeof value === "string" && COPY_FORMATS.includes(value as CopyFormat);
 }
@@ -50,8 +63,9 @@ export function isCopyExtractResponse(value: unknown): value is CopyExtractRespo
 
   if (value.ok === true) {
     if (
-      !hasOnlyKeys(value, ["ok", "requestId", "format", "payload", "plainPayload"]) ||
-      typeof value.payload !== "string"
+      !hasOnlyKeys(value, ["ok", "requestId", "format", "payload", "plainPayload", "dimensions"]) ||
+      typeof value.payload !== "string" ||
+      ("dimensions" in value && !isCopyTableDimensions(value.dimensions))
     ) {
       return false;
     }
@@ -73,12 +87,15 @@ export function isCopyExtractResponse(value: unknown): value is CopyExtractRespo
 export function isCopyOutcomeMessage(value: unknown): value is CopyOutcomeMessage {
   return (
     isRecord(value) &&
-    hasOnlyKeys(value, ["type", "requestId", "format", "status"]) &&
+    hasOnlyKeys(value, ["type", "requestId", "format", "status", "dimensions"]) &&
     value.type === "copy-table:outcome" &&
     typeof value.requestId === "string" &&
     value.requestId.length > 0 &&
     isCopyFormat(value.format) &&
     typeof value.status === "string" &&
-    COPY_OUTCOME_STATUSES.includes(value.status as (typeof COPY_OUTCOME_STATUSES)[number])
+    COPY_OUTCOME_STATUSES.includes(value.status as (typeof COPY_OUTCOME_STATUSES)[number]) &&
+    // Only a successful copy reports the table's size.
+    (!("dimensions" in value) ||
+      (value.status === "copied" && isCopyTableDimensions(value.dimensions)))
   );
 }

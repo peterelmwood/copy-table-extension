@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { registerContentHandler } from "../../src/content/content-handler";
 
@@ -46,7 +48,8 @@ describe("content handler registration", () => {
       requestId: "request-1",
       format: "html",
       payload: "<table><tbody><tr><td>selected</td></tr></tbody></table>",
-      plainPayload: "selected"
+      plainPayload: "selected",
+      dimensions: { rows: 1, columns: 1 }
     });
     expect(getTargetElement).toHaveBeenCalledWith(12);
   });
@@ -87,10 +90,49 @@ describe("content handler registration", () => {
         ok: true,
         requestId: "request-format",
         format,
-        ...serialized
+        ...serialized,
+        dimensions: { rows: 2, columns: 1 }
       });
     }
   );
+
+  it("reports a fixture's size, counting header and footer rows", async () => {
+    // complex-table: one <thead> row, three <tbody> rows and one <tfoot> row,
+    // three columns wide (a rowspan and a colspan don't change the grid).
+    document.body.innerHTML = readFileSync(
+      resolve(import.meta.dirname, "../fixtures/tables/complex-table.html"),
+      "utf8"
+    );
+    const handler = registerableHandler(() => document.querySelector("#source tfoot td"));
+
+    const response = await deliverThroughFirefoxRuntime(handler, {
+      type: "copy-table:extract",
+      requestId: "request-size",
+      targetElementId: 5,
+      format: "csv"
+    });
+
+    expect(response).toMatchObject({ ok: true, dimensions: { rows: 5, columns: 3 } });
+  });
+
+  it("reports no size on a failed extraction", async () => {
+    document.body.innerHTML = "<p id=outside>not a table</p>";
+    const handler = registerableHandler(() => document.querySelector("#outside"));
+
+    const response = await deliverThroughFirefoxRuntime(handler, {
+      type: "copy-table:extract",
+      requestId: "request-miss",
+      targetElementId: 6,
+      format: "csv"
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      requestId: "request-miss",
+      format: "csv",
+      reason: "no-table"
+    });
+  });
 
   it("installs one listener across repeated one-off injections into the same frame", () => {
     const addListener = vi.fn();
