@@ -71,7 +71,7 @@ choose **Load Temporary Add-on**, and select `dist/manifest.json` after
 `bun run build`.
 
 On a normal top-level page or same-origin embedded document containing a semantic `<table>`, right-click a cell, expand
-**Copy table as**, then select **HTML**, **HTML source**, **Markdown**, **Plain text**, **CSV**, or **JSON**.
+**Copy table as**, then select **Rich text**, **HTML code**, **Markdown**, **Plain text**, **CSV**, or **JSON**.
 The closest table containing the clicked element is copied. ARIA tables and
 grids built from other elements (`role="table"`, `"grid"` or `"treegrid"`) are
 copied the same way: whichever `<table>` or ARIA root is closest to the clicked
@@ -81,11 +81,11 @@ included, and Copy Table does not scroll to load them. A short in-page
 message confirms success and reports the copied table's size, for example
 "Copied 42 rows × 5 columns as CSV." (every row counts, header and footer rows
 included). The message is drawn inside a closed shadow root, so
-the page's own CSS can't hide or restyle it. **HTML** copies are written as rich text, so they
+the page's own CSS can't hide or restyle it. **Rich text** copies are written as HTML rich text, so they
 paste as a real table into spreadsheets, documents and email; plain-text paste
 targets such as terminals receive the tab-separated plain-text rendering
 instead. (Firefox releases without the async `ClipboardItem` API fall back to
-copying the HTML markup as text.) **HTML source** copies the same markup as
+copying the HTML markup as text.) **HTML code** copies the same HTML markup as
 plain text instead, for pasting into code editors such as VS Code. **JSON** copies an array of objects keyed by the header row (or an array of arrays when the table has no header row), with every value kept as the displayed text. Outside a table or after a clipboard rejection, an
 in-page message explains the failure. If Firefox blocks page injection, a fixed
 extension notification explains that the protected page cannot be accessed. If

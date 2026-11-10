@@ -340,7 +340,7 @@ describe("browser interaction", () => {
     expect(writeRich).not.toHaveBeenCalled();
   });
 
-  it("writes an HTML source copy as plain text only, never as rich text", async () => {
+  it("writes an HTML code copy as plain text only, never as rich text", async () => {
     const writeText = vi.fn(async () => undefined);
     const writeRich = vi.fn(async () => undefined);
     const sendOutcome = vi.fn(async () => undefined);

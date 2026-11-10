@@ -48,8 +48,8 @@ async function packagedArchivePath(): Promise<string> {
 
 const FORMATS: readonly CopyFormat[] = ["html", "html-source", "markdown", "text", "csv", "json"];
 const FORMAT_LABELS: Record<CopyFormat, string> = {
-  html: "HTML",
-  "html-source": "HTML source",
+  html: "Rich text",
+  "html-source": "HTML code",
   markdown: "Markdown",
   text: "Plain text",
   csv: "CSV",
