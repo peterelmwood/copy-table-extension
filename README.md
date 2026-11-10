@@ -152,12 +152,12 @@ Before creating a tag, reproduce the complete release candidate without AMO
 credentials:
 
 ```powershell
-bun run release:dry-run v1.0.0
+bun run release:dry-run v1.1.0
 ```
 
 The stable tag must exactly match both package and manifest versions. The dry
 run executes every local gate and writes both the unsigned extension ZIP and
-`copy-table-source-1.0.0.zip`, printing a SHA-256 digest for each without
+`copy-table-source-1.1.0.zip`, printing a SHA-256 digest for each without
 contacting AMO.
 
 Public submission is handled only by `.github/workflows/publish-firefox.yml`
