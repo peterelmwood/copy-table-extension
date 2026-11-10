@@ -26,23 +26,58 @@ function createLargeTable(document_: Document): HTMLTableElement {
   return table;
 }
 
+function createLargeAriaGrid(document_: Document): Element {
+  const grid = document_.createElement("div");
+  grid.setAttribute("role", "grid");
+  // A column-header row, matching the table above.
+  const headerRow = grid.appendChild(document_.createElement("div"));
+  headerRow.setAttribute("role", "row");
+  for (let columnIndex = 0; columnIndex < 50; columnIndex += 1) {
+    const header = headerRow.appendChild(document_.createElement("div"));
+    header.setAttribute("role", "columnheader");
+    header.textContent = `Column ${columnIndex}`;
+  }
+  const rowGroup = grid.appendChild(document_.createElement("div"));
+  rowGroup.setAttribute("role", "rowgroup");
+
+  for (let rowIndex = 0; rowIndex < 100; rowIndex += 1) {
+    const row = rowGroup.appendChild(document_.createElement("div"));
+    row.setAttribute("role", "row");
+    for (let columnIndex = 0; columnIndex < 50; columnIndex += 1) {
+      const cell = row.appendChild(document_.createElement("div"));
+      cell.setAttribute("role", "gridcell");
+      cell.textContent = `r${rowIndex}c${columnIndex}`;
+    }
+  }
+
+  return grid;
+}
+
 describe("table conversion performance", () => {
-  it.each(["csv", "json"] as const)(
-    "converts, writes, and acknowledges a 100 by 50 table as %s within two seconds in 19 of 20 attempts",
-    async (format) => {
+  it.each([
+    ["table", "csv", createLargeTable],
+    ["table", "json", createLargeTable],
+    ["ARIA grid", "csv", createLargeAriaGrid],
+    ["ARIA grid", "json", createLargeAriaGrid]
+  ] as const)(
+    "converts, writes, and acknowledges a 100 by 50 %s as %s within two seconds in 19 of 20 attempts",
+    async (_kind, format, createTable) => {
       const isolatedDocument = document.implementation.createHTMLDocument("performance");
-      const table = createLargeTable(isolatedDocument);
+      const table = createTable(isolatedDocument);
       const handler = createContentMessageHandler({ getTargetElement: () => table });
       const completionTimes: number[] = [];
       let requestNumber = 0;
       let acknowledgements = 0;
+      let lastPayload = "";
       const controller = createBrowserInteractionController({
         inject: async () => undefined,
         sendMessage: async (_tabId, request) => handler(request),
         sendOutcome: async () => {
           acknowledgements += 1;
         },
-        writeText: async () => undefined,
+        writeText: async (payload: string) => {
+          lastPayload = payload;
+        },
         nextRequestId: () => `performance-${requestNumber++}`
       });
 
@@ -56,6 +91,13 @@ describe("table conversion performance", () => {
       }
 
       expect(acknowledgements).toBe(ATTEMPT_COUNT);
+      if (format === "csv") {
+        // The header row plus 100 body rows.
+        expect(lastPayload.split("\r\n")).toHaveLength(101);
+        expect(lastPayload.endsWith(",r99c49")).toBe(true);
+      } else {
+        expect(lastPayload).toContain('"r99c49"');
+      }
       expect(
         completionTimes.filter((duration) => duration < MAX_DURATION_MS).length
       ).toBeGreaterThanOrEqual(19);

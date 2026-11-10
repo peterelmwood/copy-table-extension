@@ -38,6 +38,7 @@ describe("selection and focus target resolution", () => {
     expect(findSelectionOrFocusElement(document)).toBe(document.querySelector("#cell"));
     expect(resolveSelectionTarget(document)).toEqual({
       ok: true,
+      kind: "table",
       table: document.querySelector("#second")
     });
   });
@@ -48,6 +49,7 @@ describe("selection and focus target resolution", () => {
 
     expect(resolveSelectionTarget(document)).toEqual({
       ok: true,
+      kind: "table",
       table: document.querySelector("#clicked")
     });
   });
@@ -64,6 +66,7 @@ describe("selection and focus target resolution", () => {
     expect(document.activeElement).toBe(document.querySelector("#link"));
     expect(resolveSelectionTarget(document)).toEqual({
       ok: true,
+      kind: "table",
       table: document.querySelector("#linked")
     });
   });
@@ -78,7 +81,23 @@ describe("selection and focus target resolution", () => {
 
     expect(resolveSelectionTarget(document)).toEqual({
       ok: true,
+      kind: "table",
       table: document.querySelector("#selected")
+    });
+  });
+
+  it("resolves an ARIA grid holding selected cell text", () => {
+    document.body.innerHTML = `
+      <div role="grid" id="grid">
+        <div role="row"><div role="gridcell" id="cell">selected text</div></div>
+      </div>
+    `;
+    selectContents(document.querySelector("#cell")!.firstChild!);
+
+    expect(resolveSelectionTarget(document)).toEqual({
+      ok: true,
+      kind: "aria",
+      table: document.querySelector("#grid")
     });
   });
 
@@ -114,7 +133,11 @@ describe("selection and focus target resolution", () => {
 
     const resolution = resolveSelectionTarget(document);
 
-    expect(resolution).toEqual({ ok: true, table: frameDocument.querySelector("#framed") });
+    expect(resolution).toEqual({
+      ok: true,
+      kind: "table",
+      table: frameDocument.querySelector("#framed")
+    });
   });
 
   it("does not touch a focused frame whose document is unreachable (cross-origin)", () => {

@@ -1,0 +1,7 @@
+{
+  "html": "<table><thead><tr><th scope=\"col\">Item</th><th scope=\"col\">Details</th></tr></thead><tbody><tr><td>Widget</td><td>Outer text</td></tr></tbody></table>",
+  "markdown": "| Item | Details |\n| --- | --- |\n| Widget | Outer text |",
+  "text": "Item\tDetails\nWidget\tOuter text",
+  "csv": "Item,Details\r\nWidget,Outer text",
+  "json": "[\n  {\n    \"Item\": \"Widget\",\n    \"Details\": \"Outer text\"\n  }\n]"
+}

@@ -128,6 +128,18 @@ describe("Firefox keyboard shortcut copy flow", () => {
     expect(await waitForToast(driver)).toBe(fixtureCsvToast("complex-table"));
   });
 
+  it("copies the ARIA grid holding the selected text as CSV", async () => {
+    await openPage("tables/aria-grid-table.html");
+    await selectTextOf('[role="gridcell"]');
+
+    await pressCopyTableShortcut(driver);
+
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe(
+      expectedCsv("aria-grid-table")
+    );
+    expect(await waitForToast(driver)).toBe(fixtureCsvToast("aria-grid-table"));
+  });
+
   it("copies the nested table under the caret a click leaves", async () => {
     await openPage("tables/nested-table.html");
     await driver.findElement(By.css("#inner td")).click();

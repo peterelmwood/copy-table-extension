@@ -137,7 +137,9 @@ describe("Firefox right-click copy flow", () => {
 
   it("covers at least the original fixture set", () => {
     // Guards against the matrix silently shrinking if expected files move.
-    expect(fixtures).toEqual(expect.arrayContaining(["complex-table", "nested-table"]));
+    expect(fixtures).toEqual(
+      expect.arrayContaining(["complex-table", "nested-table", "aria-grid-table"])
+    );
     expect(matrix.length).toBe(fixtures.length * FORMATS.length);
   });
 
@@ -187,6 +189,22 @@ describe("Firefox right-click copy flow", () => {
     expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe("Inner text");
     // The inner table's own size, not the outer table's.
     expect(await waitForToast(driver)).toBe("Copied 1 row × 1 column as CSV.");
+  });
+
+  it("copies the closest root inside an ARIA table: a nested grid or a nested <table>", async () => {
+    await openPage("tables/aria-nested-table.html");
+    await copyViaContextMenu(
+      driver,
+      await driver.findElement(By.css("#inner-grid [role=gridcell]")),
+      "csv"
+    );
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe("Inner grid text");
+    expect(await waitForToast(driver)).toBe(successToast("csv", { rows: 1, columns: 1 }));
+
+    await openPage("tables/aria-nested-table.html");
+    await copyViaContextMenu(driver, await driver.findElement(By.css("#inner-table td")), "csv");
+    expect(await waitForClipboardChange(driver, CLIPBOARD_SENTINEL)).toBe("Inner table text");
+    expect(await waitForToast(driver)).toBe(successToast("csv", { rows: 1, columns: 1 }));
   });
 
   it("explains a miss and leaves the clipboard unchanged outside any table", async () => {

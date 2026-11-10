@@ -8,13 +8,14 @@ import type {
   LogicalTable
 } from "../table/model";
 import { extractLogicalTable } from "../table/extract";
+import { extractAriaLogicalTable } from "../table/extract-aria";
 import { serializeCsv } from "../table/serialize/csv";
 import { serializeHtml } from "../table/serialize/html";
 import { serializeJson } from "../table/serialize/json";
 import { serializeMarkdown } from "../table/serialize/markdown";
 import { serializeText } from "../table/serialize/text";
 import { resolveSelectionTarget } from "./selection-target";
-import { resolveInteractionTarget, type TargetElementLookup } from "./target";
+import { resolveInteractionTarget, type TableRoot, type TargetElementLookup } from "./target";
 
 export interface SerializedTable {
   payload: string;
@@ -24,12 +25,13 @@ export interface SerializedTable {
 
 export interface ContentHandlerDependencies {
   getTargetElement: TargetElementLookup;
-  serialize?(table: HTMLTableElement, request: CopyExtractRequest): SerializedTable;
+  serialize?(root: TableRoot, request: CopyExtractRequest): SerializedTable;
 }
 
-function serializeTable(table: HTMLTableElement, request: CopyExtractRequest): SerializedTable {
+function serializeTable(root: TableRoot, request: CopyExtractRequest): SerializedTable {
   // One extraction feeds every representation, so they can never disagree.
-  const logicalTable = extractLogicalTable(table);
+  const logicalTable =
+    root.kind === "aria" ? extractAriaLogicalTable(root.table) : extractLogicalTable(root.table);
   return {
     ...serializeLogicalTable(logicalTable, request),
     // Header and footer rows count too: this is the size of what was copied.
@@ -83,7 +85,7 @@ export function createContentMessageHandler(dependencies: ContentHandlerDependen
     }
 
     try {
-      const serialized = serialize(target.table, message);
+      const serialized = serialize(target, message);
       const response: CopyExtractSuccess = {
         ok: true,
         requestId: message.requestId,
