@@ -6,6 +6,10 @@ out/
 coverage/
 web-ext-artifacts/
 .copy-table-test-output/
+
+# Local git worktrees (other branches checked out beside this one), which hold
+# their own copies of files that are ignored here only by root-relative paths.
+.worktrees/
 .tmp-uv-cache/
 
 # Lockfile: bun writes it deterministically and prettier has no parser for it.

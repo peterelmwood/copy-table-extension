@@ -14,6 +14,7 @@ export default [
     ignores: [
       // Claude Code checks worktrees out here; their build output is not project source.
       ".claude/**",
+      ".worktrees/**",
       ".copy-table-test-output/**",
       "coverage/**",
       "dist/**",
